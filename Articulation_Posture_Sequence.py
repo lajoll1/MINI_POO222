@@ -57,19 +57,13 @@ class Articulation():
 
             # Convertit l'angle en degrés
             angle_deg = math.degrees(angle_rad)
-        else :
-            return ("Extrémité!")
+            return angle_deg
 
-        return angle_deg
+        else :
+            print("Extrémité!")
+            return None
+        
     angle = property(calculer_angle)
-    
-def chargementXML_articulations():
-    toutes_articulations = []
-    for _articulationXML in tronc[0].iter("Joint"):
-        _articulationPOO = Articulation(_articulationXML.get("Name"),_articulationXML.get("Position"))
-        toutes_articulations.append(_articulationPOO)
-    return toutes_articulations
-artic_list = chargementXML_articulations()
 
 
 
@@ -91,8 +85,8 @@ class Posture():
     numero = property(_lire_numero)
     articulations = property(_lire_articulations)
 
-    def tracer_posture(self):
-            positions_articulations = [articulations.position for i in range(len(artic_list))]
+    def _tracer_posture(self):
+            positions_articulations = [(self.articulations)[i].position for i in range(len(self.articulations))]
 
             x = [point[0] for point in positions_articulations]
             z = [point[1] for point in positions_articulations]
@@ -111,18 +105,37 @@ class Posture():
             ax.set_zlabel('Y')
 
             # Orientation de la vue
-            ax.view_init(elev=8, azim=112)
+            ax.view_init(elev=6, azim=96)
 
             # Affichage de la figure
             plt.show()
 
-def chargementXML = 
+    tracer = property(_tracer_posture)
+
+def creer_postures_list():
+    postures_list = []
+    _posturePOO = 0
+    c=0
+    for _postureXML in tronc:
+        articulations_list = []
+        for _articulationXML in _postureXML.iter("Joint"):
+            _articulationPOO = Articulation(_articulationXML.get("Name"),_articulationXML.get("Position"))
+            articulations_list.append(_articulationPOO)
+        _posturePOO = Posture(c,articulations_list)
+        postures_list.append(_posturePOO)
+        c+=1
+    return postures_list
+
 
 
 '______________Definition_classe_Séquence_____________'
 class Sequence():
     def __init__(self,tespostures):
-        self._tespostures = list(tespostures)
+        self._tespostures = list(tespostures) 
 
     def _lire_postures(self):
-        return self._tesarticulations
+        return self._tespostures
+    postures = property(_lire_postures)
+
+sequence = Sequence(creer_postures_list())
+    
