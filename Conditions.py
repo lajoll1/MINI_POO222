@@ -13,16 +13,16 @@ class Regle():
             self._condition_associe=ma_condition
 
 
-class Conditions_composees():
+class Condition_composee():
     """.DS_Store"""
 
     #condition_composée __init__(class self, string operateur, list ma_condition_composee)
-    def __init__(self, mon_operateur,ma_condition_composee):
+    def __init__(self, mon_operateur,ma_liste_de_conditions_simples):
         if mon_operateur in {"or","and"}:
             _operator=mon_operateur
         #Prendre en compte le fait qu'il y a potentiellement n codnitions simples dans la condition complexe
             _liste_conditions_simples=[] #liste en partaeg de pointeurs
-            for x in ma_condition_composee:
+            for x in ma_liste_de_conditions_simples:
                 if isinstance(x, Condition_Simple):
                     _liste_conditions_simples.append(x)
 
@@ -67,19 +67,20 @@ class Condition_Simple(Regle):
             else: return "Domaine invalide"
         elif mon_type_de_condition == "belongs to the volume":
             pass
-        
+
         #A compléter selon futures règles ?
         if ma_zone_du_corps in {"Neck","RightForeArm","Spine"}:
             self._target_joint=ma_zone_du_corps
 
     #int obtenir_angle_depuis_posture(posture posture_a_verifier)
+    #int obtenir_angle_depuis_projection_posture(posture_a_verifier,axe)
     #2-tuple obtenir_seuil_par_projection_depuis_posture(class posture)
     #N2cessité e la méthode is_activated dans condition ?
 
     #bool is_activated(class self, posture posture_a_verifier)
 
     def is_activated(self, posture_a_verifier):
-        if isinstance(posture_a_verifier, Posture): #vérifier l'orthographe choisi pour la classe
+        if isinstance(posture_a_verifier, Posture): #vérifier l'orthographe choisi pour la classe Posture
             if self._target == "angle":
                 #Droit d'accéder par élément car dans la classe
                 if self._condition_type =="lower than":
@@ -89,15 +90,16 @@ class Condition_Simple(Regle):
                 elif self._condition_type =="belongs to":
                     if  self._domain[0] < obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
                 return False #Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
+
             elif self._target == "posture": #Changer l'intitulé
                 if self._condition_type ==" belongs to the volume":
                     pass
                 elif self._condition_type =="lower than":
-                    obtenir_angle_depuis_posture(posture_a_verifier)< self._threshold: return True
+                    if obtenir_angle_depuis_projection_posture(posture_a_verifier,axe)< self._threshold: return True
                 elif self._condition_type =="greater than":
-                    if  obtenir_angle_depuis_posture(posture_a_verifier)> self._threshold: return True
+                    if  obtenir_angle_depuis_projection_posture(posture_a_verifier,axe)> self._threshold: return True
                 elif self._condition_type =="belongs to":
-                    if  self._domain[0] < obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
+                    if  self._domain[0] < obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) < self._domain[1]: return True
                 return False #Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
         #bool superieur_A_Un_Seuil()
    
