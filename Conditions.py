@@ -5,8 +5,6 @@ import xml.etree.ElementTree as ET
 
 class Regle():
     def __init__(self,mon_nom, ma_description,ma_condition):
-        mon_nom=str(mon_nom)
-        ma_description=str(ma_description)
         if isinstance(mon_nom, str) and isinstance(ma_description, str) and (isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, Conditions_composee)):
             self._nom_regle=mon_nom
             self._description_regle=ma_description
