@@ -49,34 +49,6 @@ class Regle():
 
         print(regles)
 
-
-class Condition_composee():
-    """.DS_Store"""
-
-    #condition_composée __init__(class self, string operateur, list ma_condition_composee)
-    def __init__(self, mon_operateur,ma_liste_de_conditions_simples):
-        if mon_operateur in {"or","and"}:
-            _operator=mon_operateur
-        #Prendre en compte le fait qu'il y a potentiellement n codnitions simples dans la condition complexe
-            _liste_conditions_simples=[] #liste en partaeg de pointeurs
-            for x in ma_liste_de_conditions_simples:
-                if isinstance(x, Condition_Simple):
-                    _liste_conditions_simples.append(x)
-
-    #bool is_activated(class self, class posture)
-    #                 
-    def is_activated(self, ma_posture):
-        if isinstance(ma_posture, posture):
-            #Assez flexible pour supporter de nouveaux opérateurs en ajoutant en elif
-            if self._operator == "and":
-                for condition_simple in self._condition_list:
-                    if condition_simple.is_activated(ma_posture) == False: return False
-            #Verifier toutes les conditions les unes après les autres et renvoyer False si l'une n'est pas vérifiée     
-            elif self._operator == "or":
-                for condition_simple in self._condition_list:
-                    if condition_simple.is_activated(ma_posture): return True
-                #renvoyer true à la premirèe condition vérifiée
-
 class Condition_Simple(Regle):
 
     #valeur par défaut pour le seuil si domaine préféré
@@ -100,7 +72,7 @@ class Condition_Simple(Regle):
             else: return "Seuil invalide"
         elif mon_type_de_condition == "belongs to":
             if isintance(mon_seuil_ou_domaine,tuple) and len(mon_seuil_ou_domaine) == 2:
-                self._threshold=mon_seuil_ou_domaine
+                self._domain=mon_seuil_ou_domaine
             else: return "Domaine invalide"
         elif mon_type_de_condition == "belongs to the volume":
             pass
@@ -140,4 +112,30 @@ class Condition_Simple(Regle):
                 return False #Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
         #bool superieur_A_Un_Seuil()
    
-       
+class Condition_composee():
+    """.DS_Store"""
+
+    #condition_composée __init__(class self, string operateur, list ma_condition_composee)
+    def __init__(self, mon_operateur,ma_liste_de_conditions_simples):
+        if mon_operateur in {"or","and"}:
+            _operator=mon_operateur
+        #Prendre en compte le fait qu'il y a potentiellement n codnitions simples dans la condition complexe
+            _liste_conditions_simples=[] #liste en partaeg de pointeurs
+            for x in ma_liste_de_conditions_simples:
+                if isinstance(x, Condition_Simple):
+                    _liste_conditions_simples.append(x)
+
+    #bool is_activated(class self, class posture)
+    #                 
+    def is_activated(self, ma_posture):
+        if isinstance(ma_posture, posture):
+            #Assez flexible pour supporter de nouveaux opérateurs en ajoutant en elif
+            if self._operator == "and":
+                for condition_simple in self._condition_list:
+                    if condition_simple.is_activated(ma_posture) == False: return False
+            #Verifier toutes les conditions les unes après les autres et renvoyer False si l'une n'est pas vérifiée     
+            elif self._operator == "or":
+                for condition_simple in self._condition_list:
+                    if condition_simple.is_activated(ma_posture): return True
+                #renvoyer true à la premirèe condition vérifiée
+    
