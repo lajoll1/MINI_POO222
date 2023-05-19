@@ -1,0 +1,20 @@
+<rules description="Exemple de règles traitant d'angles d'articulation">
+	<rule name="rule_1" description="Test angle du coude fortement plié RULA +2">
+		<simple_condition target="angle" condition_type="lower than" threshold="80" target_joint="RightForeArm" />
+	</rule>
+	<rule name="rule_2" description="Test nuque baissée RULA +1">
+		<simple_condition target="angle" condition_type="belongs to" domain="(170,180)" target_joint="Neck" />
+	</rule>
+	<rule name="rule_test_neck" description="Test mauvais angle de la nuque RULA +3">
+		<composed_condition operator="or">
+			<simple_condition target="angle" condition_type="greater than" threshold="180" target_joint="Neck" />
+			<simple_condition target="angle" condition_type="lower than" threshold="160" target_joint="Neck" />
+		</composed_condition>
+	</rule>
+	<rule name="rule_test_back_and_neck" description="Test d'une posture dos vouté">
+		<composed_condition operator="and">
+			<simple_condition target="angle" condition_type="lower than" threshold="120" target_joint="Spine"/>
+			<simple_condition target="angle" condition_type="lower than" threshold="160" target_joint="Neck"/>
+		</composed_condition>
+	</rule>		
+</rules>
