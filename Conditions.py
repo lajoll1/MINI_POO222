@@ -5,49 +5,12 @@ import xml.etree.ElementTree as ET
 
 class Regle():
     def __init__(self,mon_nom, ma_description,ma_condition):
-        if isinstance(mon_nom, str) and isinstance(ma_description, str) and (isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, Conditions_composee)):
+        if isinstance(mon_nom, str) and isinstance(ma_description, str) and (isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, Condition_Composee)):
             self._nom_regle=mon_nom
             self._description_regle=ma_description
             self._condition_associe=ma_condition
 
-    def importer_regle(self,chemin_d_acces_fichier_regles):
-        arbreXML= ET.parse(chemin_d_acces_fichier_regles)
-        tronc = arbreXML.getroot()
-
-
-        regles=dict()
-
-        for rule in tronc.iter('rule'):
-
-            if rule[0].tag == "simple_condition":
-                #On suppose le fichier xml bien formatté
-                if rule[0].get('condition_type') in {"lower than","greater than"}:
-                    ma_condition_simple=Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint'))
-                elif rule[0].get('condition_type') == "belongs to":
-                    ma_condition_simple=Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("domain"),rule[0].get('target_joint'))
-            
-                regles[rule.get('name')]=Regle(rule.get('name'),rule.get('description'),ma_condition_simple)
-
-                print("On ajoute la règle simple {}, de description {} et associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(rule.get('name'),rule.get('description'),rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint')))
-
-            #Faut-il tout mettre en managé ?
-            elif rule[0].tag == "composed_condition":
-                print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
-                print("Associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint')))
-
-                liste_conditions_simples=[]
-
-                for simple_condition in rule[0].iter("simple_condition"):
-                    if rule[0].get('condition_type') in {"lower than","greater than"}:
-                        ma_condition_simple=Condition_Simple(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint'))
-                        liste_conditions_simples.append(ma_condition_simple)
-                    elif rule[0].get('condition_type') == "belongs to":
-                        ma_condition_simple=Condition_Simple(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("domain"),simple_condition.get('target_joint'))
-                        liste_conditions_simples.append(ma_condition_simple)
-                        
-                regles[rule.get('name')]=Regle(rule.get('name'),rule.get('description'),liste_conditions_simples)
-
-        print(regles)
+   
 
 class Condition_Simple(Regle):
 
@@ -58,22 +21,28 @@ class Condition_Simple(Regle):
         if ma_cible in {"angle","position"}: 
             self._target=ma_cible
         else:
-            return "type de cible incorrect"
+            pass
+            #return "type de cible incorrect"
 
         if mon_type_de_condition in {"lower than","greater than","belongs to","belongs to the volume"}:
             self._condition_type=mon_type_de_condition
         else:
-            return  "type de condition inconnue"
+            pass
+            #return  "type de condition inconnue"
 
         #Selon le type de condition
         if mon_type_de_condition in {"lower than","greater than"}:
-            if isintance(mon_seuil_ou_domaine,int):
+            if isinstance(mon_seuil_ou_domaine,int):
                 self._threshold=mon_seuil_ou_domaine
-            else: return "Seuil invalide"
+            else: 
+                pass
+                #return "Seuil invalide"
         elif mon_type_de_condition == "belongs to":
-            if isintance(mon_seuil_ou_domaine,tuple) and len(mon_seuil_ou_domaine) == 2:
+            if isinstance(mon_seuil_ou_domaine,tuple) and len(mon_seuil_ou_domaine) == 2:
                 self._domain=mon_seuil_ou_domaine
-            else: return "Domaine invalide"
+            else: 
+                pass
+                #return "Domaine invalide"
         elif mon_type_de_condition == "belongs to the volume":
             pass
 
@@ -112,7 +81,9 @@ class Condition_Simple(Regle):
                 return False #Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
         #bool superieur_A_Un_Seuil()
    
-class Condition_composee():
+class Condition_Composee():
+
+
     """.DS_Store"""
 
     #condition_composée __init__(class self, string operateur, list ma_condition_composee)
@@ -138,4 +109,48 @@ class Condition_composee():
                 for condition_simple in self._condition_list:
                     if condition_simple.is_activated(ma_posture): return True
                 #renvoyer true à la premirèe condition vérifiée
-    
+
+def importer_regle(chemin_d_acces_fichier_regles):
+    arbreXML= ET.parse(chemin_d_acces_fichier_regles)
+    tronc = arbreXML.getroot()
+
+    regles=dict()
+
+    for rule in tronc.iter('rule'):
+
+        if rule[0].tag == "simple_condition":
+            print("On ajoute la règle simple {}, de description {}".format(rule.get('name'),rule.get('description')))
+            print("et associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint')))
+            #On suppose le fichier xml bien formatté
+            if rule[0].get('condition_type') in {"lower than","greater than"}:
+                ma_condition_simple=Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint'))
+                #ma_condition_simple=Condition_Simple("angle","lower than","3","RightForeArm")
+
+            elif rule[0].get('condition_type') == "belongs to":
+                ma_condition_simple=Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("domain"),rule[0].get('target_joint'))
+        
+            regles[rule.get('name')]=Regle(rule.get('name'),rule.get('description'),ma_condition_simple)
+
+
+        #Faut-il tout mettre en managé ?
+        elif rule[0].tag == "composed_condition":
+           
+            liste_conditions_simples=[]
+
+            for simple_condition in rule[0].iter("simple_condition"):
+                if simple_condition.get('condition_type') in {"lower than","greater than"}:
+                    ma_condition_simple=Condition_Simple(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint'))
+                    #print("Condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint')))
+                    liste_conditions_simples.append(ma_condition_simple)
+                elif simple_condition.get('condition_type') == "belongs to":
+                    ma_condition_simple=Condition_Simple(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("domain"),simple_condition.get('target_joint'))
+                    liste_conditions_simples.append(ma_condition_simple)
+            print("liste de conditions simples finale: {}".format(liste_conditions_simples))        
+            regles[rule.get('name')]=Regle(rule.get('name'),rule.get('description'),liste_conditions_simples)
+            
+            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
+            print("Associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint')))
+
+    print(regles)
+
+importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
