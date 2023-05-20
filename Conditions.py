@@ -12,7 +12,7 @@ class Regle():
 
    
 
-class Condition_Simple(Regle):
+class Condition_Simple():
 
     #valeur par défaut pour le seuil si domaine préféré
     def __init__(self,ma_cible,mon_type_de_condition,mon_seuil_ou_domaine,ma_zone_du_corps=""):
@@ -114,6 +114,7 @@ def importer_regle(chemin_d_acces_fichier_regles):
     arbreXML= ET.parse(chemin_d_acces_fichier_regles)
     tronc = arbreXML.getroot()
 
+    #dictionnaire de la forme {"nom_règle":pointeur_de_la_règle associée}
     regles=dict()
 
     for rule in tronc.iter('rule'):
