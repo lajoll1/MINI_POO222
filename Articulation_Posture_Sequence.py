@@ -88,7 +88,7 @@ class Articulation():
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
+import mpl_toolkits.mplot3d as mp
 class Posture():
     def __init__(self,tonnumero,tesarticulations):
         self._tonnumero = int(tonnumero)
@@ -101,18 +101,42 @@ class Posture():
 
     numero = property(_lire_numero)
     articulations = property(_lire_articulations)
+    
+    def _tracer_posture(self):
+            instruction = 'b'
 
-    def _tracer_posture(self,instruction=0):
             # Création de la figure
+            def set_axes_equal(ax):
+            
+                x_limits = ax.get_xlim3d()
+                y_limits = ax.get_ylim3d()
+                z_limits = ax.get_zlim3d()
+
+                x_range = abs(x_limits[1] - x_limits[0])
+                x_middle = np.mean(x_limits)
+                y_range = abs(y_limits[1] - y_limits[0])
+                y_middle = np.mean(y_limits)
+                z_range = abs(z_limits[1] - z_limits[0])
+                z_middle = np.mean(z_limits)
+
+                plot_radius = 0.5*max([x_range, y_range, z_range])
+
+                ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+                ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+                ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
+
             ax.set_xlim(0, 1)
             ax.set_ylim(-0.6, 0.6) 
             ax.set_zlim(0, 2)
             
             for articulation in self.articulations:
+                # Affichage de la liaison considérée
                 ax.scatter(articulation.position[0],articulation.position[2],articulation.position[1],c='r', marker='o') 
 
+                # Liaison de l'articulation avec ses voisins
                 if len(articulation.voisinsPOO[1])!=0:
                     for enfant in articulation.voisinsPOO[1]:
                         x1,x2 = enfant.position[0],articulation.position[0]
@@ -120,45 +144,49 @@ class Posture():
                         z1,z2 = enfant.position[1],articulation.position[1]
                         ax.scatter([x1,x2], [y1,y2], [z1,z2], c='r', marker='o')
                         ax.plot([x1,x2], [y1,y2], [z1,z2], c='b')
+
+            # Détermination des vecteurs vitesse et accélération
             dt = 1/1.2
-            if self.numero != 0 and self.numero != 57:
+
+            if self.numero != 0 and self.numero != 57: # Ne fonctionne pas pour les postures extrémales
                 for articulation in self.articulations: 
 
                     # Coordonnées 3D des points dans le temps
-                    temps = [(self.numero-1)*dt,self.numero*dt,(self.numero+1)*dt]
-                    x = [obtenir(articulation.nom,articulation.posture-1).position[0],obtenir(articulation.nom,articulation.posture).position[0],obtenir(articulation.nom,articulation.posture+1).position[0]]
-                    y = [obtenir(articulation.nom,articulation.posture-1).position[1],obtenir(articulation.nom,articulation.posture).position[1],obtenir(articulation.nom,articulation.posture+1).position[1]]
-                    z = [obtenir(articulation.nom,articulation.posture-1).position[2],obtenir(articulation.nom,articulation.posture).position[2],obtenir(articulation.nom,articulation.posture+1).position[2]]
+                    x = [obtenir(articulation.nom,articulation.posture-1).position[0],obtenir(articulation.nom,articulation.posture+1).position[0]]
+                    y = [obtenir(articulation.nom,articulation.posture-1).position[1],obtenir(articulation.nom,articulation.posture+1).position[1]]
+                    z = [obtenir(articulation.nom,articulation.posture-1).position[2],obtenir(articulation.nom,articulation.posture+1).position[2]]
 
-                    # Calcul des vecteurs déplacement
-                    deplacements = []
-                    for i in range(len(x) - 1):
-                        dx = x[i+1] - x[i]
-                        dy = y[i+1] - y[i]
-                        dz = z[i+1] - z[i]
-                        deplacements.append([dx, dy, dz])
-                    # Calcul des vecteurs vitesse moyenne de déplacement
-                    vitesse_moyenne_deplacement = np.mean(deplacements, axis=0)
-
-                    # Calcul des vecteurs accélérations
-                    accelerations = []
-                    for i in range(len(deplacements) - 1):
-                        dvx = deplacements[i+1][0] - deplacements[i][0]
-                        dvy = deplacements[i+1][1] - deplacements[i][1]
-                        dvz = deplacements[i+1][2] - deplacements[i][2]
-                        accelerations.append([dvx, dvy, dvz])
-                    # Calcul des vecteurs accélérations moyennes
-                    acceleration_moyenne = np.mean(accelerations, axis=0)
-
-                    # Tracé du vecteur vitesse
+                    # Calcul des vecteurs vitesse
+                    vitesse = []
+                    vitesse.append((x[1]-x[0]/(2*dt)))
+                    vitesse.append((y[1]-y[0]/(2*dt)))
+                    vitesse.append((z[1]-z[0]/(2*dt)))
+                    
+                    # Tracé du vecteur vitesse si demandé 
                     origine = articulation.position
                     if instruction in ("v","b"):
-                        ax.quiver(origine[0], origine[2], origine[1], vitesse_moyenne_deplacement[0], vitesse_moyenne_deplacement[2], vitesse_moyenne_deplacement[1], color='green')
+                        ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
 
-                    # Tracé du vecteur accélération
+
+            if self.numero > 1 and self.numero < 56:
+                for articulation in self.articulations:
+
+                    # Coordonnées 3D des points dans le temps
+                    x = [obtenir(articulation.nom,articulation.posture-2).position[0],obtenir(articulation.nom,articulation.posture).position[0],obtenir(articulation.nom,articulation.posture+2).position[0]]
+                    y = [obtenir(articulation.nom,articulation.posture-2).position[1],obtenir(articulation.nom,articulation.posture).position[1],obtenir(articulation.nom,articulation.posture+2).position[1]]
+                    z = [obtenir(articulation.nom,articulation.posture-2).position[2],obtenir(articulation.nom,articulation.posture).position[2],obtenir(articulation.nom,articulation.posture+2).position[2]]
+
+                    # Calcul des vecteurs accélération
+                    acceleration = []
+                    acceleration.append((x[0]+x[2]-2*x[1])/(4*dt))
+                    acceleration.append((y[0]+y[2]-2*y[1])/(4*dt))
+                    acceleration.append((z[0]+z[2]-2*z[1])/(4*dt))
+
+                    # Tracé du vecteur acceleration si demandé
+                    origine = articulation.position
                     if instruction in ("a","b"):
-                        ax.quiver(origine[0], origine[2], origine[1], acceleration_moyenne[0], acceleration_moyenne[2], acceleration_moyenne[1], color='magenta')
-
+                        ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
+                        
             # Configuration des axes
             ax.set_xlabel('X')
             ax.set_ylabel('Z')               
@@ -168,6 +196,7 @@ class Posture():
             ax.view_init(elev=15, azim=135)        
            
             # Affichage de la figure
+            set_axes_equal(ax)
             plt.show()
 
     tracer = property(_tracer_posture)
