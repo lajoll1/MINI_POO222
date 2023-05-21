@@ -1,0 +1,6 @@
+import xml.etree.ElementTree as ET
+
+def main():
+    chemin_d_acces_fichier_regles=""
+    arbreXML= ET.parse(chemin_d_acces_fichier_regles)
+    tronc = arbreXML.getroot()
