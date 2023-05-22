@@ -1,6 +1,7 @@
 ##Imports
 import xml.etree.ElementTree as ET
 
+#
 
 
 class Regle():
@@ -62,7 +63,9 @@ class Condition_Simple():
             if self._target == "angle":
                 #Droit d'accéder par élément car dans la classe
                 if self._condition_type =="lower than":
-                    if  obtenir_angle_depuis_posture(posture_a_verifier)< self._threshold: return True
+                    #On se balade sur toutes les articulation de la posture
+                    for articulation in posture_a_verifier.articulations:
+                      articulation.angle < self._threshold: return True
                 elif self._condition_type =="greater than":
                     if  obtenir_angle_depuis_posture(posture_a_verifier)> self._threshold: return True
                 elif self._condition_type =="belongs to":
