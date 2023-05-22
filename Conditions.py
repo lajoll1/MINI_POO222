@@ -22,11 +22,13 @@ def regles_activees(posture, regles):
         return "Liste Vide"
     else:
         return liste_regles_activees
+
 #list postures_activees(class posture)
 def postures_activees(sequence,regle):
     liste_posture_activant_une_relge=[]
     for posture in sequence:
         #problème probable ici, pas de méthode is_activated dans règle
+        #un truc de la forme regle.get("condition").is_activated ?
         if regle.is_activated(liste_posture_activant_une_relge): liste_posture_activant_une_relge.append(regle)
 
 
