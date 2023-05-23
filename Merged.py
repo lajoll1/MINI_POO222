@@ -359,10 +359,7 @@ class Condition_Simple():
     def obtenir_angle_depuis_posture(self,posture):
 
         print("Demande de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
-
-        print("Demadne de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
-
-        return posture.obtenirr(self._target_joint)
+        return posture.obtenir(self._target_joint)
         
 
     # bool is_activated(class self, posture posture_a_verifier)
@@ -469,3 +466,4 @@ def importer_regle(chemin_d_acces_fichier_regles):
     return regles
 
 regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
+regles["rule_1"].is_activated(sequence.postures[12])
