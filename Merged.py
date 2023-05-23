@@ -316,7 +316,7 @@ class Regle():
 class Condition_Simple():
 
     # Valeur par défaut pour le seuil si domaine préféré
-    def __init__(self,ma_cible,mon_type_de_condition,mon_seuil_ou_domaine,ma_zone_du_corps=""):
+    def __init__(self,ma_cible,mon_type_de_condition,mon_seuil_ou_domaine_ou_volume,ma_zone_du_corps="",direction=""):
         
         # Début des tests
         if ma_cible in {"angle","position","pos"}: #Faire un fichier de génération auto ici
@@ -324,34 +324,39 @@ class Condition_Simple():
         else:
             pass
             # return "type de cible incorrect"
-
+        #Replacer les conditions proprement
         if mon_type_de_condition in {"lower than","greater than","belongs to","belongs to the volume"}:
             self._condition_type = mon_type_de_condition
-        else:
-            pass
-            # return  "type de condition inconnu"
+        
 
         # Selon le type de condition
         if self._condition_type in {"lower than","greater than"}:
              #fichier considéré sans erreur donc pas de test
              #if isinstance(mon_seuil_ou_domaine,int):
              #Prise en compte de la conversion du format anglophone ver
-            self._threshold = float(mon_seuil_ou_domaine)
+            self._threshold = float(mon_seuil_ou_domaine_ou_volume)
             print("seuil initialisé")
            
         elif self._condition_type == "belongs to":
             #if isinstance(mon_seuil_ou_domaine,tuple) and len(mon_seuil_ou_domaine) == 2:
             #Formattage des données nécessaire car lu comme string
-            mon_seuil_ou_domaine= mon_seuil_ou_domaine.removeprefix("(")
-            mon_seuil_ou_domaine=mon_seuil_ou_domaine.removesuffix(")")
-            borne_inf,borne_sup = mon_seuil_ou_domaine.split(",")
-            borne_inf,borne_sup=int(borne_inf),int(borne_sup)
-            self._domain = (borne_inf,borne_sup)
-            
+            mon_seuil_ou_domaine_ou_volume= mon_seuil_ou_domaine_ou_volume.removeprefix("(")
+            mon_seuil_ou_domaine_ou_volume=mon_seuil_ou_domaine_ou_volume.removesuffix(")")
+            self._domain = tuple(mon_seuil_ou_domaine_ou_volume.split(","))
+            self._domain =tuple([int (x) for x in self._domain])
+            print("Tuple converti vaut {} et est de type {} et chaque donnée est de type {}".format(self._domain,type(self._domain),type(self._domain[0])))
+        
                 # return "Domaine invalide"
         elif self._condition_type == "belongs to the volume":
+            #Donnée importée sous la forme (corner1,corner2)
+            self._first_corner=mon_seuil_ou_domaine_ou_volume[0]
+            on_seuil_ou_domaine_ou_volume= mon_seuil_ou_domaine_ou_volume.removeprefix("(")
+            mon_seuil_ou_domaine_ou_volume=mon_seuil_ou_domaine_ou_volume.removesuffix(")")
+            self._first_corner = tuple(self._first_corner.split(","),type=float)
+            self._second_corner=mon_seuil_ou_domaine_ou_volume[1]
+            self._second_corner = tuple(self._second_corner.split(","),type=float)
+            print("Tuple converti first_corner vaut {} et est de type {} et chaque donnée est de type {}".format(self._first_corner,type(self._first_corner),type(self._first_corner[0])))
             #Code cette nouvelle partie avec les règles
-            pass
 
         # A compléter selon futures règles ?
         if ma_zone_du_corps in {"Neck","RightForeArm","Spine"}:
@@ -362,11 +367,17 @@ class Condition_Simple():
     #2-tuple obtenir_seuil_par_projection_depuis_posture(class posture)
     #Nécessité de la méthode is_activated dans condition ?
 
-    def obtenir_angle_depuis_posture(self,posture):
+    def _obtenir_angle_depuis_posture(self,posture):
 
         print("Demande de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
         return posture.obtenir(self._target_joint).angle
-        
+   
+    def _obtenir_coordonnees_depuis_posture(self,posture):
+        print("Demande de la position de l'articulation {} pour la posture {}".format(self._target_joint,posture))
+        return posture.obtenir(self._target_joint).position
+   
+    def _obtenir_angle_depuis_projection_posture(self,posture,axe):
+        pass
 
     # bool is_activated(class self, posture posture_a_verifier)
     def is_activated(self, posture_a_verifier):
@@ -374,19 +385,23 @@ class Condition_Simple():
             if self._target == "angle":
                 # Droit d'accéder par élément car dans la classe
                 if self._condition_type == "lower than":
-                    if self.obtenir_angle_depuis_posture(posture_a_verifier) < self._threshold: return True
+                    if self._obtenir_angle_depuis_posture(posture_a_verifier) < self._threshold: return True
                 elif self._condition_type == "greater than":
-                    if  self.obtenir_angle_depuis_posture(posture_a_verifier) > self._threshold: return True
+                    if  self._obtenir_angle_depuis_posture(posture_a_verifier) > self._threshold: return True
                 elif self._condition_type == "belongs to":
                     print("premier membre du domaine {}".format(self._domain))
-                    if  self._domain[0] < self.obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
+                    if  self._domain[0] < self._obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
                 return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
 
-            elif self._target == "posture": # Changer l'intitulé
+            elif self._target == "pos": # Changer l'intitulé
                 if self._condition_type == " belongs to the volume":
-                    passobtenir_a
+                    x,y,z = self._obtenir_coordonnees_depuis_posture(posture_a_verifier)
+                    if cond1 == 'val1' and \
+                       cond3 == 'val3' and \
+                       cond4 == 'val4':
+                        pass
                 elif self._condition_type == "lower than":
-                    if self.obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) < self._threshold: return True
+                    if self._obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) < self._threshold: return True
                 elif self._condition_type == "greater than":
                     if  self.obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) > self._threshold: return True
                 elif self._condition_type == "belongs to":
