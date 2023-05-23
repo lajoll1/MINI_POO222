@@ -11,7 +11,26 @@ class Regle():
             self._description_regle=ma_description
             self._condition_associe=ma_condition
 
-   
+#list regles_activees(class posture, dict regles)   
+
+def regles_activees(posture, regles):
+    liste_regles_activees=[]
+    for regle in regles:
+        if regle.is_activated(posture): liste_regles_activees.append(regle)
+    if not liste_regles_activees:      
+               #si liste est  vide
+        return "Liste Vide"
+    else:
+        return liste_regles_activees
+
+#list postures_activees(class posture)
+def postures_activees(sequence,regle):
+    liste_posture_activant_une_relge=[]
+    for posture in sequence:
+        #problème probable ici, pas de méthode is_activated dans règle
+        #un truc de la forme regle.get("condition").is_activated ?
+        if regle.is_activated(liste_posture_activant_une_relge): liste_posture_activant_une_relge.append(regle)
+
 
 class Condition_Simple():
 
