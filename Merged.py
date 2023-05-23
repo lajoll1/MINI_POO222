@@ -346,7 +346,7 @@ class Condition_Simple():
     #2-tuple obtenir_seuil_par_projection_depuis_posture(class posture)
     #Nécessité de la méthode is_activated dans condition ?
 
-    def angle_depuis_posture(posture,target_joint):
+    def  obtenir_angle_depuis_posture(posture,target_joint):
         print("Demadne de l'angle de l'articulation {} pour la posture {}".format(target_joint,posture))
         return posture.obtenirr(self._target_joint)
         
@@ -357,7 +357,7 @@ class Condition_Simple():
             if self._target == "angle":
                 # Droit d'accéder par élément car dans la classe
                 if self._condition_type == "lower than":
-                    if  angle_depuis_posture(posture_a_verifier) < self._threshold: return True
+                    if   obtenir_angle_depuis_posture(posture_a_verifier) < self._threshold: return True
                 elif self._condition_type == "greater than":
                     if  obtenir_angle_depuis_posture(posture_a_verifier) > self._threshold: return True
                 elif self._condition_type == "belongs to":
