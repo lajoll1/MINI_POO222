@@ -61,7 +61,7 @@ tab1_left_frame.grid(row=0,column=0)
 
 
 
-#Ici inclusion du plot matplotlib
+#Ici inclusion du plot matplotlib onglet 1
 #Taille de la fenêtre
 fig = Figure(figsize=(5, 4), dpi=100)
 #remplacer Lx et Ly par les valeurs
@@ -92,7 +92,21 @@ tab_2_left_frame.grid(row=0,column=0)
 
 tab_2_right_frame= tk.Frame(tab2)
 tab_2_right_frame.grid(row=0,column=1)
+
+#Zone gauche tab2
+
+fig = Figure(figsize=(5, 4), dpi=100)
+#remplacer Lx et Ly par les valeurs
+Lx, Ly = [1], [1]
+fig.add_subplot(111).plot(Lx,Ly)
+
+canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame )  # A tk.DrawingArea.
+canvas.draw()
+canvas.get_tk_widget().grid(row=0,column=1)
+
+canvas.get_tk_widget().grid(row=0,column=0)
 #Zone droite tab2
+
 
 listeProduits=["Laptop", "Imprimante","Tablette","SmartPhone"] #A modifier avec la liste des articulations
 tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=listeProduits)
