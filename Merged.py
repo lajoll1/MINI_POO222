@@ -347,7 +347,9 @@ class Condition_Simple():
     #Nécessité de la méthode is_activated dans condition ?
 
     def angle_depuis_posture(posture,target_joint):
-        return posture.obtenir(self._target_joint)
+        print("Demadne de l'angle de l'articulation {} pour la posture {}".format(target_joint,posture))
+        return posture.obtenirr(self._target_joint)
+        
 
     # bool is_activated(class self, posture posture_a_verifier)
     def is_activated(self, posture_a_verifier):
