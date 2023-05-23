@@ -405,7 +405,7 @@ def importer_regle(chemin_d_acces_fichier_regles):
     tronc = arbreXML.getroot()
 
     # Dictionnaire de la forme {"nom_règle" : pointeur_de_la_règle_associée}
-    regles=dict()
+    regles = dict()
 
     for rule in tronc.iter('rule'):
 
