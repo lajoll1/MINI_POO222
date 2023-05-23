@@ -4,7 +4,7 @@ import numpy as np
 
 '________________Ouverture_fichier_XML________________'
 
-xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
+xml_file = "/Users/virgilejamot/Documents/GitHub/MINI_POO222/Postures_captures.xml"
 
 arbreXML = ET.parse(xml_file)
 tronc = arbreXML.getroot()
@@ -171,7 +171,7 @@ class Posture():
             if articulation.nom == nom_articulation:
                 return articulation
 
-    def tracer(self,call):
+    def tracer_posture(self,call):
 
         # Création de la figure
         def set_axes_equal(ax):
@@ -332,24 +332,19 @@ class Condition_Simple():
             # return  "type de condition inconnu"
 
         # Selon le type de condition
-        if self._condition_type in {"lower than","greater than"}:
-             #fichier considéré sans erreur donc pas de test
-             #if isinstance(mon_seuil_ou_domaine,int):
-            self._threshold = int(mon_seuil_ou_domaine)
-            print("seuil initialisé")
-           
-        elif self._condition_type == "belongs to":
-            #if isinstance(mon_seuil_ou_domaine,tuple) and len(mon_seuil_ou_domaine) == 2:
-            #Formattage des données nécessaire car lu comme string
-            mon_seuil_ou_domaine= mon_seuil_ou_domaine.removeprefix("(")
-            mon_seuil_ou_domaine=mon_seuil_ou_domaine.removesuffix(")")
-            borne_inf,borne_sup = mon_seuil_ou_domaine.split(",")
-            borne_inf,borne_sup=int(borne_inf),int(borne_sup)
-            self._domain = (borne_inf,borne_sup)
-            
+        if mon_type_de_condition in {"lower than","greater than"}:
+            if isinstance(mon_seuil_ou_domaine,int):
+                self._threshold = mon_seuil_ou_domaine
+            else: 
+                pass
+                # return "Seuil invalide"
+        elif mon_type_de_condition == "belongs to":
+            if isinstance(mon_seuil_ou_domaine,tuple) and len(mon_seuil_ou_domaine) == 2:
+                self._domain = mon_seuil_ou_domaine
+            else: 
+                pass
                 # return "Domaine invalide"
-        elif self._condition_type == "belongs to the volume":
-            #Code cette nouvelle partie avec les règles
+        elif mon_type_de_condition == "belongs to the volume":
             pass
 
         # A compléter selon futures règles ?
@@ -363,8 +358,8 @@ class Condition_Simple():
 
     def obtenir_angle_depuis_posture(self,posture):
 
-        print("Demande de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
-        return posture.obtenir(self._target_joint).angle
+##        print("Demande de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
+        return posture.obtenir(self._target_joint)
         
 
     # bool is_activated(class self, posture posture_a_verifier)
@@ -377,8 +372,7 @@ class Condition_Simple():
                 elif self._condition_type == "greater than":
                     if  self.obtenir_angle_depuis_posture(posture_a_verifier) > self._threshold: return True
                 elif self._condition_type == "belongs to":
-                    print("premier membre du domaine {}".format(self._domain))
-                    if  self._domain[0] < self.obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
+                    if  self._domain[0] < obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
                 return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
 
             elif self._target == "posture": # Changer l'intitulé
@@ -436,8 +430,8 @@ def importer_regle(chemin_d_acces_fichier_regles):
     for rule in tronc.iter('rule'):
 
         if rule[0].tag == "simple_condition":
-            print("On ajoute la règle simple {}, de description {}".format(rule.get('name'),rule.get('description')))
-            print("et associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint')))
+##            print("On ajoute la règle simple {}, de description {}".format(rule.get('name'),rule.get('description')))
+##            print("et associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint')))
             # On suppose le fichier xml bien formaté
             if rule[0].get('condition_type') in {"lower than","greater than"}:
                 ma_condition_simple = Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint'))
@@ -468,11 +462,195 @@ def importer_regle(chemin_d_acces_fichier_regles):
             print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
             print("Associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint')))
 
-    print(regles)
+##    print(regles)
     return regles
 
-regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
-print("test de la règle {}".format(regles["rule_2"].is_activated(sequence.postures[15])))
+regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
+##regles["rule_1"].is_activated(sequence.postures[12])
 
 
 
+'_______________________Interface________________________''_______________________Interface________________________''_______________________Interface________________________'
+
+import tkinter  as tk 
+from tkinter import ttk
+from tkinter import filedialog as fd
+
+#importer le matplotlib.pyplot.plt dans tintker
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
+
+
+def fentre():
+    root = tk.Tk()
+
+    #Fonction d'import doublée faute de mieux
+    #Possibilité de complexifier si on sait quel bouton a appelé
+    def open_postures_file():
+        root_txt_zone_1.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
+
+    def open_rules_file():
+        root_txt_zone_2.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
+
+    #Création des zones d'import fichiers
+    tk.Label(root,text="chemin du fichier de séquence:").grid(row=0,column=0)
+    root_txt_zone_1=tk.Entry(root)
+    root_txt_zone_1.grid(row=0,column=1)
+
+    root_button_1=tk.Button(root, text = "Importer", command = open_postures_file)
+    root_button_1.grid(row=0,column=2)
+
+    print(root_button_1)
+
+    tk.Label(root,text="chemin du fichier de règles:").grid(row=1,column=0)
+
+    root_txt_zone_2=tk.Entry(root)
+    root_txt_zone_2.grid(row=1,column=1)
+
+    root_button_2=tk.Button(root, text = "Importer", command = open_rules_file)
+    root_button_2.grid(row=1,column=2)
+
+    #lien avec les classes
+
+
+    #Création des onglets
+    my_tabs = ttk.Notebook(root) # declaring 
+
+    tab1 = ttk.Frame(my_tabs)
+    tab2 = ttk.Frame(my_tabs)
+    tab3 = ttk.Frame(my_tabs)
+
+    my_tabs.add(tab1, text ='Affichage') # adding tab
+    my_tabs.add(tab2, text ='Plot-evolution') # adding tab 
+    my_tabs.add(tab3, text ='Test') # adding tab 
+
+    my_tabs.grid(row=2,column=0,columnspan=3)
+
+    #Passage à 0 pcq row et column du tab1
+    tab1_left_frame = tk.Frame(tab1)
+    tab1_left_frame.grid(row=0,column=0)
+
+
+
+    #Ici inclusion du plot matplotlib onglet 1
+    #Taille de la fenêtre
+    fig = Figure(figsize=(5, 4), dpi=100)
+    #remplacer Lx et Ly par les valeurs
+    Lx, Ly = [1], [1]
+    fig.add_subplot(111).plot(Lx,Ly)
+
+    canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
+    canvas.draw()
+    canvas.get_tk_widget().grid(row=0,column=1)
+
+    canvas.get_tk_widget().grid(row=0,column=0)
+
+
+    #Zone droite du tab1
+    tab_1_right_frame= tk.Frame(tab1)
+    tab_1_right_frame.grid(row=0,column=1)
+
+    def afficher_sequence():
+        pass
+    
+    tab_1_rad_but_1=ttk.Checkbutton(tab_1_right_frame,text='Afficher Vitesses')
+    tab_1_rad_but_1.grid(row=0,column=0)
+    tab_1_rad_but_2=ttk.Checkbutton(tab_1_right_frame,text='Afficher accélérations')
+    tab_1_rad_but_2.grid(row=1,column=0)
+    tab_1_but_1=ttk.Button(tab_1_right_frame,text='Lancer affichage', command = afficher_sequence)
+    tab_1_but_1.grid(row=2,column=0)
+    
+    #Création zones tab2
+    tab_2_left_frame = tk.Frame(tab2)
+    tab_2_left_frame.grid(row=0,column=0)
+
+    tab_2_right_frame= tk.Frame(tab2)
+    tab_2_right_frame.grid(row=0,column=1)
+
+    #Zone gauche tab2
+
+    fig = Figure(figsize=(5, 4), dpi=100)
+    #remplacer Lx et Ly par les valeurs
+    Lx, Ly = [1], [1]
+    fig.add_subplot(111).plot(Lx,Ly)
+
+    canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame )  # A tk.DrawingArea.
+    canvas.draw()
+    canvas.get_tk_widget().grid(row=0,column=1)
+
+    canvas.get_tk_widget().grid(row=0,column=0)
+    #Zone droite tab2
+
+
+    listeProduits=[articulation.nom for articulation in sequence.postures[0].articulations] #A modifier avec la liste des articulations DONE
+    tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=listeProduits)
+    tab_2_combobox_1.grid(row=0,column=0)
+
+    tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Angle')
+    tab_2_rad_but_1.grid(row=1,column=0)
+    tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Position')
+    tab_2_rad_but_2.grid(row=1,column=1)
+
+    tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse')
+    tab_2_rad_but_1.grid(row=2,column=0)
+    tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération')
+    tab_2_rad_but_2.grid(row=2,column=1)
+
+    tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse angulaire')
+    tab_2_rad_but_1.grid(row=3,column=0)
+    tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération angulaire')
+    tab_2_rad_but_2.grid(row=3,column=1)
+
+    tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution")
+    tab_2_but_1.grid(row=4,column=0)
+
+    #tab 3
+
+    tab_3_left_frame = tk.Frame(tab3)
+    tab_3_left_frame.grid(row=0,column=0)
+
+    tab_3_center_frame = tk.Frame(tab3)
+    tab_3_center_frame.grid(row=0,column=1)
+
+    tab_3_right_frame= tk.Frame(tab3)
+    tab_3_right_frame.grid(row=0,column=2)
+
+    #Remplissage tab3
+    #left_frame
+    tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = len(sequence.postures)-1) # A modifier selon nb articulion avec un len DONE
+    tab_3_left_spnbox_1.grid(row=0,column=0)
+
+    tab_3_left_but_1=ttk.Button(tab_3_left_frame,text="Lancer la recherche")
+    tab_3_left_but_1.grid(row=1,column=0)
+
+    tab_3_left_lstbox_1=tk.Listbox(tab_3_left_frame)
+    tab_3_left_lstbox_1.insert(1,"élément 1") #(index, valeur)
+    tab_3_left_lstbox_1.grid(row=2,column=0)
+
+    #center_frame
+    listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations DONE
+    tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2)
+    tab_3_center_combobox_1.grid(row=0,column=0)
+
+    tab_3_center_but_1=ttk.Button(tab_3_center_frame,text="Lancer la recherche")
+    tab_3_center_but_1.grid(row=1,column=0)
+
+    tab_3_center_lstbox_1=tk.Listbox(tab_3_center_frame)
+    tab_3_center_lstbox_1.grid(row=2,column=0)
+    tab_3_center_lstbox_1.insert(1,"élément 1") #(index, valeur)
+
+
+    #right_frame
+    tab_3_right_but_1=tk.Button(tab_3_right_frame,text="Lister et Enregistrer les règles activées")
+    tab_3_right_but_1.grid(row=0,column=0)
+
+
+
+
+
+    root.mainloop()  # Keep the window open
+
+fentre()
