@@ -101,20 +101,20 @@ tab_2_combobox_1.grid(row=0,column=0)
 tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Angle')
 tab_2_rad_but_1.grid(row=1,column=0)
 tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Position')
-tab_2_rad_but_2.grid(row=2,column=0)
+tab_2_rad_but_2.grid(row=1,column=1)
 
 tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse')
-tab_2_rad_but_1.grid(row=1,column=0)
+tab_2_rad_but_1.grid(row=2,column=0)
 tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération')
-tab_2_rad_but_2.grid(row=2,column=0)
+tab_2_rad_but_2.grid(row=2,column=1)
 
 tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse angulaire')
-tab_2_rad_but_1.grid(row=1,column=0)
+tab_2_rad_but_1.grid(row=3,column=0)
 tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération angulaire')
-tab_2_rad_but_2.grid(row=2,column=0)
+tab_2_rad_but_2.grid(row=3,column=1)
 
 tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution")
-tab_2_but_1.grid(row=3,column=0)
+tab_2_but_1.grid(row=4,column=0)
 
 #tab 3
 

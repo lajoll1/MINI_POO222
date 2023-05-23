@@ -1,0 +1,32 @@
+<rules description="Exemple de règles traitant d'angles d'articulation">
+	<rule name="rule_1" description="Test angle du coude fortement plié RULA +2">
+		<simple_condition target="angle" condition_type="lower than" threshold="80" target_joint="RightForeArm" />
+	</rule>
+	<rule name="rule_2" description="Test nuque baissée RULA +1">
+		<simple_condition target="angle" condition_type="belongs to" domain="(170,180)" target_joint="Neck" />
+	</rule>
+	<rule name="rule_test_neck" description="Test mauvais angle de la nuque RULA +3">
+		<composed_condition operator="or">
+			<simple_condition target="angle" condition_type="greater than" threshold="180" target_joint="Neck" />
+			<simple_condition target="angle" condition_type="lower than" threshold="160" target_joint="Neck" />
+		</composed_condition>
+	</rule>
+	<rule name="rule_test_back_and_neck" description="Test d'une posture dos vouté">
+		<composed_condition operator="and">
+			<simple_condition target="angle" condition_type="lower than" threshold="120" target_joint="Spine"/>
+			<simple_condition target="angle" condition_type="lower than" threshold="160" target_joint="Neck"/>
+		</composed_condition>
+	</rule>		
+	<rule name="Heyyy" description="Test élévation de la main">
+		<simple_condition target="pos" condition_type="greater than" threshold="1.5" target_joint="RightHand" direction = "Y"/>
+	</rule>
+	<rule name="Ohhhh" description="Test main baissée">
+		<simple_condition target="pos" condition_type="lower than" threshold="1.0" target_joint="RightHand" direction = "Y"/>
+	</rule>
+	<rule name="Bac_1" description="Test main dans Bac_1">
+		<composed_condition operator="or">
+			<simple_condition target="pos" condition_type="belongs to the volume" first_corner="(1.0,1.20,1.40)" second_corner = "(1.30,1.50,1.70)" target_joint="LeftHand"/>
+			<simple_condition target="pos" condition_type="belongs to the volume" first_corner="(1.0,1.20,1.40)" second_corner = "(1.30,1.50,1.70)" target_joint="RightHand"/>
+		</composed_condition>
+	</rule>
+</rules>
