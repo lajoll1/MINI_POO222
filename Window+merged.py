@@ -4,7 +4,7 @@ import numpy as np
 
 '________________Ouverture_fichier_XML________________'
 
-xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
+xml_file = "/Users/virgilejamot/Documents/GitHub/MINI_POO222/Postures_captures.xml"
 
 arbreXML = ET.parse(xml_file)
 tronc = arbreXML.getroot()
@@ -124,7 +124,9 @@ class Articulation():
             vitesse.append((z[1]-z[0])/(2*dt))
             norme_vitesse = np.sqrt(vitesse[0]**2+vitesse[1]**2+vitesse[2]**2)
             
-        else: vitesse = None
+        else:
+            vitesse = None
+            norme_vitesse = None
 
         if self.posture > 1 and self.posture < 56:
 
@@ -139,9 +141,10 @@ class Articulation():
             acceleration.append((z[0]+z[2]-2*z[1])/(4*dt))
             norme_acceleration = np.sqrt(acceleration[0]**2+acceleration[1]**2+acceleration[2]**2)
             
-        else: acceleration = None
-
-        return vitesse,acceleration,norme_vitesse,norme_acceleration
+        else:
+            acceleration = None
+            norme_acceleration = None
+        return vitesse, acceleration, norme_vitesse, norme_acceleration
 
     va_moy = property(_calculer_v_a_moyenne)
 
@@ -210,7 +213,7 @@ class Posture():
                     z1,z2 = enfant.position[1],articulation.position[1]
                     ax.scatter([x1,x2], [y1,y2], [z1,z2], c='r', marker='o')
                     ax.plot([x1,x2], [y1,y2], [z1,z2], c='b')
-
+        
             
                     
             # Tracé du vecteur vitesse si demandé 
@@ -462,7 +465,7 @@ def importer_regle(chemin_d_acces_fichier_regles):
 ##    print(regles)
     return regles
 
-regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
+regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
 ##regles["rule_1"].is_activated(sequence.postures[12])
 
 
@@ -551,87 +554,112 @@ def fentre():
     tab_1_right_frame.grid(row=0,column=1)
 
     def afficher_sequence():
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-
-        # Configuration des axes
-        ax.set_xlabel('X')
-        ax.set_ylabel('Z')               
-        ax.set_zlabel('Y')
-
-        # Orientation de la vue
-        ax.view_init(elev=15, azim=135)        
-
-        def set_axes_equal(ax):
-                
-                x_limits = ax.get_xlim3d()
-                y_limits = ax.get_ylim3d()
-                z_limits = ax.get_zlim3d()
-
-                x_range = abs(x_limits[1] - x_limits[0])
-                x_middle = np.mean(x_limits)
-                y_range = abs(y_limits[1] - y_limits[0])
-                y_middle = np.mean(y_limits)
-                z_range = abs(z_limits[1] - z_limits[0])
-                z_middle = np.mean(z_limits)
-                    
-                plot_radius = 0.5*max([x_range, y_range, z_range])
-
-                ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
-                ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
-                ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])       
+##        fig = plt.figure()
+##        ax = fig.add_subplot(111, projection='3d')
+##
+##        # Configuration des axes
+##        ax.set_xlabel('X')
+##        ax.set_ylabel('Z')               
+##        ax.set_zlabel('Y')
+##
+##        # Orientation de la vue
+##        ax.view_init(elev=15, azim=135)        
+##
+##        def set_axes_equal(ax):
+##                
+##                x_limits = ax.get_xlim3d()
+##                y_limits = ax.get_ylim3d()
+##                z_limits = ax.get_zlim3d()
+##
+##                x_range = abs(x_limits[1] - x_limits[0])
+##                x_middle = np.mean(x_limits)
+##                y_range = abs(y_limits[1] - y_limits[0])
+##                y_middle = np.mean(y_limits)
+##                z_range = abs(z_limits[1] - z_limits[0])
+##                z_middle = np.mean(z_limits)
+##                    
+##                plot_radius = 0.5*max([x_range, y_range, z_range])
+##
+##                ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+##                ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+##                ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])       
 
         
 
         # On détermine en fonction des boutons pressés les vecteurs à tracer
-        if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
+##        if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
+##
+##        elif tab_1_check_but_1_var and not tab_1_check_but_2_var: call = 'v'
+##            
+##        elif tab_1_check_but_2_var and not tab_1_check_but_1_var: call = 'a'
+##
+##        else: call = 'r'
 
-        elif tab_1_check_but_1_var and not tab_1_check_but_2_var: call = 'v'
-            
-        elif tab_1_check_but_2_var and not tab_1_check_but_1_var: call = 'a'
-
-        else: call = 'r'
-
+        sequence_a_tracer = []
         for posture in sequence.postures:
-            ax.cla()
+##            ax.cla()
 
             # Création de la figure
-            for articulation in posture.articulations: # On parcourt l'ensemble des articulations de la posture considérée
 
-                # Liaison de l'articulation avec ses voisins
-                if len(articulation.voisinsPOO[1]) != 0:
-                    for enfant in articulation.voisinsPOO[1]:
-                        x1,x2 = enfant.position[0],articulation.position[0]
-                        y1,y2 = enfant.position[2],articulation.position[2] 
-                        z1,z2 = enfant.position[1],articulation.position[1]
-                        ax.scatter([x1,x2], [y1,y2], [z1,z2], c='r', marker='o')
-                        ax.plot([x1,x2], [y1,y2], [z1,z2], c='b')
+            # Test
+            bras_droit = ['Spine2','RightShoulder','RightArm','RightForeArm','RightHand']
+            bras_gauche = ['Spine2','LeftShoulder','LeftArm','LeftForeArm','LeftHand']
+            jambe_droite = ['Hips','RightUpLeg','RightLeg','RightFoot']
+            jambe_gauche = ['Hips','LeftUpLeg','LeftLeg','LeftFoot']
+            colonne = ['Hips','Spine','Spine1','Spine2','Neck','Neck1','Head']
 
-                
+            main_droite_pouce = ['RightHand','RightHandThumb1','RightHandThumb2','RightHandThumb3']
+            main_droite_index = ['RightHand','RightInHandIndex','RightHandIndex1','RightHandIndex2','RightHandIndex3']
+            main_droite_majeur = ['RightHand','RightInHandMiddle','RightHandMiddle1','RightHandMiddle2','RightHandMiddle3']
+            main_droite_annulaire = ['RightHand','RightInHandRing','RightHandRing1','RightHandRing2','RightHandRing3']
+            main_droite_petit = ['RightHand','RightInHandPinky','RightHandPinky1','RightHandPinky2','RightHandPinky3']
+
+            main_gauche_pouce = ['LeftHand','LeftHandThumb1','LeftHandThumb2','LeftHandThumb3']
+            main_gauche_index = ['LeftHand','LeftInHandIndex','LeftHandIndex1','LeftHandIndex2','LeftHandIndex3']
+            main_gauche_majeur = ['LeftHand','LeftInHandMiddle','LeftHandMiddle1','LeftHandMiddle2','LeftHandMiddle3']
+            main_gauche_annulaire = ['LeftHand','LeftInHandRing','LeftHandRing1','LeftHandRing2','LeftHandRing3']
+            main_gauche_petit = ['LeftHand','LeftInHandPinky','LeftHandPinky1','LeftHandPinky2','LeftHandPinky3']
+
+            chemin1 = [bras_droit,bras_gauche,jambe_droite,jambe_gauche,colonne]
+            chemin2 = [main_droite_pouce,main_droite_index,main_droite_majeur,main_droite_annulaire,main_droite_petit]
+            chemin3 = [main_gauche_pouce,main_gauche_index,main_gauche_majeur,main_gauche_annulaire,main_gauche_petit]   
+            chemin = chemin1 + chemin2 + chemin3
+
+            posture_a_tracer =[]
+            for ligne in chemin :
+                x = [posture.obtenir(articulation).position[0] for articulation in ligne]
+                y = [posture.obtenir(articulation).position[2] for articulation in ligne]
+                z = [posture.obtenir(articulation).position[1] for articulation in ligne]
+##                ax.scatter(x,y,z,c='r',marker = 'o')
+##                ax.plot(x,y,z,c='b')
+                posture_a_tracer.append([x,y,z])
+            sequence_a_tracer.append(posture_a_tracer)
                         
-                # Tracé du vecteur vitesse si demandé 
-                origine = articulation.position
-                if call in ("v","b") and articulation.va_moy[0] != None:
-                    vitesse = articulation.va_moy[0]
-                    ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
-
-
-
-                # Tracé du vecteur acceleration si demandé
-                origine = articulation.position
-                if call in ("a","b") and articulation.va_moy[1] != None:
-                    acceleration = articulation.va_moy[1]
-                    ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
+##                # Tracé du vecteur vitesse si demandé 
+##                origine = articulation.position
+##                if call in ("v","b") and articulation.va_moy[0] != None:
+##                    vitesse = articulation.va_moy[0]
+##                    ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
+##
+##
+##
+##                # Tracé du vecteur acceleration si demandé
+##                origine = articulation.position
+##                if call in ("a","b") and articulation.va_moy[1] != None:
+##                    acceleration = articulation.va_moy[1]
+##                    ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
                             
-            ax.set_xlim(0, 1)
-            ax.set_ylim(-0.6, 0.6) 
-            ax.set_zlim(0, 2)
-            
-            # Affichage de la figure
-            set_axes_equal(ax)
-            plt.draw()
-            plt.pause(0.001)
-        plt.show()
+##            ax.set_xlim(0, 1)
+##            ax.set_ylim(-0.6, 0.6) 
+##            ax.set_zlim(0, 2)
+##            
+##            # Affichage de la figure
+##            set_axes_equal(ax)
+##            plt.draw()
+##            plt.pause(0.001)
+##        plt.show()
+        return sequence_a_tracer
+    
 
         
         

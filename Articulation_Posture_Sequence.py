@@ -195,11 +195,42 @@ class Posture():
         ax.set_xlim(0, 1)
         ax.set_ylim(-0.6, 0.6) 
         ax.set_zlim(0, 2)
-            
+
+        # Test
+        bras_droit = ['Spine2','RightShoulder','RightArm','RightForeArm','RightHand']
+        bras_gauche = ['Spine2','LeftShoulder','LeftArm','LeftForeArm','LeftHand']
+        jambe_droite = ['Hips','RightUpLeg','RightLeg','RightFoot']
+        jambe_gauche = ['Hips','LeftUpLeg','LeftLeg','LeftFoot']
+        colonne = ['Hips','Spine','Spine1','Spine2','Neck','Neck1','Head']
+
+        main_droite_pouce = ['RightHand','RightHandThumb1','RightHandThumb2','RightHandThumb3']
+        main_droite_index = ['RightHand','RightInHandIndex','RightHandIndex1','RightHandIndex2','RightHandIndex3']
+        main_droite_majeur = ['RightHand','RightInHandMiddle','RightHandMiddle1','RightHandMiddle2','RightHandMiddle3']
+        main_droite_annulaire = ['RightHand','RightInHandRing','RightHandRing1','RightHandRing2','RightHandRing3']
+        main_droite_petit = ['RightHand','RightInHandPinky','RightHandPinky1','RightHandPinky2','RightHandPinky3']
+
+        main_gauche_pouce = ['LeftHand','LeftHandThumb1','LeftHandThumb2','LeftHandThumb3']
+        main_gauche_index = ['LeftHand','LeftInHandIndex','LeftHandIndex1','LeftHandIndex2','LeftHandIndex3']
+        main_gauche_majeur = ['LeftHand','LeftInHandMiddle','LeftHandMiddle1','LeftHandMiddle2','LeftHandMiddle3']
+        main_gauche_annulaire = ['LeftHand','LeftInHandRing','LeftHandRing1','LeftHandRing2','LeftHandRing3']
+        main_gauche_petit = ['LeftHand','LeftInHandPinky','LeftHandPinky1','LeftHandPinky2','LeftHandPinky3']
+
+        chemin1 = [bras_droit,bras_gauche,jambe_droite,jambe_gauche,colonne]
+        chemin2 = [main_droite_pouce,main_droite_index,main_droite_majeur,main_droite_annulaire,main_droite_petit]
+        chemin3 = [main_gauche_pouce,main_gauche_index,main_gauche_majeur,main_gauche_annulaire,main_gauche_petit]   
+        chemin = chemin1 + chemin2 + chemin3
+
+        for ligne in chemin :
+            x = [articulation.position[0] for articulation in ligne]
+            y = [articulation.position[2] for articulation in ligne]
+            z = [articulation.position[1] for articulation in ligne]
+            ax.scatter(x,y,z,c='r',marker = 'o')
+            ax.plot(x,y,z,c='b')
+                       
+        
         for articulation in self.articulations:
 
             # Affichage de l'articulation considérée
-            ax.scatter(articulation.position[0],articulation.position[2],articulation.position[1],c='r', marker='o') 
             if articulation.nom == "RightArm":
                 ax.scatter(articulation.position[0],articulation.position[2],articulation.position[1],c='k', marker='o')
             # Liaison de l'articulation avec ses voisins
