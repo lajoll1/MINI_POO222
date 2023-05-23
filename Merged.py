@@ -296,8 +296,9 @@ class Regle():
             self._condition_associe = ma_condition
     def is_activated(self,posture):
         if isinstance(posture, Posture) or isinstance(posture, Posture):
+            print("self._condition_associe.is_activated(posture) ")
            return self._condition_associe.is_activated(posture) 
-        
+    
 
    
 '________Definition_classe_Condition_Simple________'
