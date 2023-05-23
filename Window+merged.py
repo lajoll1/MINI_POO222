@@ -553,13 +553,16 @@ def fentre():
     tab_1_right_frame= tk.Frame(tab1)
     tab_1_right_frame.grid(row=0,column=1)
 
+    def afficher_sequence():
+        pass
+    
     tab_1_rad_but_1=ttk.Checkbutton(tab_1_right_frame,text='Afficher Vitesses')
     tab_1_rad_but_1.grid(row=0,column=0)
     tab_1_rad_but_2=ttk.Checkbutton(tab_1_right_frame,text='Afficher accélérations')
     tab_1_rad_but_2.grid(row=1,column=0)
-    tab_1_but_1=ttk.Button(tab_1_right_frame,text='Lancer affichage')
+    tab_1_but_1=ttk.Button(tab_1_right_frame,text='Lancer affichage', command = afficher_sequence)
     tab_1_but_1.grid(row=2,column=0)
-
+    
     #Création zones tab2
     tab_2_left_frame = tk.Frame(tab2)
     tab_2_left_frame.grid(row=0,column=0)
@@ -582,7 +585,7 @@ def fentre():
     #Zone droite tab2
 
 
-    listeProduits=[articulation.nom for articulation in sequence.postures[0].articulations] #A modifier avec la liste des articulations
+    listeProduits=[articulation.nom for articulation in sequence.postures[0].articulations] #A modifier avec la liste des articulations DONE
     tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=listeProduits)
     tab_2_combobox_1.grid(row=0,column=0)
 
@@ -617,7 +620,7 @@ def fentre():
 
     #Remplissage tab3
     #left_frame
-    tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to=len(sequence.postures)-1) # A modifier selon nb articulion avec un len
+    tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = len(sequence.postures)-1) # A modifier selon nb articulion avec un len DONE
     tab_3_left_spnbox_1.grid(row=0,column=0)
 
     tab_3_left_but_1=ttk.Button(tab_3_left_frame,text="Lancer la recherche")
@@ -628,7 +631,7 @@ def fentre():
     tab_3_left_lstbox_1.grid(row=2,column=0)
 
     #center_frame
-    listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations
+    listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations DONE
     tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2)
     tab_3_center_combobox_1.grid(row=0,column=0)
 

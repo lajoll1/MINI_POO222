@@ -171,7 +171,7 @@ class Posture():
             if articulation.nom == nom_articulation:
                 return articulation
 
-    def tracer_posture(self,call):
+    def tracer(self,call):
 
         # Création de la figure
         def set_axes_equal(ax):
