@@ -40,10 +40,7 @@ root_button_2=tk.Button(root, text = "Importer", command = open_rules_file)
 root_button_2.grid(row=1,column=2)
 
 #lien avec les classes
-def root_button_1_clicked():
-    res = "Welcome to " + txt.get()
-    lbl.configure(text = res)
-    print(selected.get())
+
 
 #Création des onglets
 my_tabs = ttk.Notebook(root) # declaring 
@@ -68,6 +65,7 @@ tab1_left_frame.grid(row=0,column=0)
 #Taille de la fenêtre
 fig = Figure(figsize=(5, 4), dpi=100)
 #remplacer Lx et Ly par les valeurs
+Lx, Ly = [1], [1]
 fig.add_subplot(111).plot(Lx,Ly)
 
 canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
