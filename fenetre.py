@@ -1,19 +1,32 @@
 import tkinter  as tk 
 from tkinter import ttk
-from tkinter import filedialog
+from tkinter import filedialog as fd
+
+#importer le matplotlib.pyplot.plt dans tintker
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
+
+
 
 root = tk.Tk()
 
+#Fonction d'import doublée faute de mieux
+#Possibilité de complexifier si on sait quel bouton a appelé
+def open_postures_file():
+    root_txt_zone_1.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
 
-def openfile2():
-    filedialog.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*"))) #restreindre à fichier XML seulement
+def open_rules_file():
+    root_txt_zone_2.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
 
 #Création des zones d'import fichiers
 tk.Label(root,text="chemin du fichier de séquence:").grid(row=0,column=0)
 root_txt_zone_1=tk.Entry(root)
 root_txt_zone_1.grid(row=0,column=1)
 
-root_button_1=tk.Button(root, text = "Importer", command = openfile2)
+root_button_1=tk.Button(root, text = "Importer", command = open_postures_file)
 root_button_1.grid(row=0,column=2)
 
 print(root_button_1)
@@ -23,7 +36,7 @@ tk.Label(root,text="chemin du fichier de règles:").grid(row=1,column=0)
 root_txt_zone_2=tk.Entry(root)
 root_txt_zone_2.grid(row=1,column=1)
 
-root_button_2=tk.Button(root,text="importer")
+root_button_2=tk.Button(root, text = "Importer", command = open_rules_file)
 root_button_2.grid(row=1,column=2)
 
 #lien avec les classes
@@ -50,12 +63,18 @@ tab1_left_frame = tk.Frame(tab1)
 tab1_left_frame.grid(row=0,column=0)
 
 
-tab_1_button_1=tk.Button(root,text="importer")
-tab_1_button_1.grid(row=1,column=2)
 
-tab_2_button_1=tk.Button(root,text="importer")
-tab_2_button_1.grid(row=1,column=2)
 #Ici inclusion du plot matplotlib
+#Taille de la fenêtre
+fig = Figure(figsize=(5, 4), dpi=100)
+#remplacer Lx et Ly par les valeurs
+fig.add_subplot(111).plot(Lx,Ly)
+
+canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
+canvas.draw()
+canvas.get_tk_widget().grid(row=0,column=1)
+
+canvas.get_tk_widget().grid(row=0,column=0)
 
 
 #Zone droite du tab1
@@ -85,6 +104,17 @@ tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Angle')
 tab_2_rad_but_1.grid(row=1,column=0)
 tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Position')
 tab_2_rad_but_2.grid(row=2,column=0)
+
+tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse')
+tab_2_rad_but_1.grid(row=1,column=0)
+tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération')
+tab_2_rad_but_2.grid(row=2,column=0)
+
+tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse angulaire')
+tab_2_rad_but_1.grid(row=1,column=0)
+tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération angulaire')
+tab_2_rad_but_2.grid(row=2,column=0)
+
 tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution")
 tab_2_but_1.grid(row=3,column=0)
 
