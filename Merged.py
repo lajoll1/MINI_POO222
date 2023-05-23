@@ -75,7 +75,7 @@ class Articulation():
 
             # Convertit l'angle en degrés
             angle_deg = math.degrees(angle_rad)
-            return angle_deg
+            return 180 - angle_deg
 
         else :
             print("Extrémité ou main !")
@@ -157,7 +157,12 @@ class Posture():
 
     numero = property(_lire_numero)
     articulations = property(_lire_articulations)
-    
+
+    def obtenirr(self,nom_articulation):
+        for articulation in self.articulations:
+            if articulation.nom == nom_articulation:
+                return articulation
+
     def _tracer_posture(self):
         global call
 
@@ -297,7 +302,7 @@ class Regle():
     def is_activated(self,posture):
         if isinstance(posture, Posture) or isinstance(posture, Posture):
             print("self._condition_associe.is_activated(posture) ")
-           return self._condition_associe.is_activated(posture) 
+            return self._condition_associe.is_activated(posture) 
     
 
    
