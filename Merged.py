@@ -346,10 +346,11 @@ class Condition_Simple():
     #2-tuple obtenir_seuil_par_projection_depuis_posture(class posture)
     #Nécessité de la méthode is_activated dans condition ?
 
+    
     def obtenir_angle_depuis_posture(self,posture):
         print("Demadne de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
-        return posture.obtenirr(self._target_joint)
-        
+    return posture.obtenirr(self._target_joint)
+
 
     # bool is_activated(class self, posture posture_a_verifier)
     def is_activated(self, posture_a_verifier):
@@ -376,8 +377,7 @@ class Condition_Simple():
                 return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
         # bool superieur_A_Un_Seuil()
 
-
-
+   
 '_______Definition_classe_Condition_Composee_______'
 
 class Condition_Composee():
