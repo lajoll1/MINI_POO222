@@ -3,7 +3,7 @@ from tkinter import ttk
 from tkinter import filedialog
 
 root = tk.Tk()
-root.geometry("400x200")  
+
 
 def openfile2():
     filedialog.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*"))) #restreindre à fichier XML seulement
@@ -16,6 +16,8 @@ root_txt_zone_1.grid(row=0,column=1)
 root_button_1=tk.Button(root, text = "Importer", command = openfile2)
 root_button_1.grid(row=0,column=2)
 
+print(root_button_1)
+
 tk.Label(root,text="chemin du fichier de règles:").grid(row=1,column=0)
 
 root_txt_zone_2=tk.Entry(root)
@@ -23,6 +25,12 @@ root_txt_zone_2.grid(row=1,column=1)
 
 root_button_2=tk.Button(root,text="importer")
 root_button_2.grid(row=1,column=2)
+
+#lien avec les classes
+def root_button_1_clicked():
+    res = "Welcome to " + txt.get()
+    lbl.configure(text = res)
+    print(selected.get())
 
 #Création des onglets
 my_tabs = ttk.Notebook(root) # declaring 
@@ -125,3 +133,4 @@ tab_3_right_but_1.grid(row=0,column=0)
 
 
 root.mainloop()  # Keep the window open
+

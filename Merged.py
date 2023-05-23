@@ -4,7 +4,7 @@ import numpy as np
 
 '________________Ouverture_fichier_XML________________'
 
-xml_file = "/Users/virgilejamot/Documents/GitHub/MINI_POO222/Postures_captures.xml"
+xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
 
 arbreXML = ET.parse(xml_file)
 tronc = arbreXML.getroot()
@@ -347,7 +347,7 @@ class Condition_Simple():
     #Nécessité de la méthode is_activated dans condition ?
 
     def obtenir_angle_depuis_posture(self,posture):
-        print("Demadne de l'angle de l'articulation {} pour la posture {}".format(target_joint,posture))
+        print("Demadne de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
         return posture.obtenirr(self._target_joint)
         
 
@@ -357,7 +357,7 @@ class Condition_Simple():
             if self._target == "angle":
                 # Droit d'accéder par élément car dans la classe
                 if self._condition_type == "lower than":
-                    if   obtenir_angle_depuis_posture(posture_a_verifier) < self._threshold: return True
+                    if obtenir_angle_depuis_posture(posture_a_verifier) < self._threshold: return True
                 elif self._condition_type == "greater than":
                     if  obtenir_angle_depuis_posture(posture_a_verifier) > self._threshold: return True
                 elif self._condition_type == "belongs to":
@@ -454,4 +454,4 @@ def importer_regle(chemin_d_acces_fichier_regles):
     print(regles)
     return regles
 
-regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
+regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
