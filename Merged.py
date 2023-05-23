@@ -75,7 +75,7 @@ class Articulation():
 
             # Convertit l'angle en degrés
             angle_deg = math.degrees(angle_rad)
-            return 180 - angle_deg
+            return angle_deg
 
         else :
             print("Extrémité ou main !")
@@ -157,12 +157,7 @@ class Posture():
 
     numero = property(_lire_numero)
     articulations = property(_lire_articulations)
-
-    def obtenirr(self,nom_articulation):
-        for articulation in self.articulations:
-            if articulation.nom == nom_articulation:
-                return articulation
-
+    
     def _tracer_posture(self):
         global call
 
@@ -302,7 +297,7 @@ class Regle():
     def is_activated(self,posture):
         if isinstance(posture, Posture) or isinstance(posture, Posture):
             print("self._condition_associe.is_activated(posture) ")
-            return self._condition_associe.is_activated(posture) 
+        return self._condition_associe.is_activated(posture) 
     
 
    
@@ -350,6 +345,9 @@ class Condition_Simple():
     #int obtenir_angle_depuis_projection_posture(posture_a_verifier,axe)
     #2-tuple obtenir_seuil_par_projection_depuis_posture(class posture)
     #Nécessité de la méthode is_activated dans condition ?
+
+    def angle_depuis_posture(posture,target_joint):
+        return posture.obtenir(self._target_joint)
 
     # bool is_activated(class self, posture posture_a_verifier)
     def is_activated(self, posture_a_verifier):
