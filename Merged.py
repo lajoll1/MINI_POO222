@@ -295,10 +295,7 @@ class Regle():
             self._description_regle = ma_description
             self._condition_associe = ma_condition
 
-    def is_activated(posture):
-        if isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, condition_composée):
-           return self._condition_associe.is_activated(posture) 
-        
+
    
 '________Definition_classe_Condition_Simple________'
 
@@ -446,5 +443,6 @@ def importer_regle(chemin_d_acces_fichier_regles):
             print("Associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint')))
 
     print(regles)
+    return regles
 
-importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
+regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
