@@ -49,9 +49,16 @@ class Articulation():
                     enfants.append(articulation)
         return (parent,enfants)
     voisinsPOO = property(_trouver_voisinsPOO)
-        
 
-
+    def _trouver_voisins_temporels(self):
+        voisins = []
+        for i in [-2,-1,1,2]:
+            for articulation in sequence.postures[self.posture + i].articulations:
+                if articulation.nom == self.nom:
+                    voisins.append(articulation)
+        return voisins
+    voisins_t = property(_trouver_voisins_temporels)
+    
     def _calculer_angle(self):
         if len(self.voisinsPOO) == 2 and len(self.voisinsPOO[1])==1 :
             x1,y1,z1 = ((self.voisinsPOO[0]).position)[0],((self.voisinsPOO[0]).position)[1],((self.voisinsPOO[0]).position)[2]
@@ -84,14 +91,14 @@ class Articulation():
 
     def _calculer_v_a_angulaire(self):
         dt = 1/1.2
-        angle_0 = obtenir(articulation.nom,articulation.posture-1).angle
-        angle_1 = obtenir(articulation.nom,articulation.posture+1).angle
+        angle_0 = self.voisins_t[1].angle
+        angle_1 = self.voisins_t[2].angle
         
         vitesse_ang = (angle_1-angle_0)/(2*dt)
 
-        angle_0 = obtenir(articulation.nom,articulation.posture-2).angle
+        angle_0 = self.voisins_t[0].angle
         angle_1 = self.angle
-        angle_2 = obtenir(articulation.nom,articulation.posture+2).angle
+        angle_2 = self.voisins_t[3].angle
 
         acceleration_ang = (angle_2 + angle_0 - 2*angle_1)/(4*dt)
 
@@ -105,30 +112,32 @@ class Articulation():
         if self.posture != 0 and self.posture != 57: # Ne fonctionne pas pour les postures extrémales
             
             # Coordonnées 3D des points dans le temps
-            x = [obtenir(self.nom,self.posture-1).position[0],obtenir(self.nom,self.posture+1).position[0]]
-            y = [obtenir(self.nom,self.posture-1).position[1],obtenir(self.nom,self.posture+1).position[1]]
-            z = [obtenir(self.nom,self.posture-1).position[2],obtenir(self.nom,self.posture+1).position[2]]
+            x = [self.voisins_t[1].position[0],self.voisins_t[2].position[0]]
+            y = [self.voisins_t[1].position[1],self.voisins_t[2].position[1]]
+            z = [self.voisins_t[1].position[2],self.voisins_t[2].position[2]]
 
             # Calcul des vecteurs vitesse
             vitesse = []
             vitesse.append((x[1]-x[0])/(2*dt))
             vitesse.append((y[1]-y[0])/(2*dt))
             vitesse.append((z[1]-z[0])/(2*dt))
+            norme_vitesse = np.sqrt(vitesse[0]**2+vitesse[1]**2+vitesse[2]**2)
 
         if self.posture > 1 and self.posture < 56:
 
             # Coordonnées 3D des points dans le temps
-            x = [obtenir(self.nom,self.posture-2).position[0],self.position[0],obtenir(self.nom,self.posture+2).position[0]]
-            y = [obtenir(self.nom,self.posture-2).position[1],self.position[1],obtenir(self.nom,self.posture+2).position[1]]
-            z = [obtenir(self.nom,self.posture-2).position[2],self.position[2],obtenir(self.nom,self.posture+2).position[2]]
+            x = [self.voisins_t[0].position[0],self.position[0],self.voisins_t[3].position[0]]
+            y = [self.voisins_t[0].position[1],self.position[1],self.voisins_t[3].position[1]]
+            z = [self.voisins_t[0].position[2],self.position[2],self.voisins_t[3].position[2]]
 
             # Calcul des vecteurs accélération
             acceleration = []
             acceleration.append((x[0]+x[2]-2*x[1])/(4*dt))
             acceleration.append((y[0]+y[2]-2*y[1])/(4*dt))
             acceleration.append((z[0]+z[2]-2*z[1])/(4*dt))
+            norme_acceleration = np.sqrt(acceleration[0]**2+acceleration[1]**2+acceleration[2]**2)
 
-        return vitesse,acceleration
+        return vitesse,acceleration,norme_vitesse,norme_acceleration
 
     va_moy = property(_calculer_v_a_moyenne)
 
@@ -152,10 +161,14 @@ class Posture():
 
     numero = property(_lire_numero)
     articulations = property(_lire_articulations)
-    
-    def _tracer_posture(self):
-        global call
 
+    def obtenir(self,nom_articulation):
+        for articulation in self.articulations :
+            if articulation.nom == nom_articulation:
+                return articulation
+            
+    def tracer(self,call):
+        
         # Création de la figure
         def set_axes_equal(ax):
             
@@ -226,11 +239,7 @@ class Posture():
         set_axes_equal(ax)
         plt.show()
 
-    tracer = property(_tracer_posture)
 
-
-         
-        
 
 '______________Definition_classe_Séquence_____________'
 
@@ -241,6 +250,11 @@ class Sequence():
     def _lire_postures(self):
         return self._tespostures
     postures = property(_lire_postures)
+
+    def search(self,nom_articulation,posture):
+        for articulation in self.postures[posture].articulations:
+            if articulation.nom == nom_articulation:
+                return articulation
 
 
 
@@ -272,8 +286,4 @@ def creer_postures_list():
     return postures_list
 
 sequence = Sequence(creer_postures_list())
-    
-def obtenir(nom_articulation,numero_posture):
-    for articulation in sequence.postures[numero_posture].articulations:
-        if articulation.nom == nom_articulation:
-            return articulation
+
