@@ -296,7 +296,7 @@ class Regle():
             self._condition_associe = ma_condition
     def is_activated(self,posture):
         if isinstance(posture, Posture) or isinstance(posture, Posture):
-            print("self._condition_associe.is_activated(posture) ")
+            print("Vérification de l'activation de la règle {} ".format(posture))
         return self._condition_associe.is_activated(posture) 
     
 
@@ -346,7 +346,7 @@ class Condition_Simple():
     #2-tuple obtenir_seuil_par_projection_depuis_posture(class posture)
     #Nécessité de la méthode is_activated dans condition ?
 
-    def obtenir_angle_depuis_posture(posture,target_joint):
+    def obtenir_angle_depuis_posture(self,posture):
         print("Demadne de l'angle de l'articulation {} pour la posture {}".format(target_joint,posture))
         return posture.obtenirr(self._target_joint)
         
