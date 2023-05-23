@@ -158,6 +158,11 @@ class Posture():
     numero = property(_lire_numero)
     articulations = property(_lire_articulations)
     
+    def obtenirr(self,nom_articulation):
+        for articulation in self.articulations :
+            if articulation.nom == nom_articulation:
+                return articulation
+
     def _tracer_posture(self):
         global call
 
@@ -427,19 +432,19 @@ def importer_regle(chemin_d_acces_fichier_regles):
             print("et associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint')))
             # On suppose le fichier xml bien formaté
             if rule[0].get('condition_type') in {"lower than","greater than"}:
-                ma_condition_simple=Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint'))
-                # ma_condition_simple=Condition_Simple("angle","lower than","3","RightForeArm")
+                ma_condition_simple = Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint'))
+                # ma_condition_simple = Condition_Simple("angle","lower than","3","RightForeArm")
 
             elif rule[0].get('condition_type') == "belongs to":
-                ma_condition_simple=Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("domain"),rule[0].get('target_joint'))
+                ma_condition_simple = Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("domain"),rule[0].get('target_joint'))
         
-            regles[rule.get('name')]=Regle(rule.get('name'),rule.get('description'),ma_condition_simple)
+            regles[rule.get('name')] = Regle(rule.get('name'),rule.get('description'),ma_condition_simple)
 
 
         # Faut-il tout mettre en managé ?
         elif rule[0].tag == "composed_condition":
            
-            liste_conditions_simples=[]
+            liste_conditions_simples = []
 
             for simple_condition in rule[0].iter("simple_condition"):
                 if simple_condition.get('condition_type') in {"lower than","greater than"}:
