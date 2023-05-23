@@ -171,7 +171,7 @@ class Posture():
             if articulation.nom == nom_articulation:
                 return articulation
 
-    def tracer_posture(self,call):
+    def tracer(self,call):
 
         # Création de la figure
         def set_axes_equal(ax):
@@ -201,9 +201,6 @@ class Posture():
         ax.set_zlim(0, 2)
     
         for articulation in self.articulations: # On parcourt l'ensemble des articulations de la posture considérée
-
-            # Affichage de l'articulation considérée
-            ax.scatter(articulation.position[0],articulation.position[2],articulation.position[1],c='r', marker='o') 
 
             # Liaison de l'articulation avec ses voisins
             if len(articulation.voisinsPOO[1]) != 0:
@@ -487,15 +484,15 @@ from matplotlib.figure import Figure
 def fentre():
     root = tk.Tk()
 
-    #Fonction d'import doublée faute de mieux
-    #Possibilité de complexifier si on sait quel bouton a appelé
+    # Fonction d'import doublée faute de mieux
+    # Possibilité de complexifier si on sait quel bouton a appelé
     def open_postures_file():
         root_txt_zone_1.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
 
     def open_rules_file():
         root_txt_zone_2.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
 
-    #Création des zones d'import fichiers
+    # Création des zones d'import fichiers
     tk.Label(root,text="chemin du fichier de séquence:").grid(row=0,column=0)
     root_txt_zone_1=tk.Entry(root)
     root_txt_zone_1.grid(row=0,column=1)
@@ -513,10 +510,10 @@ def fentre():
     root_button_2=tk.Button(root, text = "Importer", command = open_rules_file)
     root_button_2.grid(row=1,column=2)
 
-    #lien avec les classes
+    # lien avec les classes
 
 
-    #Création des onglets
+    # Création des onglets
     my_tabs = ttk.Notebook(root) # declaring 
 
     tab1 = ttk.Frame(my_tabs)
@@ -529,16 +526,16 @@ def fentre():
 
     my_tabs.grid(row=2,column=0,columnspan=3)
 
-    #Passage à 0 pcq row et column du tab1
+    # Passage à 0 pcq row et column du tab1
     tab1_left_frame = tk.Frame(tab1)
     tab1_left_frame.grid(row=0,column=0)
 
 
 
-    #Ici inclusion du plot matplotlib onglet 1
-    #Taille de la fenêtre
+    # Ici inclusion du plot matplotlib onglet 1
+    # Taille de la fenêtre
     fig = Figure(figsize=(5, 4), dpi=100)
-    #remplacer Lx et Ly par les valeurs
+    # remplacer Lx et Ly par les valeurs
     Lx, Ly = [1], [1]
     fig.add_subplot(111).plot(Lx,Ly)
 
@@ -554,20 +551,109 @@ def fentre():
     tab_1_right_frame.grid(row=0,column=1)
 
     def afficher_sequence():
-        pass
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Configuration des axes
+        ax.set_xlabel('X')
+        ax.set_ylabel('Z')               
+        ax.set_zlabel('Y')
+
+        # Orientation de la vue
+        ax.view_init(elev=15, azim=135)        
+
+        def set_axes_equal(ax):
+                
+                x_limits = ax.get_xlim3d()
+                y_limits = ax.get_ylim3d()
+                z_limits = ax.get_zlim3d()
+
+                x_range = abs(x_limits[1] - x_limits[0])
+                x_middle = np.mean(x_limits)
+                y_range = abs(y_limits[1] - y_limits[0])
+                y_middle = np.mean(y_limits)
+                z_range = abs(z_limits[1] - z_limits[0])
+                z_middle = np.mean(z_limits)
+                    
+                plot_radius = 0.5*max([x_range, y_range, z_range])
+
+                ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+                ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+                ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])       
+
+        
+
+        # On détermine en fonction des boutons pressés les vecteurs à tracer
+        if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
+
+        elif tab_1_check_but_1_var and not tab_1_check_but_2_var: call = 'v'
+            
+        elif tab_1_check_but_2_var and not tab_1_check_but_1_var: call = 'a'
+
+        else: call = 'r'
+
+        for posture in sequence.postures:
+            ax.cla()
+
+            # Création de la figure
+            for articulation in posture.articulations: # On parcourt l'ensemble des articulations de la posture considérée
+
+                # Liaison de l'articulation avec ses voisins
+                if len(articulation.voisinsPOO[1]) != 0:
+                    for enfant in articulation.voisinsPOO[1]:
+                        x1,x2 = enfant.position[0],articulation.position[0]
+                        y1,y2 = enfant.position[2],articulation.position[2] 
+                        z1,z2 = enfant.position[1],articulation.position[1]
+                        ax.scatter([x1,x2], [y1,y2], [z1,z2], c='r', marker='o')
+                        ax.plot([x1,x2], [y1,y2], [z1,z2], c='b')
+
+                
+                        
+                # Tracé du vecteur vitesse si demandé 
+                origine = articulation.position
+                if call in ("v","b") and articulation.va_moy[0] != None:
+                    vitesse = articulation.va_moy[0]
+                    ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
+
+
+
+                # Tracé du vecteur acceleration si demandé
+                origine = articulation.position
+                if call in ("a","b") and articulation.va_moy[1] != None:
+                    acceleration = articulation.va_moy[1]
+                    ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
+                            
+            ax.set_xlim(0, 1)
+            ax.set_ylim(-0.6, 0.6) 
+            ax.set_zlim(0, 2)
+            
+            # Affichage de la figure
+            set_axes_equal(ax)
+            plt.draw()
+            plt.pause(0.001)
+        plt.show()
+
+        
+        
+
+    tab_1_check_but_1_var = 0
+    tab_1_check_but_1 = ttk.Checkbutton(tab_1_right_frame,text='Afficher Vitesses',variable = tab_1_check_but_1_var)
+##    tab_1_check_but_1.deselect
+    tab_1_check_but_1.grid(row=0,column=0)
+
+    tab_1_check_but_2_var = 0
+    tab_1_check_but_2 = ttk.Checkbutton(tab_1_right_frame,text='Afficher accélérations',variable = tab_1_check_but_2_var)
+##    tab_1_check_but_2.deselect
+    tab_1_check_but_2.grid(row=1,column=0)
     
-    tab_1_rad_but_1=ttk.Checkbutton(tab_1_right_frame,text='Afficher Vitesses')
-    tab_1_rad_but_1.grid(row=0,column=0)
-    tab_1_rad_but_2=ttk.Checkbutton(tab_1_right_frame,text='Afficher accélérations')
-    tab_1_rad_but_2.grid(row=1,column=0)
-    tab_1_but_1=ttk.Button(tab_1_right_frame,text='Lancer affichage', command = afficher_sequence)
-    tab_1_but_1.grid(row=2,column=0)
+    tab_1_check_1 = ttk.Button(tab_1_right_frame,text='Lancer affichage', command = afficher_sequence)
+    tab_1_check_1.grid(row=2,column=0)
     
     #Création zones tab2
     tab_2_left_frame = tk.Frame(tab2)
     tab_2_left_frame.grid(row=0,column=0)
 
-    tab_2_right_frame= tk.Frame(tab2)
+    tab_2_right_frame = tk.Frame(tab2)
     tab_2_right_frame.grid(row=0,column=1)
 
     #Zone gauche tab2
