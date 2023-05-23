@@ -347,7 +347,11 @@ class Condition_Simple():
     #Nécessité de la méthode is_activated dans condition ?
 
     def obtenir_angle_depuis_posture(self,posture):
+
         print("Demande de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
+
+        print("Demadne de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
+
         return posture.obtenirr(self._target_joint)
         
 
@@ -357,9 +361,9 @@ class Condition_Simple():
             if self._target == "angle":
                 # Droit d'accéder par élément car dans la classe
                 if self._condition_type == "lower than":
-                    if   obtenir_angle_depuis_posture(posture_a_verifier) < self._threshold: return True
+                    if self.obtenir_angle_depuis_posture(posture_a_verifier) < self._threshold: return True
                 elif self._condition_type == "greater than":
-                    if  obtenir_angle_depuis_posture(posture_a_verifier) > self._threshold: return True
+                    if  self.obtenir_angle_depuis_posture(posture_a_verifier) > self._threshold: return True
                 elif self._condition_type == "belongs to":
                     if  self._domain[0] < obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
                 return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
@@ -368,9 +372,9 @@ class Condition_Simple():
                 if self._condition_type == " belongs to the volume":
                     passobtenir_a
                 elif self._condition_type == "lower than":
-                    if obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) < self._threshold: return True
+                    if self.obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) < self._threshold: return True
                 elif self._condition_type == "greater than":
-                    if  obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) > self._threshold: return True
+                    if  self.obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) > self._threshold: return True
                 elif self._condition_type == "belongs to":
                     if  self._domain[0] < obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) < self._domain[1]: return True
                 return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
