@@ -4,7 +4,7 @@ import numpy as np
 
 '________________Ouverture_fichier_XML________________'
 
-xml_file = "/Users/virgilejamot/Documents/GitHub/MINI_POO222/Postures_captures.xml"
+xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
 
 arbreXML = ET.parse(xml_file)
 tronc = arbreXML.getroot()
@@ -332,19 +332,24 @@ class Condition_Simple():
             # return  "type de condition inconnu"
 
         # Selon le type de condition
-        if mon_type_de_condition in {"lower than","greater than"}:
-            if isinstance(mon_seuil_ou_domaine,int):
-                self._threshold = mon_seuil_ou_domaine
-            else: 
-                pass
-                # return "Seuil invalide"
-        elif mon_type_de_condition == "belongs to":
-            if isinstance(mon_seuil_ou_domaine,tuple) and len(mon_seuil_ou_domaine) == 2:
-                self._domain = mon_seuil_ou_domaine
-            else: 
-                pass
+        if self._condition_type in {"lower than","greater than"}:
+             #fichier considéré sans erreur donc pas de test
+             #if isinstance(mon_seuil_ou_domaine,int):
+            self._threshold = int(mon_seuil_ou_domaine)
+            print("seuil initialisé")
+           
+        elif self._condition_type == "belongs to":
+            #if isinstance(mon_seuil_ou_domaine,tuple) and len(mon_seuil_ou_domaine) == 2:
+            #Formattage des données nécessaire car lu comme string
+            mon_seuil_ou_domaine= mon_seuil_ou_domaine.removeprefix("(")
+            mon_seuil_ou_domaine=mon_seuil_ou_domaine.removesuffix(")")
+            borne_inf,borne_sup = mon_seuil_ou_domaine.split(",")
+            borne_inf,borne_sup=int(borne_inf),int(borne_sup)
+            self._domain = (borne_inf,borne_sup)
+            
                 # return "Domaine invalide"
-        elif mon_type_de_condition == "belongs to the volume":
+        elif self._condition_type == "belongs to the volume":
+            #Code cette nouvelle partie avec les règles
             pass
 
         # A compléter selon futures règles ?
@@ -359,7 +364,7 @@ class Condition_Simple():
     def obtenir_angle_depuis_posture(self,posture):
 
         print("Demande de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
-        return posture.obtenir(self._target_joint)
+        return posture.obtenir(self._target_joint).angle
         
 
     # bool is_activated(class self, posture posture_a_verifier)
@@ -372,7 +377,8 @@ class Condition_Simple():
                 elif self._condition_type == "greater than":
                     if  self.obtenir_angle_depuis_posture(posture_a_verifier) > self._threshold: return True
                 elif self._condition_type == "belongs to":
-                    if  self._domain[0] < obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
+                    print("premier membre du domaine {}".format(self._domain))
+                    if  self._domain[0] < self.obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
                 return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
 
             elif self._target == "posture": # Changer l'intitulé
@@ -465,5 +471,8 @@ def importer_regle(chemin_d_acces_fichier_regles):
     print(regles)
     return regles
 
-regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
-regles["rule_1"].is_activated(sequence.postures[12])
+regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
+print("test de la règle {}".format(regles["rule_2"].is_activated(sequence.postures[15])))
+
+
+
