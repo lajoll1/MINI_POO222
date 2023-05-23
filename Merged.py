@@ -319,7 +319,7 @@ class Condition_Simple():
     def __init__(self,ma_cible,mon_type_de_condition,mon_seuil_ou_domaine,ma_zone_du_corps=""):
         
         # Début des tests
-        if ma_cible in {"angle","position"}: 
+        if ma_cible in {"angle","position","pos"}: #Faire un fichier de génération auto ici
             self._target = ma_cible
         else:
             pass
@@ -335,7 +335,8 @@ class Condition_Simple():
         if self._condition_type in {"lower than","greater than"}:
              #fichier considéré sans erreur donc pas de test
              #if isinstance(mon_seuil_ou_domaine,int):
-            self._threshold = int(mon_seuil_ou_domaine)
+             #Prise en compte de la conversion du format anglophone ver
+            self._threshold = float(mon_seuil_ou_domaine)
             print("seuil initialisé")
            
         elif self._condition_type == "belongs to":
@@ -471,8 +472,8 @@ def importer_regle(chemin_d_acces_fichier_regles):
     print(regles)
     return regles
 
-regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
-print("test de la règle {}".format(regles["rule_2"].is_activated(sequence.postures[15])))
+regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
+print("test de la règle {}".format(regles["Ohhhh"].is_activated(sequence.postures[15])))
 
 
 
