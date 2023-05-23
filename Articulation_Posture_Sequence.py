@@ -74,7 +74,7 @@ class Articulation():
 
             # Convertit l'angle en degrés
             angle_deg = math.degrees(angle_rad)
-            return angle_deg
+            return 180 - angle_deg
 
         else :
             print("Extrémité ou main !")
@@ -187,7 +187,8 @@ class Posture():
 
             # Affichage de l'articulation considérée
             ax.scatter(articulation.position[0],articulation.position[2],articulation.position[1],c='r', marker='o') 
-
+            if articulation.nom == "RightArm":
+                ax.scatter(articulation.position[0],articulation.position[2],articulation.position[1],c='k', marker='o')
             # Liaison de l'articulation avec ses voisins
             if len(articulation.voisinsPOO[1]) != 0:
                 for enfant in articulation.voisinsPOO[1]:
