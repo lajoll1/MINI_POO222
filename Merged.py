@@ -377,6 +377,7 @@ class Condition_Simple():
         return posture.obtenir(self._target_joint).position
    
     def _obtenir_angle_depuis_projection_posture(self,posture,axe):
+        
         pass
 
     # bool is_activated(class self, posture posture_a_verifier)

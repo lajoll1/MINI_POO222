@@ -4,7 +4,7 @@ import numpy as np
 
 '________________Ouverture_fichier_XML________________'
 
-xml_file = "/Users/virgilejamot/Documents/GitHub/MINI_POO222/Postures_captures.xml"
+xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
 
 arbreXML = ET.parse(xml_file)
 tronc = arbreXML.getroot()
@@ -462,7 +462,7 @@ def importer_regle(chemin_d_acces_fichier_regles):
 ##    print(regles)
     return regles
 
-regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
+regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
 ##regles["rule_1"].is_activated(sequence.postures[12])
 
 
@@ -636,7 +636,7 @@ def fentre():
         
         
 
-    tab_1_check_but_1_var = 0
+    tab_1_check_but_1_var = 1
     tab_1_check_but_1 = ttk.Checkbutton(tab_1_right_frame,text='Afficher Vitesses',variable = tab_1_check_but_1_var)
 ##    tab_1_check_but_1.deselect
     tab_1_check_but_1.grid(row=0,column=0)
