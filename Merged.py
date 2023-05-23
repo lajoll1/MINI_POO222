@@ -294,7 +294,10 @@ class Regle():
             self._nom_regle = mon_nom
             self._description_regle = ma_description
             self._condition_associe = ma_condition
-
+    def is_activated(posture):
+        if isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, condition_composée):
+           return self._condition_associe.is_activated(posture) 
+        
 
    
 '________Definition_classe_Condition_Simple________'
