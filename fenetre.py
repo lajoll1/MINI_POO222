@@ -176,3 +176,4 @@ def fentre():
 
     root.mainloop()  # Keep the window open
 
+fentre()
