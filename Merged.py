@@ -347,7 +347,7 @@ class Condition_Simple():
     #Nécessité de la méthode is_activated dans condition ?
 
     def obtenir_angle_depuis_posture(self,posture):
-        print("Demadne de l'angle de l'articulation {} pour la posture {}".format(target_joint,posture))
+        print("Demande de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
         return posture.obtenirr(self._target_joint)
         
 
@@ -364,7 +364,7 @@ class Condition_Simple():
                     if  self._domain[0] < obtenir_angle_depuis_posture(posture_a_verifier) < self._domain[1]: return True
                 return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
 
-            elif self._target == "posture": #Changer l'intitulé
+            elif self._target == "posture": # Changer l'intitulé
                 if self._condition_type == " belongs to the volume":
                     passobtenir_a
                 elif self._condition_type == "lower than":
