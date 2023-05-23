@@ -294,7 +294,7 @@ class Regle():
             self._nom_regle = mon_nom
             self._description_regle = ma_description
             self._condition_associe = ma_condition
-    def is_activated(posture):
+    def is_activated(self,posture):
         if isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, condition_composée):
            return self._condition_associe.is_activated(posture) 
         
@@ -351,7 +351,7 @@ class Condition_Simple():
             if self._target == "angle":
                 # Droit d'accéder par élément car dans la classe
                 if self._condition_type == "lower than":
-                    if  obtenir_angle_depuis_posture(posture_a_verifier) < self._threshold: return True
+                    if  angle_depuis_posture(posture_a_verifier) < self._threshold: return True
                 elif self._condition_type == "greater than":
                     if  obtenir_angle_depuis_posture(posture_a_verifier) > self._threshold: return True
                 elif self._condition_type == "belongs to":
@@ -360,7 +360,7 @@ class Condition_Simple():
 
             elif self._target == "posture": #Changer l'intitulé
                 if self._condition_type == " belongs to the volume":
-                    pass
+                    passobtenir_a
                 elif self._condition_type == "lower than":
                     if obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) < self._threshold: return True
                 elif self._condition_type == "greater than":
