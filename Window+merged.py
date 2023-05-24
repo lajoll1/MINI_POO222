@@ -203,32 +203,52 @@ class Posture():
         ax.set_ylim(-0.6, 0.6) 
         ax.set_zlim(0, 2)
     
-        for articulation in self.articulations: # On parcourt l'ensemble des articulations de la posture considérée
+        bras_droit = ['Spine2','RightShoulder','RightArm','RightForeArm','RightHand']
+        bras_gauche = ['Spine2','LeftShoulder','LeftArm','LeftForeArm','LeftHand']
+        jambe_droite = ['Hips','RightUpLeg','RightLeg','RightFoot']
+        jambe_gauche = ['Hips','LeftUpLeg','LeftLeg','LeftFoot']
+        colonne = ['Hips','Spine','Spine1','Spine2','Neck','Neck1','Head']
 
-            # Liaison de l'articulation avec ses voisins
-            if len(articulation.voisinsPOO[1]) != 0:
-                for enfant in articulation.voisinsPOO[1]:
-                    x1,x2 = enfant.position[0],articulation.position[0]
-                    y1,y2 = enfant.position[2],articulation.position[2] 
-                    z1,z2 = enfant.position[1],articulation.position[1]
-                    ax.scatter([x1,x2], [y1,y2], [z1,z2], c='r', marker='o')
-                    ax.plot([x1,x2], [y1,y2], [z1,z2], c='b')
+        main_droite_pouce = ['RightHand','RightHandThumb1','RightHandThumb2','RightHandThumb3']
+        main_droite_index = ['RightHand','RightInHandIndex','RightHandIndex1','RightHandIndex2','RightHandIndex3']
+        main_droite_majeur = ['RightHand','RightInHandMiddle','RightHandMiddle1','RightHandMiddle2','RightHandMiddle3']
+        main_droite_annulaire = ['RightHand','RightInHandRing','RightHandRing1','RightHandRing2','RightHandRing3']
+        main_droite_petit = ['RightHand','RightInHandPinky','RightHandPinky1','RightHandPinky2','RightHandPinky3']
+
+        main_gauche_pouce = ['LeftHand','LeftHandThumb1','LeftHandThumb2','LeftHandThumb3']
+        main_gauche_index = ['LeftHand','LeftInHandIndex','LeftHandIndex1','LeftHandIndex2','LeftHandIndex3']
+        main_gauche_majeur = ['LeftHand','LeftInHandMiddle','LeftHandMiddle1','LeftHandMiddle2','LeftHandMiddle3']
+        main_gauche_annulaire = ['LeftHand','LeftInHandRing','LeftHandRing1','LeftHandRing2','LeftHandRing3']
+        main_gauche_petit = ['LeftHand','LeftInHandPinky','LeftHandPinky1','LeftHandPinky2','LeftHandPinky3']
+
+        chemin1 = [bras_droit,bras_gauche,jambe_droite,jambe_gauche,colonne]
+        chemin2 = [main_droite_pouce,main_droite_index,main_droite_majeur,main_droite_annulaire,main_droite_petit]
+        chemin3 = [main_gauche_pouce,main_gauche_index,main_gauche_majeur,main_gauche_annulaire,main_gauche_petit]   
+        chemin = chemin1 + chemin2 + chemin3
+
+        
+        for ligne in chemin :
+            x = [self.obtenir(articulation).position[0] for articulation in ligne]
+            y = [self.obtenir(articulation).position[2] for articulation in ligne]
+            z = [self.obtenir(articulation).position[1] for articulation in ligne]
+            ax.scatter(x,y,z,c='r',marker = 'o')
+            ax.plot(x,y,z,c='b')
         
             
-                    
+        for articulation in Liste_articulations_demandées :        
             # Tracé du vecteur vitesse si demandé 
             origine = articulation.position
-            if call in ("v","b") and articulation.va_moy[0] != None:
-                vitesse = articulation.va_moy[0]
-                ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
+##            if call in ("v","b") and articulation.va_moy[0] != None:
+            vitesse = articulation.va_moy[0]
+            ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
 
 
 
             # Tracé du vecteur acceleration si demandé
             origine = articulation.position
-            if call in ("a","b") and articulation.va_moy[1] != None:
-                acceleration = articulation.va_moy[1]
-                ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
+##            if call in ("a","b") and articulation.va_moy[1] != None:
+            acceleration = articulation.va_moy[1]
+            ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
                         
         # Configuration des axes
         ax.set_xlabel('X')
@@ -240,8 +260,9 @@ class Posture():
            
         # Affichage de la figure
         set_axes_equal(ax)
-        plt.show()      
-      
+##        plt.show()
+
+        return ax
 
 
 '______________Definition_classe_Sequence_____________'
@@ -539,131 +560,38 @@ def fentre():
     # Taille de la fenêtre
     fig = Figure(figsize=(5, 4), dpi=100)
     # remplacer Lx et Ly par les valeurs
-    Lx, Ly = [1], [1]
-    fig.add_subplot(111).plot(Lx,Ly)
+##    Lx, Ly = [1], [1]
+##    fig.add_subplot(111).plot(Lx,Ly)
 
-    canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
-    canvas.draw()
-    canvas.get_tk_widget().grid(row=0,column=1)
+    
+##    canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
+##    canvas.get_tk_widget().grid(row=0,column=1)
+##    canvas.draw()
+##    del(canvas)
+    
 
-    canvas.get_tk_widget().grid(row=0,column=0)
 
+    def afficher_sequence(posture):
+        # On détermine en fonction des boutons pressés les vecteurs à tracer
+        if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
+
+        elif tab_1_check_but_1_var and not tab_1_check_but_2_var: call = 'v'
+            
+        elif tab_1_check_but_2_var and not tab_1_check_but_1_var: call = 'a'
+
+        else: call = 'r'
+
+        
+        canvas = FigureCanvasTkAgg(sequence.postures[button_posture].tracer(call), master=tab1_left_frame)  # A tk.DrawingArea.
+        canvas.get_tk_widget().grid(row=0,column=1)
+        canvas.draw()
+##        del(canvas)
 
     #Zone droite du tab1
     tab_1_right_frame= tk.Frame(tab1)
     tab_1_right_frame.grid(row=0,column=1)
 
-    def afficher_sequence():
-##        fig = plt.figure()
-##        ax = fig.add_subplot(111, projection='3d')
-##
-##        # Configuration des axes
-##        ax.set_xlabel('X')
-##        ax.set_ylabel('Z')               
-##        ax.set_zlabel('Y')
-##
-##        # Orientation de la vue
-##        ax.view_init(elev=15, azim=135)        
-##
-##        def set_axes_equal(ax):
-##                
-##                x_limits = ax.get_xlim3d()
-##                y_limits = ax.get_ylim3d()
-##                z_limits = ax.get_zlim3d()
-##
-##                x_range = abs(x_limits[1] - x_limits[0])
-##                x_middle = np.mean(x_limits)
-##                y_range = abs(y_limits[1] - y_limits[0])
-##                y_middle = np.mean(y_limits)
-##                z_range = abs(z_limits[1] - z_limits[0])
-##                z_middle = np.mean(z_limits)
-##                    
-##                plot_radius = 0.5*max([x_range, y_range, z_range])
-##
-##                ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
-##                ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
-##                ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])       
-
-        
-
-        # On détermine en fonction des boutons pressés les vecteurs à tracer
-##        if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
-##
-##        elif tab_1_check_but_1_var and not tab_1_check_but_2_var: call = 'v'
-##            
-##        elif tab_1_check_but_2_var and not tab_1_check_but_1_var: call = 'a'
-##
-##        else: call = 'r'
-
-        sequence_a_tracer = []
-        for posture in sequence.postures:
-##            ax.cla()
-
-            # Création de la figure
-
-            # Test
-            bras_droit = ['Spine2','RightShoulder','RightArm','RightForeArm','RightHand']
-            bras_gauche = ['Spine2','LeftShoulder','LeftArm','LeftForeArm','LeftHand']
-            jambe_droite = ['Hips','RightUpLeg','RightLeg','RightFoot']
-            jambe_gauche = ['Hips','LeftUpLeg','LeftLeg','LeftFoot']
-            colonne = ['Hips','Spine','Spine1','Spine2','Neck','Neck1','Head']
-
-            main_droite_pouce = ['RightHand','RightHandThumb1','RightHandThumb2','RightHandThumb3']
-            main_droite_index = ['RightHand','RightInHandIndex','RightHandIndex1','RightHandIndex2','RightHandIndex3']
-            main_droite_majeur = ['RightHand','RightInHandMiddle','RightHandMiddle1','RightHandMiddle2','RightHandMiddle3']
-            main_droite_annulaire = ['RightHand','RightInHandRing','RightHandRing1','RightHandRing2','RightHandRing3']
-            main_droite_petit = ['RightHand','RightInHandPinky','RightHandPinky1','RightHandPinky2','RightHandPinky3']
-
-            main_gauche_pouce = ['LeftHand','LeftHandThumb1','LeftHandThumb2','LeftHandThumb3']
-            main_gauche_index = ['LeftHand','LeftInHandIndex','LeftHandIndex1','LeftHandIndex2','LeftHandIndex3']
-            main_gauche_majeur = ['LeftHand','LeftInHandMiddle','LeftHandMiddle1','LeftHandMiddle2','LeftHandMiddle3']
-            main_gauche_annulaire = ['LeftHand','LeftInHandRing','LeftHandRing1','LeftHandRing2','LeftHandRing3']
-            main_gauche_petit = ['LeftHand','LeftInHandPinky','LeftHandPinky1','LeftHandPinky2','LeftHandPinky3']
-
-            chemin1 = [bras_droit,bras_gauche,jambe_droite,jambe_gauche,colonne]
-            chemin2 = [main_droite_pouce,main_droite_index,main_droite_majeur,main_droite_annulaire,main_droite_petit]
-            chemin3 = [main_gauche_pouce,main_gauche_index,main_gauche_majeur,main_gauche_annulaire,main_gauche_petit]   
-            chemin = chemin1 + chemin2 + chemin3
-
-            posture_a_tracer =[]
-            for ligne in chemin :
-                x = [posture.obtenir(articulation).position[0] for articulation in ligne]
-                y = [posture.obtenir(articulation).position[2] for articulation in ligne]
-                z = [posture.obtenir(articulation).position[1] for articulation in ligne]
-##                ax.scatter(x,y,z,c='r',marker = 'o')
-##                ax.plot(x,y,z,c='b')
-                posture_a_tracer.append([x,y,z])
-            sequence_a_tracer.append(posture_a_tracer)
-                        
-##                # Tracé du vecteur vitesse si demandé 
-##                origine = articulation.position
-##                if call in ("v","b") and articulation.va_moy[0] != None:
-##                    vitesse = articulation.va_moy[0]
-##                    ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
-##
-##
-##
-##                # Tracé du vecteur acceleration si demandé
-##                origine = articulation.position
-##                if call in ("a","b") and articulation.va_moy[1] != None:
-##                    acceleration = articulation.va_moy[1]
-##                    ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
-                            
-##            ax.set_xlim(0, 1)
-##            ax.set_ylim(-0.6, 0.6) 
-##            ax.set_zlim(0, 2)
-##            
-##            # Affichage de la figure
-##            set_axes_equal(ax)
-##            plt.draw()
-##            plt.pause(0.001)
-##        plt.show()
-        return sequence_a_tracer
     
-
-        
-        
-
     tab_1_check_but_1_var = 1
     tab_1_check_but_1 = ttk.Checkbutton(tab_1_right_frame,text='Afficher Vitesses',variable = tab_1_check_but_1_var)
 ##    tab_1_check_but_1.deselect
@@ -676,7 +604,14 @@ def fentre():
     
     tab_1_check_1 = ttk.Button(tab_1_right_frame,text='Lancer affichage', command = afficher_sequence)
     tab_1_check_1.grid(row=2,column=0)
+
+    button_posture = 0
+    tab_1_rigt_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, to = len(sequence.postures)-1, variable = button_posture) 
+    tab_1_right_spnbox_1.grid(row=3,column=0)
+
     
+
+        
     #Création zones tab2
     tab_2_left_frame = tk.Frame(tab2)
     tab_2_left_frame.grid(row=0,column=0)
@@ -687,9 +622,7 @@ def fentre():
     #Zone gauche tab2
 
     fig = Figure(figsize=(5, 4), dpi=100)
-    #remplacer Lx et Ly par les valeurs
-    Lx, Ly = [1], [1]
-    fig.add_subplot(111).plot(Lx,Ly)
+    
 
     canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame )  # A tk.DrawingArea.
     canvas.draw()
@@ -703,20 +636,20 @@ def fentre():
     tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=listeProduits)
     tab_2_combobox_1.grid(row=0,column=0)
 
-    tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Angle')
-    tab_2_rad_but_1.grid(row=1,column=0)
-    tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Position')
-    tab_2_rad_but_2.grid(row=1,column=1)
+    tab_2_check_but_1=ttk.Checkbutton(tab_2_right_frame,text='Angle')
+    tab_2_check_but_1.grid(row=1,column=0)
+    tab_2_check_but_2=ttk.Checkbutton(tab_2_right_frame,text='Position')
+    tab_2_check_but_2.grid(row=1,column=1)
 
-    tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse')
-    tab_2_rad_but_1.grid(row=2,column=0)
-    tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération')
-    tab_2_rad_but_2.grid(row=2,column=1)
+    tab_2_check_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse')
+    tab_2_check_but_1.grid(row=2,column=0)
+    tab_2_check_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération')
+    tab_2_check_but_2.grid(row=2,column=1)
 
-    tab_2_rad_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse angulaire')
-    tab_2_rad_but_1.grid(row=3,column=0)
-    tab_2_rad_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération angulaire')
-    tab_2_rad_but_2.grid(row=3,column=1)
+    tab_2_check_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse angulaire')
+    tab_2_check_but_1.grid(row=3,column=0)
+    tab_2_check_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération angulaire')
+    tab_2_check_but_2.grid(row=3,column=1)
 
     tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution")
     tab_2_but_1.grid(row=4,column=0)
