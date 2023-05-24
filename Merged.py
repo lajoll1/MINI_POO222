@@ -316,52 +316,65 @@ class Regle():
 class Condition_Simple():
 
     # Valeur par défaut pour le seuil si domaine préféré
-    def __init__(self,ma_cible,mon_type_de_condition,mon_seuil_ou_domaine_ou_volume,ma_zone_du_corps="",direction=""):
+    def __init__(self,ma_cible,mon_type_de_condition,mon_seuil_ou_domaine_ou_volume,ma_zone_du_corps="",ma_direction=""):
         #Pas grande différence entre set et list pour l'usage fait...
-        liste_cibles = {"angle","position","pos"}
-        liste_conditions = {"lower than","greater than","belongs to"}
+        #Remplissage automatique envisageable si plus de temps
+        _liste_cibles = {"angle","pos"}
+        _liste_conditions = {"lower than","greater than","belongs to","belongs to the volume"}
+        _liste_directions = {"X","Y","Z"}
+        _liste_zones_du_corps = {"Neck","RightForeArm","Spine","RightHand"}
         # Début des tests
-        if ma_cible in liste_cibles: #Faire un fichier de génération auto ici
+        if ma_cible in _liste_cibles: #Faire un fichier de génération auto ici
             self._target = ma_cible
         else:
             pass
             # return "type de cible incorrect"
         #Replacer les conditions proprement
-        if mon_type_de_condition in {"lower than","greater than","belongs to","belongs to the volume"}:
+        if mon_type_de_condition in _liste_conditions:
             self._condition_type = mon_type_de_condition
-        
 
         # Selon le type de condition
-        if self._condition_type in liste_conditions and self._target is not "cible":
+        if self._target == "angle":
+            if self._condition_type in {"lower than","greater than"}:
+                self._threshold = float(mon_seuil_ou_domaine_ou_volume)
+                print("seuil initialisé")
+            elif self._condition_type == "belongs to":
+                mon_seuil_ou_domaine_ou_volume= mon_seuil_ou_domaine_ou_volume.removeprefix("(")
+                mon_seuil_ou_domaine_ou_volume=mon_seuil_ou_domaine_ou_volume.removesuffix(")")
+                self._domain=mon_seuil_ou_domaine_ou_volume
+                self._domain = tuple([float (x) for x in self._domain.split(",")])
+        elif self._target == "pos":
+            if self._condition_type in {"lower than","greater than"}:
+                if ma_direction in _liste_directions:
+                    self._direction=ma_direction
+                    self._threshold = float(mon_seuil_ou_domaine_ou_volume)
+                elif self._condition_type == "belongs to":                
+                    mon_seuil_ou_domaine_ou_volume= mon_seuil_ou_domaine_ou_volume.removeprefix("(")
+                    mon_seuil_ou_domaine_ou_volume=mon_seuil_ou_domaine_ou_volume.removesuffix(")")
+                    self._domain = tuple(mon_seuil_ou_domaine_ou_volume.split(","))
+                    self._domain =tuple([float (x) for x in self._domain])
+                    print("Tuple converti vaut {} et est de type {} et chaque donnée est de type {}".format(self._domain,type(self._domain),type(self._domain[0])))
+            elif self._condition_type == "belongs to the volume":
+                 #Donnée importée sous la forme (corner1,corner2)
+                self._first_corner,self._second_corner=mon_seuil_ou_domaine_ou_volume[0],mon_seuil_ou_domaine_ou_volume[1]
+                #Remove les parenthèses
+                mon_seuil_ou_domaine_ou_volume= mon_seuil_ou_domaine_ou_volume.removeprefix("(")
+                mon_seuil_ou_domaine_ou_volume=mon_seuil_ou_domaine_ou_volume.removesuffix(")")
+                self._first_corner = tuple([float (x) for x in self._first_corner.split(",")]) #vérifier que le split renvoie bien une liste et ne s'arrête pas à al premièrre virgule
+                self._second_corner = tuple([float (x) for x in self._second_corner.split(",")])
+                print("Tuple converti first_corner vaut {} et est de type {} et chaque donnée est de type {}".format(self._first_corner,type(self._first_corner),type(self._first_corner[0])))
+                #Code cette nouvelle partie avec les règles
+        else:
+            print("Duo articaulation / condition non reconnnu. Contactez les bienveillants et magnanimes créateurs de ce programme pour plus d'information ")
+            pass
+            #cas non défini par l'énoncé
              #fichier considéré sans erreur donc pas de test
              #if isinstance(mon_seuil_ou_domaine,int):
              #Prise en compte de la conversion du format anglophone ver
-            self._threshold = float(mon_seuil_ou_domaine_ou_volume)
-            print("seuil initialisé")
-           
-        elif self._condition_type in liste_conditions and self._target == "cible" :
-            #if isinstance(mon_seuil_ou_domaine,tuple) and len(mon_seuil_ou_domaine) == 2:
-            #Formattage des données nécessaire car lu comme string
-            mon_seuil_ou_domaine_ou_volume= mon_seuil_ou_domaine_ou_volume.removeprefix("(")
-            mon_seuil_ou_domaine_ou_volume=mon_seuil_ou_domaine_ou_volume.removesuffix(")")
-            self._domain = tuple(mon_seuil_ou_domaine_ou_volume.split(","))
-            self._domain =tuple([int (x) for x in self._domain])
-            print("Tuple converti vaut {} et est de type {} et chaque donnée est de type {}".format(self._domain,type(self._domain),type(self._domain[0])))
-        
-                # return "Domaine invalide"
-        elif self._condition_type == "belongs to the volume":
-            #Donnée importée sous la forme (corner1,corner2)
-            self._first_corner=mon_seuil_ou_domaine_ou_volume[0]
-            on_seuil_ou_domaine_ou_volume= mon_seuil_ou_domaine_ou_volume.removeprefix("(")
-            mon_seuil_ou_domaine_ou_volume=mon_seuil_ou_domaine_ou_volume.removesuffix(")")
-            self._first_corner = tuple(self._first_corner.split(","),type=float)
-            self._second_corner=mon_seuil_ou_domaine_ou_volume[1]
-            self._second_corner = tuple(self._second_corner.split(","),type=float)
-            print("Tuple converti first_corner vaut {} et est de type {} et chaque donnée est de type {}".format(self._first_corner,type(self._first_corner),type(self._first_corner[0])))
-            #Code cette nouvelle partie avec les règles
 
+           
         # A compléter selon futures règles ?
-        if ma_zone_du_corps in {"Neck","RightForeArm","Spine"}:
+        if ma_zone_du_corps in _liste_zones_du_corps:
             self._target_joint = ma_zone_du_corps
 
     #int obtenir_angle_depuis_posture(posture posture_a_verifier)
@@ -377,13 +390,14 @@ class Condition_Simple():
         print("Demande de la position de l'articulation {} pour la posture {}".format(self._target_joint,posture))
         return posture.obtenir(self._target_joint).position
    
-    def _obtenir_angle_depuis_projection_posture(self,posture,axe):
-            if axe == "X":
+    def _obtenir_angle_depuis_projection_posture(self,posture):
+         
+            if self._direction == "X":
                 pass
-            elif axe == "Y":
+            elif self._direction == "Y":
                 #Récupère la 2e coordonnée et la return
                 pass
-            elif axe == "Z":
+            elif self._direction == "Z":
                 pass
             else:
                 return "Axe non-reconnu"
@@ -414,7 +428,7 @@ class Condition_Simple():
                 elif self._condition_type == "lower than":
                     pass
                     #
-                    if self._obtenir_angle_depuis_projection_posture(posture_a_verifier,axe="Y") < self._threshold: return True
+                    if self._obtenir_angle_depuis_projection_posture(posture_a_verifier) < self._threshold: return True
                 elif self._condition_type == "greater than":
                     if  self.obtenir_angle_depuis_projection_posture(posture_a_verifier,axe) > self._threshold: return True
                 elif self._condition_type == "belongs to":
@@ -502,6 +516,9 @@ def importer_regle(chemin_d_acces_fichier_regles):
 
 regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
 print("test de la règle {}".format(regles["Ohhhh"].is_activated(sequence.postures[15])))
+
+
+
 
 
 
