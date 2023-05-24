@@ -388,7 +388,7 @@ class Condition_Simple():
         print("Passage par l'accesseur de dictionnaire")
         return self._param_dict
 
-    _param_dict_val = property(_get_param_dict)
+    param_dict_val = property(_get_param_dict)
 '_______Definition_classe_Condition_Composee_______'
 
 
