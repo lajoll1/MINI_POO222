@@ -2,6 +2,9 @@ import xml.etree.ElementTree as ET
 import math
 import numpy as np
 
+#export du fichier xml et en version pretty
+from xml.dom import minidom
+
 '________________Ouverture_fichier_XML________________'
 
 xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
@@ -158,6 +161,16 @@ class Posture():
         self._tonnumero = int(tonnumero)
         self._tesarticulations = list(tesarticulations)
 
+    def regles_activees(self):
+        liste_regles_activees_par_posture=list()
+        for regle in regles.values():
+            print("règle utilisée: {}".format(regle))
+            if regle.is_activated(self):
+                liste_regles_activees_par_posture.append(regle)
+        return liste_regles_activees_par_posture    
+        
+    
+
     def _lire_numero(self):
         return self._tonnumero
     def _lire_articulations(self):
@@ -259,7 +272,15 @@ class Sequence():
             if articulation.nom == nom_articulation:
                 return articulation
 
-
+    def posture_activees(self,regle_a_tester):
+        liste_postures_activant_la_regle=list()
+        #Vérifier comment Virgile récupère chacune des postures de la séquence
+        
+        for posture in self.postures:
+            if regle_a_tester.is_activated(posture):
+                    liste_postures_activant_la_regle.append(posture)
+            print("Vérification de l'activation de la règle à tester {} pour la posture {}".format(regle_a_tester,posture))
+        return liste_postures_activant_la_regle
 
 '________________________Main_________________________'
 
@@ -290,6 +311,24 @@ def _creer_postures_list():
     
 sequence = Sequence(_creer_postures_list()) # Instanciation d'un objet sequence contenant toutes les postures
 
+def exporter_xml():
+    # Create root element.
+    root = ET.Element("root")
+    
+    # Add sub element.
+    country = ET.SubElement(root, "country", name="Canada")
+    
+    # Add sub-sub element.
+    ontario = ET.SubElement(country, "province")
+    ontario.text = "Ontario"
+    ontario.set("rank", "2")    # Set attribute rank="2"
+    
+    # One-liner to create Alberta province.
+    ET.SubElement(country, "province", rank="3", category="oil").text = "Alberta"
+    
+    # Write XML file.
+    tree = ET.ElementTree(root)
+    tree.write("export.xml")
 
 
 '_______________________Règles________________________''_______________________Règles________________________''_______________________Règles________________________'
@@ -304,6 +343,9 @@ class Regle():
             self._nom_regle = mon_nom
             self._description_regle = ma_description
             self._condition_associe = ma_condition
+
+    def posture_activees():
+        pass
 
     def is_activated(self,posture):
         if isinstance(posture, Posture) or isinstance(posture, Posture):
@@ -343,7 +385,7 @@ class Condition_Simple():
             print("Dictionnaire mis à jour avec la clef {} et la valeur {} de type {}".format(duo_modifiable[0],duo_modifiable[1],type(duo_modifiable[1])))
 
     def _obtenir_depuis_posture(self,posture):
-        if self._param_dict.get("target") == "angle": return posture.obtenir(self._target_joint).angle
+        if self._param_dict.get("target") == "angle": return posture.obtenir(self._param_dict.get("target_joint")).angle
         elif self._param_dict.get("target") == "pos":
             #projection ou vérification 3D?
             if "direction" in self._param_dict.keys():
@@ -470,6 +512,9 @@ def importer_regle(chemin_d_acces_fichier_regles):
 regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
 print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
 
+print(sequence.postures[16].regles_activees())
+
+print(sequence.posture_activees(regles.get("rule_2")))
 
 
 
