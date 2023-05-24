@@ -378,6 +378,8 @@ class Condition_Simple():
                     print("Coordonnées de la posture obtenues {}".format(self._obtenir_depuis_posture(posture_a_verifier)))
                     x,y,z = self._obtenir_depuis_posture(posture_a_verifier)[0],self._obtenir_depuis_posture(posture_a_verifier)[1],self._obtenir_depuis_posture(posture_a_verifier)[2]
                     print("Test de l'appartenance au volume")
+                    print("Valeurs de x,y,z {} {} {}".format(x,y,z))
+                    print("First corner {} and second corner {}".format(self._param_dict.get("first_corner"),self._param_dict.get("second_corner")))
                     if self._param_dict.get("first_corner")[0] < x < self._param_dict.get("second_corner")[0] and \
                        self._param_dict.get("first_corner")[1] < y < self._param_dict.get("second_corner")[1] and \
                        self._param_dict.get("first_corner")[2] < z <  self._param_dict.get("second_corner")[2]:

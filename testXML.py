@@ -141,6 +141,6 @@ def importer_regle(chemin_d_acces_fichier_regles):
     return regles
 
 regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
-print("test de la règle {}".format(regles["Ohhhh"].is_activated(sequence.postures[15])))
+print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
 
 
