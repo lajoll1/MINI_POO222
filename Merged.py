@@ -318,7 +318,8 @@ class Condition_Simple():
     # Valeur par défaut pour le seuil si domaine préféré
     #liste retenue plutôt que *var et nombre infini de tuples en entrée
     def __init__(self, parameters_list):
-        _param_dict=dict()
+        #Pas de vérification des types car le fichier est supposé idéal
+        self._param_dict=dict()
         for mon_tuple in parameters_list:
             duo_modifiable=list(mon_tuple)
             #conversion des types
@@ -339,24 +340,24 @@ class Condition_Simple():
                 duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])               
 
-            _param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
+            self._param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
             print("Dictionnaire mis à jour avec la clef {} et la valeur {} de type {}".format(duo_modifiable[0],duo_modifiable[1],type(duo_modifiable[1])))
 
     def _obtenir_depuis_posture(self,posture):
         if self._param_dict.get("target") == "angle": return posture.obtenir(self._target_joint).angle
         elif self._param_dict.get("target") == "pos":
             #projection ou vérification 3D?
-            if "direction" in self._param_dict.keys:
+            if "direction" in self._param_dict.keys():
                 #Implique une projection donc disjonction de cas selon l'axe
                 #cas avec un angle ?
                 #TODO: tratier le cas Domain si projection
-                if self._direction == "X":
-                    return posture.obtenir(self._param_dict.get("_target_joint")).position[0]
-                elif self._direction == "Y":
-                    return posture.obtenir(self._param_dict.get("_target_joint")).position[1]
+                if self._param_dict.get("direction") == "X":
+                    return posture.obtenir(self._param_dict.get("target_joint")).position[0]
+                elif self._param_dict.get("direction") == "Y":
+                    return posture.obtenir(self._param_dict.get("target_joint")).position[1]
                     #Récupère la 2e coordonnée et la return
-                elif self._direction == "Z":
-                    return posture.obtenir(self._param_dict.get("_target_joint")).position[2]
+                elif self._param_dict.get("direction") == "Z":
+                    return posture.obtenir(self._param_dict.get("target_joint")).position[2]
                 else:
                     return "Axe non-reconnu"
             else: #forcément de type "belongs to the volume"
@@ -397,23 +398,23 @@ class Condition_Composee():
     # Condition_composée __init__(class self, string operateur, list ma_condition_composee)
     def __init__(self, mon_operateur,ma_liste_de_conditions_simples):
         if mon_operateur in {"or","and"}:
-            _operator = mon_operateur
+            self._operator = mon_operateur
         # Prendre en compte le fait qu'il y ait potentiellement n conditions simples dans la condition complexe
-            _liste_conditions_simples=[] # Liste en partaeg de pointeurs
+            self._liste_conditions_simples=[] # Liste en partaeg de pointeurs
             for x in ma_liste_de_conditions_simples:
                 if isinstance(x, Condition_Simple):
-                    _liste_conditions_simples.append(x)
+                    self._liste_conditions_simples.append(x)
 
     # bool is_activated(class self, class posture)                
     def is_activated(self, ma_posture):
-        if isinstance(ma_posture, posture):
+        if isinstance(ma_posture, Posture):
             # Assez flexible pour supporter de nouveaux opérateurs en ajoutant en elif
             if self._operator == "and":
-                for condition_simple in self._condition_list:
+                for condition_simple in self._liste_conditions_simples:
                     if condition_simple.is_activated(ma_posture) == False: return False
             # Vérifier toutes les conditions les unes après les autres et renvoyer False si l'une n'est pas vérifiée     
             elif self._operator == "or":
-                for condition_simple in self._condition_list:
+                for condition_simple in self._liste_conditions_simples:
                     if condition_simple.is_activated(ma_posture): return True
                 # Renvoyer true à la premirèe condition vérifiée
 
@@ -444,12 +445,16 @@ def importer_regle(chemin_d_acces_fichier_regles):
             print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
 
             for simple_condition in rule[0].iter("simple_condition"):
-                    print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
-                    la_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()]) 
+                    
+                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
+                    ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
                     liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
+                    print("Fait")
 
-            print("liste de conditions simples finale: {}".format(liste_conditions_simples))  
-            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),liste_conditions_simples)})
+            print("Opérateur logique: {}".format(rule[0].get("operator")))
+            print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
+            ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
+            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
             
             
 
@@ -458,7 +463,7 @@ def importer_regle(chemin_d_acces_fichier_regles):
     return regles
 
 regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
-print("test de la règle {}".format(regles["Ohhhh"].is_activated(sequence.postures[15])))
+print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
 
 
 
