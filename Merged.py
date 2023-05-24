@@ -319,6 +319,7 @@ class Condition_Simple():
     def __init__(self,ma_cible,mon_type_de_condition,mon_seuil_ou_domaine_ou_volume,ma_zone_du_corps="",ma_direction=""):
         #Pas grande différence entre set et list pour l'usage fait...
         #Remplissage automatique envisageable si plus de temps
+        #Dans un monde parallèle, les variables sont initialisées automatiquement dans un dictionnaire avec directement le bon nom. Ici, les conditions successives sont privilégiées.
         _liste_cibles = {"angle","pos"}
         _liste_conditions = {"lower than","greater than","belongs to","belongs to the volume"}
         _liste_directions = {"X","Y","Z"}
@@ -395,6 +396,7 @@ class Condition_Simple():
             if self._direction == "X":
                 pass
             elif self._direction == "Y":
+                return posture.obtenir(self._target_joint).position[1]
                 #Récupère la 2e coordonnée et la return
                 pass
             elif self._direction == "Z":
@@ -486,11 +488,14 @@ def importer_regle(chemin_d_acces_fichier_regles):
                 ma_condition_simple = Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint'))
                 # ma_condition_simple = Condition_Simple("angle","lower than","3","RightForeArm")
 
-            elif rule[0].get('condition_type') == "belongs to":
+            elif rule[0].get('condition_type') == "belongs to" and rule[0].get('target') == "angle":
                 ma_condition_simple = Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("domain"),rule[0].get('target_joint'))
+
+            elif rule[0].get('condition_type') == "belongs to" and rule[0].get('target') == "pos":
+                ma_condition_simple = Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("domain"),rule[0].get('target_joint'),rule[0].get('direction'))
         
             regles[rule.get('name')] = Regle(rule.get('name'),rule.get('description'),ma_condition_simple)
-
+            #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
 
         # Faut-il tout mettre en managé ?
         elif rule[0].tag == "composed_condition":
