@@ -304,12 +304,11 @@ class Regle():
             self._nom_regle = mon_nom
             self._description_regle = ma_description
             self._condition_associe = ma_condition
+
     def is_activated(self,posture):
         if isinstance(posture, Posture) or isinstance(posture, Posture):
             print("Vérification de l'activation de la règle {} ".format(posture))
         return self._condition_associe.is_activated(posture) 
-    
-
    
 '________Definition_classe_Condition_Simple________'
 
@@ -361,7 +360,7 @@ class Condition_Simple():
                 else:
                     return "Axe non-reconnu"
             else: #forcément de type "belongs to the volume"
-                return posture.obtenir(self._param_dict.get("_target_joint")).position
+                return posture.obtenir(self._param_dict.get("target_joint")).position
 
     # bool is_activated(class self, posture posture_a_verifier)
     def is_activated(self, posture_a_verifier):
@@ -379,9 +378,9 @@ class Condition_Simple():
                     print("Coordonnées de la posture obtenues {}".format(self._obtenir_depuis_posture(posture_a_verifier)))
                     x,y,z = self._obtenir_depuis_posture(posture_a_verifier)[0],self._obtenir_depuis_posture(posture_a_verifier)[1],self._obtenir_depuis_posture(posture_a_verifier)[2]
                     print("Test de l'appartenance au volume")
-                    if self._param_dict.get("_first_corner")[0] < x < self._param_dict.get("_second_corner")[0] and \
-                       self._param_dict.get("_first_corner")[1] < y < self._param_dict.get("_second_corner")[1] and \
-                       self._param_dict.get("_first_corner")[2] < z <  self._param_dict.get("_second_corner")[2]:
+                    if self._param_dict.get("first_corner")[0] < x < self._param_dict.get("second_corner")[0] and \
+                       self._param_dict.get("first_corner")[1] < y < self._param_dict.get("second_corner")[1] and \
+                       self._param_dict.get("first_corner")[2] < z <  self._param_dict.get("second_corner")[2]:
                         return True
                 #Nouveau if selon les éléments présents dans le dictionnaire
         return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
@@ -414,10 +413,12 @@ class Condition_Composee():
             if self._operator == "and":
                 for condition_simple in self._liste_conditions_simples:
                     if condition_simple.is_activated(ma_posture) == False: return False
+                    return True
             # Vérifier toutes les conditions les unes après les autres et renvoyer False si l'une n'est pas vérifiée     
             elif self._operator == "or":
                 for condition_simple in self._liste_conditions_simples:
                     if condition_simple.is_activated(ma_posture): return True
+                return False
                 # Renvoyer true à la premirèe condition vérifiée
 
 
