@@ -234,21 +234,21 @@ class Posture():
             ax.scatter(x,y,z,c='r',marker = 'o')
             ax.plot(x,y,z,c='b')
         
-            
-        for articulation in Liste_articulations_demandées :        
-            # Tracé du vecteur vitesse si demandé 
-            origine = articulation.position
-##            if call in ("v","b") and articulation.va_moy[0] != None:
-            vitesse = articulation.va_moy[0]
-            ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
-
-
-
-            # Tracé du vecteur acceleration si demandé
-            origine = articulation.position
-##            if call in ("a","b") and articulation.va_moy[1] != None:
-            acceleration = articulation.va_moy[1]
-            ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
+           
+##        for articulation in Liste_articulations_demandées :        
+##            # Tracé du vecteur vitesse si demandé 
+##            origine = articulation.position
+####            if call in ("v","b") and articulation.va_moy[0] != None:
+##            vitesse = articulation.va_moy[0]
+##            ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
+##
+##
+##
+##            # Tracé du vecteur acceleration si demandé
+##            origine = articulation.position
+####            if call in ("a","b") and articulation.va_moy[1] != None:
+##            acceleration = articulation.va_moy[1]
+##            ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
                         
         # Configuration des axes
         ax.set_xlabel('X')
@@ -558,21 +558,23 @@ def fentre():
 
     # Ici inclusion du plot matplotlib onglet 1
     # Taille de la fenêtre
+
     fig = Figure(figsize=(5, 4), dpi=100)
-    # remplacer Lx et Ly par les valeurs
-##    Lx, Ly = [1], [1]
+
 ##    fig.add_subplot(111).plot(Lx,Ly)
 
     
-##    canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
-##    canvas.get_tk_widget().grid(row=0,column=1)
-##    canvas.draw()
+    canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
+    canvas.get_tk_widget().grid(row=0,column=1)
+    canvas.draw()
 ##    del(canvas)
     
 
 
     def afficher_sequence(posture):
+##        del(canvas)
         # On détermine en fonction des boutons pressés les vecteurs à tracer
+        print(tab_1_check_but_1_var,tab_1_check_but_2_var)
         if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
 
         elif tab_1_check_but_1_var and not tab_1_check_but_2_var: call = 'v'
@@ -581,11 +583,11 @@ def fentre():
 
         else: call = 'r'
 
-        
-        canvas = FigureCanvasTkAgg(sequence.postures[button_posture].tracer(call), master=tab1_left_frame)  # A tk.DrawingArea.
+        ax = sequence.postures[posture].tracer(call)
+        canvas = FigureCanvasTkAgg(ax, master=tab1_left_frame)  # A tk.DrawingArea.
         canvas.get_tk_widget().grid(row=0,column=1)
         canvas.draw()
-##        del(canvas)
+        
 
     #Zone droite du tab1
     tab_1_right_frame= tk.Frame(tab1)
@@ -601,13 +603,15 @@ def fentre():
     tab_1_check_but_2 = ttk.Checkbutton(tab_1_right_frame,text='Afficher accélérations',variable = tab_1_check_but_2_var)
 ##    tab_1_check_but_2.deselect
     tab_1_check_but_2.grid(row=1,column=0)
-    
-    tab_1_check_1 = ttk.Button(tab_1_right_frame,text='Lancer affichage', command = afficher_sequence)
+
+    tab_1_right_spnbox_1_var = tk.StringVar(value=0)
+    tab_1_right_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, to = len(sequence.postures)-1, textvariable = tab_1_right_spnbox_1_var,wrap = True) 
+    tab_1_right_spnbox_1.grid(row=3,column=0)
+
+    tab_1_check_1 = ttk.Button(tab_1_right_frame,text='Lancer affichage', command = afficher_sequence(int(tab_1_right_spnbox_1.get())))
     tab_1_check_1.grid(row=2,column=0)
 
-    button_posture = 0
-    tab_1_rigt_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, to = len(sequence.postures)-1, variable = button_posture) 
-    tab_1_right_spnbox_1.grid(row=3,column=0)
+    
 
     
 
