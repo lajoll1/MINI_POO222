@@ -53,11 +53,9 @@ class Articulation():
 
     def _trouver_voisins_temporels(self):
         voisins = []
-        for i in [-2,-1,1,2]:
-            for articulation in sequence.postures[self.posture + i].articulations:
-                if articulation.nom == self.nom:
-                    voisins.append(articulation)
-        return voisins
+        if articulation.posture not in [0,1,len(sequence.postures)-1,len(sequence.postures)-2]:
+            pass
+##        return voisins
     voisins_t = property(_trouver_voisins_temporels)
 
     def _calculer_angle(self):
@@ -608,7 +606,8 @@ def fentre():
     tab_1_right_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, to = len(sequence.postures)-1, textvariable = tab_1_right_spnbox_1_var,wrap = True) 
     tab_1_right_spnbox_1.grid(row=3,column=0)
 
-    tab_1_check_1 = ttk.Button(tab_1_right_frame,text='Lancer affichage', command = afficher_sequence(int(tab_1_right_spnbox_1.get())))
+    tab_1_check_1 = ttk.Button(tab_1_right_frame,text='Lancer affichage')
+    #, command = afficher_sequence(int(tab_1_right_spnbox_1.get()))
     tab_1_check_1.grid(row=2,column=0)
 
     
@@ -632,32 +631,50 @@ def fentre():
     canvas.draw()
     canvas.get_tk_widget().grid(row=0,column=1)
 
-    canvas.get_tk_widget().grid(row=0,column=0)
+   
     #Zone droite tab2
 
 
-    listeProduits=[articulation.nom for articulation in sequence.postures[0].articulations] #A modifier avec la liste des articulations DONE
-    tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=listeProduits)
+    liste_articulations=[articulation.nom for articulation in sequence.postures[0].articulations] #A modifier avec la liste des articulations DONE
+    tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=liste_articulations)
     tab_2_combobox_1.grid(row=0,column=0)
 
-    tab_2_check_but_1=ttk.Checkbutton(tab_2_right_frame,text='Angle')
-    tab_2_check_but_1.grid(row=1,column=0)
-    tab_2_check_but_2=ttk.Checkbutton(tab_2_right_frame,text='Position')
-    tab_2_check_but_2.grid(row=1,column=1)
+    liste_demandes = ['Angle','Vitesse_moy','Acceleration_moy','Vitesse_ang','Acceleration_ang']
+    tab_2_combobox_2 = ttk.Combobox(tab_2_right_frame,values = liste_demandes)
+    tab_2_combobox_2.grid(row=3,column=0)
 
-    tab_2_check_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse')
-    tab_2_check_but_1.grid(row=2,column=0)
-    tab_2_check_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération')
-    tab_2_check_but_2.grid(row=2,column=1)
 
-    tab_2_check_but_1=ttk.Checkbutton(tab_2_right_frame,text='Vitesse angulaire')
-    tab_2_check_but_1.grid(row=3,column=0)
-    tab_2_check_but_2=ttk.Checkbutton(tab_2_right_frame,text='Accélération angulaire')
-    tab_2_check_but_2.grid(row=3,column=1)
+    def determiner_coord_evolution():
+        articulation = tab_2_combobox_1.get()
+        demande = tab_2_combobox_2.get()
+        dt = 1/1.2
+        x = [i*dt for i in range(2,len(sequence.postures)-2)]
+        y = []
+        for posture in sequence.postures:
+            articulation_concernee = posture.obtenir(articulation)
+            if demande == 'Angle':
+                y.append(articulation_concernee.angle)
+            if demande == 'Vitesse_moy':
+                y.append(articulation_concernee.va_moy[2])
+            if demande == 'Acceleration_moy':
+                y.append(articulation_concernee.va_moy[3])
+            if demande == 'Vitesse_ang':
+                y.append(articulation_concernee.va_ang[0])
+            if demande == 'Acceleration_ang':
+                y.append(articulation_concernee.va_ang[1])
+        return x,y
 
-    tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution")
-    tab_2_but_1.grid(row=4,column=0)
+    def tracer_evolution():
+        x,y = determiner_coord_evolution()
+        fig = plt.plot(x,y)
+        canvas = FigureCanvasTkAgg(fig, master=tab2_left_frame)  # A tk.DrawingArea.
+        canvas.get_tk_widget().grid(row=0,column=1)
+        canvas.draw()
 
+        
+    tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution", command = tracer_evolution)
+    tab_2_but_1.grid(row=4,column=0,columnspan = 2)
+    
     #tab 3
 
     tab_3_left_frame = tk.Frame(tab3)
