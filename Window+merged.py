@@ -124,7 +124,7 @@ class Articulation():
             angle_0 = self.voisins_t[1].angle
             angle_1 = self.voisins_t[2].angle
         
-            vitesse_ang = (angle_1-angle_0)/(2*dt)
+            vitesse_ang = (angle_1 - angle_0)/(2*dt)
 
         if self.posture not in [0,1,len(sequence.postures)-1,len(sequence.postures)-2]:
             angle_0 = self.voisins_t[0].angle
@@ -680,7 +680,7 @@ def fentre():
         articulation = tab_2_combobox_1.get()
         demande = tab_2_combobox_2.get()
         dt = 1/1.2
-        x = [i*dt for i in range(2,len(sequence.postures)-2)]
+        x = [i*dt for i in range(len(sequence.postures))]
         y = []
         for posture in sequence.postures:
             articulation_concernee = posture.obtenir(articulation)
@@ -698,14 +698,26 @@ def fentre():
 
     def tracer_evolution():
         x,y = determiner_coord_evolution()
-        fig = plt.plot(x,y)
-        canvas = FigureCanvasTkAgg(fig, master=tab2_left_frame)  # A tk.DrawingArea.
-        canvas.get_tk_widget().grid(row=0,column=1)
-        canvas.draw()
+        fig.add_subplot(111).plot(x,y)
 
+        canvas = FigureCanvasTkAgg(fig, master = tab_2_left_frame )  # A tk.DrawingArea.
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=0,column=0,columnspan = 2)
+
+    def nettoyer():
+        tab_2_left_frame.destroy
+        fig = Figure(figsize=(5, 4), dpi=100)
+
+        canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame)  # A tk.DrawingArea.
+        canvas.get_tk_widget().grid(row=0,column=0,columnspan=2)
+        canvas.draw()
         
     tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution", command = tracer_evolution)
     tab_2_but_1.grid(row=4,column=0,columnspan = 2)
+
+    racine = ttk
+    tab_2_but_2 = ttk.Button(tab_2_right_frame,text = "Clear", command = nettoyer)
+    tab_2_but_2.grid(row=5,column=0,columnspan = 2)
     
     #tab 3
 
