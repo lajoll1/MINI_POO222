@@ -53,9 +53,37 @@ class Articulation():
 
     def _trouver_voisins_temporels(self):
         voisins = []
-        if articulation.posture not in [0,1,len(sequence.postures)-1,len(sequence.postures)-2]:
-            pass
-##        return voisins
+        if self.posture == 0:
+            voisins.append(None)
+            voisins.append(None)
+            voisins.append(sequence.search(self.nom,1))
+            voisins.append(None)
+            
+        elif self.posture == 1:
+            voisins.append(None)
+            voisins.append(sequence.search(self.nom,0))
+            voisins.append(sequence.search(self.nom,2))
+            voisins.append(sequence.search(self.nom,3))
+            
+        elif self.posture == len(sequence.postures)-1:
+            voisins.append(None)
+            voisins.append(sequence.search(self.nom,len(sequence.postures)-2))
+            voisins.append(None)
+            voisins.append(None)
+
+        elif self.posture == len(sequence.postures)-2:
+            voisins.append(sequence.search(self.nom,len(sequence.postures)-4))
+            voisins.append(sequence.search(self.nom,len(sequence.postures)-3))
+            voisins.append(sequence.search(self.nom,len(sequence.postures)-1))
+            voisins.append(None)
+
+        else :
+            voisins.append(sequence.search(self.nom,self.posture-2))
+            voisins.append(sequence.search(self.nom,self.posture-1))
+            voisins.append(sequence.search(self.nom,self.posture+1))
+            voisins.append(sequence.search(self.nom,self.posture+2))
+      
+        return voisins
     voisins_t = property(_trouver_voisins_temporels)
 
     def _calculer_angle(self):
@@ -90,16 +118,20 @@ class Articulation():
 
     def _calculer_v_a_angulaire(self):
         dt = 1/1.2
-        angle_0 = self.voisins_t[1].angle
-        angle_1 = self.voisins_t[2].angle
+        vitesse_ang,acceleration_ang = 0,0
+
+        if self.posture not in [0,len(sequence.postures)-1]:
+            angle_0 = self.voisins_t[1].angle
+            angle_1 = self.voisins_t[2].angle
         
-        vitesse_ang = (angle_1-angle_0)/(2*dt)
+            vitesse_ang = (angle_1-angle_0)/(2*dt)
 
-        angle_0 = self.voisins_t[0].angle
-        angle_1 = self.angle
-        angle_2 = self.voisins_t[3].angle
+        if self.posture not in [0,1,len(sequence.postures)-1,len(sequence.postures)-2]:
+            angle_0 = self.voisins_t[0].angle
+            angle_1 = self.angle
+            angle_2 = self.voisins_t[3].angle
 
-        acceleration_ang = (angle_2 + angle_0 - 2*angle_1)/(4*dt)
+            acceleration_ang = (angle_2 + angle_0 - 2*angle_1)/(4*dt)
 
         return vitesse_ang,acceleration_ang
 
@@ -123,8 +155,8 @@ class Articulation():
             norme_vitesse = np.sqrt(vitesse[0]**2+vitesse[1]**2+vitesse[2]**2)
             
         else:
-            vitesse = None
-            norme_vitesse = None
+            vitesse = [0,0,0]
+            norme_vitesse = 0
 
         if self.posture > 1 and self.posture < 56:
 
@@ -140,8 +172,8 @@ class Articulation():
             norme_acceleration = np.sqrt(acceleration[0]**2+acceleration[1]**2+acceleration[2]**2)
             
         else:
-            acceleration = None
-            norme_acceleration = None
+            acceleration = [0,0,0]
+            norme_acceleration = 0
         return vitesse, acceleration, norme_vitesse, norme_acceleration
 
     va_moy = property(_calculer_v_a_moyenne)
