@@ -434,7 +434,7 @@ def importer_regle(chemin_d_acces_fichier_regles):
             print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
             ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
             #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
-            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple._param_dict_val))
+            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
             regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
             
         elif rule[0].tag == "composed_condition":
