@@ -361,7 +361,7 @@ class Condition_Simple():
                 else:
                     return "Axe non-reconnu"
             else: #forcément de type "belongs to the volume"
-                return posture.obtenir(self._param_dict.get("_target_joint"))
+                return posture.obtenir(self._param_dict.get("_target_joint")).position
 
     # bool is_activated(class self, posture posture_a_verifier)
     def is_activated(self, posture_a_verifier):
@@ -371,12 +371,14 @@ class Condition_Simple():
                 #obtenir_angle_depuis_posture doit être complexifié et prendre en compte le cas où projection
                 if self._param_dict.get("condition_type") == "lower than":
                     if self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("threshold"): return True
-                elif self._condition_type == "greater than":
+                elif self._param_dict.get("condition_type") == "greater than":
                     if  self._obtenir_depuis_posture(posture_a_verifier) > self._param_dict.get("threshold"): return True
-                elif self._condition_type == "belongs to": 
+                elif self._param_dict.get("condition_type") == "belongs to": 
                     if  self._param_dict.get("domain")[0] < self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("domain")[1]: return True
-                elif self._condition_type == " belongs to the volume":
-                    x,y,z = self._obtenir_depuis_posture(posture_a_verifier)
+                elif self._param_dict.get("condition_type") == "belongs to the volume":
+                    print("Coordonnées de la posture obtenues {}".format(self._obtenir_depuis_posture(posture_a_verifier)))
+                    x,y,z = self._obtenir_depuis_posture(posture_a_verifier)[0],self._obtenir_depuis_posture(posture_a_verifier)[1],self._obtenir_depuis_posture(posture_a_verifier)[2]
+                    print("Test de l'appartenance au volume")
                     if self._param_dict.get("_first_corner")[0] < x < self._param_dict.get("_second_corner")[0] and \
                        self._param_dict.get("_first_corner")[1] < y < self._param_dict.get("_second_corner")[1] and \
                        self._param_dict.get("_first_corner")[2] < z <  self._param_dict.get("_second_corner")[2]:
