@@ -844,7 +844,6 @@ def main():
         #On suppose les fichiers verslesquels on a pointé les bons.
         if root_txt_zone_1.get() and root_txt_zone_2.get():
             fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
-            global sequence 
             sequence = fichiers_charges.obtenir_sequence
            # print("Les chemins des fichiers d'imports sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
             afficher_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)    
