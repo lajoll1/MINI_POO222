@@ -515,7 +515,7 @@ class Chargement():
             posture = Posture(frame_number)
             for joint_elem in frame_elem.iter('Joint'):
                 articulation = parse_joint_element(joint_elem,frame_elem,posture)
-                posture.add_articulation(articulation)
+                posture._add_articulation(articulation)
             return posture
 
         def parse_xml(file_path):
