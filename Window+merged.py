@@ -767,7 +767,7 @@ def main():
 
 
     root = tk.Tk()
-
+    root.title("MINI_POO - 2022_S2")
     # Fonction d'import doublée faute de mieux
     # Possibilité de complexifier si on sait quel bouton a appelé
     def open_postures_file():
@@ -790,7 +790,7 @@ def main():
     root_txt_zone_1=tk.Entry(root)
     root_txt_zone_1.grid(row=0,column=1)
 
-    root_button_1=tk.Button(root, text = "Importer", command = open_postures_file)
+    root_button_1=tk.Button(root, text = "Sélectionner", command = open_postures_file)
     root_button_1.grid(row=0,column=2)
 
     print(root_button_1)
@@ -800,10 +800,10 @@ def main():
     root_txt_zone_2=tk.Entry(root)
     root_txt_zone_2.grid(row=1,column=1)
 
-    root_button_2=tk.Button(root, text = "Importer", command = open_rules_file)
+    root_button_2=tk.Button(root, text = "Selectionner", command = open_rules_file)
     root_button_2.grid(row=1,column=2)
 
-    root_button_3=tk.Button(root, text = "Valider", command = start_analyzing_process)
+    root_button_3=tk.Button(root, text = "Lancer l'import", command = start_analyzing_process)
     root_button_3.grid(row=2,column=0,sticky="EW",columnspan=3)
 
     root.mainloop()  # Keep the window open
