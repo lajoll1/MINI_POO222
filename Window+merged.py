@@ -769,7 +769,7 @@ def main():
 
 
         #right_frame
-        tab_3_right_but_1=tk.Button(tab_3_right_frame,text="Lister et Enregistrer les règles activées")
+        tab_3_right_but_1=tk.Button(tab_3_right_frame,text="Lister et Enregistrer les règles activées",command=lancer_recherche_posture_activant_regle_selectionnee)
         tab_3_right_but_1.grid(row=0,column=0)
 
 
