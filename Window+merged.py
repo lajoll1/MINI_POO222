@@ -139,12 +139,12 @@ import numpy as np
 
 '____________Definition_classe_Articulation___________'
 
-class Articulation():
-    def __init__(self,tonnom,taposition,taposture,tonvoisindavant,tesvoisinsdapresXML):
+class Articulation:
+    def __init__(self, tonnom,taposition,taposture):
         self._tonnom = str(tonnom)
-        self._taposition = [float(num) for num in taposition.strip('()').split(',')]
         self._taposture = int(taposture)
-        self._voisinsXML = {"P":tonvoisindavant,"N":tesvoisinsdapresXML}
+        self._tesneighbors = {"N":[]}
+        self._taposition = taposition
         
         
     def _lire_nom(self):
@@ -153,29 +153,19 @@ class Articulation():
         return self._taposition
     def _lire_posture(self):
         return self._taposture
-    def _lire_voisinsXML(self):
-        return self._voisinsXML
+    def _lire_voisins(self):
+        return self._tesneighbors
     
     nom = property(_lire_nom)
     position = property(_lire_position)
     posture = property(_lire_posture)
-    voisinsXML = property(_lire_voisinsXML)
+    voisins = property(_lire_voisins)
 
-    def _trouver_voisinsPOO(self):
-        parent = None
-        enfants = []
-        for articulation in sequence.postures[self.posture].articulations:
-            if _trouver_parent(tronc,self.voisinsXML["P"])!=tronc:
-                if articulation.nom == self.voisinsXML["P"].attrib["Name"]:
-                    parent = articulation
-            else:
-                parent = None
-                
-            for enfantXML in self.voisinsXML["N"]:
-                if articulation.nom == enfantXML.attrib["Name"]:
-                    enfants.append(articulation)
-        return (parent,enfants)
-    voisinsPOO = property(_trouver_voisinsPOO)
+    def add_neighbor_child(self, neighbor):
+        self._tesneighbors["N"].append(neighbor)
+
+    def add_neighbor_parent(self, neighbor):
+        self._tesneighbors["P"] = neighbor
 
     def _trouver_voisins_temporels(self):
         voisins = []
@@ -204,10 +194,7 @@ class Articulation():
             voisins.append(None)
 
         else :
-            voisins.append(sequence.search(self.nom,self.posture-2))
-            voisins.append(sequence.search(self.nom,self.posture-1))
-            voisins.append(sequence.search(self.nom,self.posture+1))
-            voisins.append(sequence.search(self.nom,self.posture+2))
+            posture_voisines = [self.posture]
       
         return voisins
     voisins_t = property(_trouver_voisins_temporels)

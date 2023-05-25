@@ -3,10 +3,11 @@ import xml.etree.ElementTree as ET
 class Articulation:
     def __init__(self, tonnom,taposition,taposture):
         self._tonnom = str(tonnom)
-        self._taposture = int(taposture)
+        self._taposture_num = taposture.numero
         self._tesneighbors = {"N":[]}
         self._taposition = taposition #[float(num) for num in taposition.strip('()').split(',')]
-
+        self._taposture = taposture
+        
     def _lire_nom(self):
         return self._tonnom
     def _lire_position(self):
@@ -18,7 +19,7 @@ class Articulation:
     
     nom = property(_lire_nom)
     position = property(_lire_position)
-    posture = property(_lire_posture)
+    posture_num = property(_lire_posture)
     voisins = property(_lire_voisins)
 
     def add_neighbor_child(self, neighbor):
@@ -70,7 +71,7 @@ class Sequence:
             if i < num_postures - 1:
                 self.postures[i].set_next_posture(self.postures[i+1])
 
-def parse_joint_element(joint_elem,frame_elem,frame_number):
+def parse_joint_element(joint_elem,frame_elem,posture):
 
     def trouver_parent(tronc, element):    
             for enfant in tronc:
@@ -83,14 +84,15 @@ def parse_joint_element(joint_elem,frame_elem,frame_number):
 
     name = joint_elem.get('Name')
     position = eval(joint_elem.get('Position'))
-    articulation = Articulation(name, position, frame_number)
+    articulation = Articulation(name, position, posture)
     for child_elem in joint_elem.findall("Joint"):
-        if child_elem.tag == 'Joint':
-            child_articulation = parse_joint_element(child_elem,joint_elem,frame_number)
-            articulation.add_neighbor_child(child_articulation)
+##        if child_elem.tag == 'Joint':
+        child_articulation = parse_joint_element(child_elem,joint_elem,posture)
+        articulation.add_neighbor_child(child_articulation)
 
-    if trouver_parent(frame_elem,joint_elem).tag=='Joint':
-        parent_articulation = trouver_parent(frame_elem,joint_elem) 
+    parent_articulation = trouver_parent(frame_elem, joint_elem)
+    if parent_articulation is not None and parent_articulation.tag == 'Joint':
+        parent_articulation = parse_joint_element(parent_articulation, frame_elem, posture)
         articulation.add_neighbor_parent(parent_articulation)
     return articulation
 
@@ -98,7 +100,7 @@ def parse_frame_element(frame_elem,c):
     frame_number = c
     posture = Posture(frame_number)
     for joint_elem in frame_elem.iter('Joint'):
-        articulation = parse_joint_element(joint_elem,frame_elem,frame_number)
+        articulation = parse_joint_element(joint_elem,frame_elem,posture)
         posture.add_articulation(articulation)
     return posture
 
