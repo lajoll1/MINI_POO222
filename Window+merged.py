@@ -317,7 +317,7 @@ class Posture():
         self._tonnumero = int(tonnumero)
         self._tesarticulations = list(tesarticulations)
 
-    def regles_activees(self):
+    def regles_activees(self,regles):
         liste_regles_activees_par_posture=list()
         for regle in regles.values():
             print("règle utilisée: {}".format(regle))
@@ -654,9 +654,9 @@ def main():
 
         def lancer_recherche_regles_activees_posture():
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
-            print("Objet de type posture de valeur {}".format(sequence.posture[tab_3_left_spnbox_1.get]))
+            print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
             if tab_3_left_spnbox_1.get():
-                tab_3_left_lstbox_1.update(sequence.posture[tab_3_left_spnbox_1.get].regles_activees())
+                tab_3_left_lstbox_1.update(sequence.postures[int(tab_3_left_spnbox_1.get())].regles_activees(regles))
         #Zone droite du tab1
         tab_1_right_frame= tk.Frame(tab1)
         tab_1_right_frame.grid(row=0,column=1)
@@ -782,7 +782,7 @@ def main():
         #On suppose les fichiers verslesquels on a pointé les bons.
         if root_txt_zone_1.get() and root_txt_zone_2.get():
             fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
-            print("Les chemins des fichiers d'imports sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
+           # print("Les chemins des fichiers d'imports sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
             afficher_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)    
 
     # Création des zones d'import fichiers
