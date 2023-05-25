@@ -150,7 +150,7 @@ class Articulation:
         self._tonnom = str(tonnom)
         self._taposture_num = taposture.numero
         self._tesneighbors = {"N":[],"P":None}
-        self._taposition = taposition 
+        self._taposition = taposition
         self._taposture = taposture
         
         
@@ -171,6 +171,11 @@ class Articulation:
     voisins = property(_lire_voisins)
     posture_num = property(_lire_posture_num)
 
+    def _convertir(self):
+        ma_variable = str(self._taposition)[1:-1]
+        ma_variable = tuple([float (x) for x in ma_variable.split(",")])
+        return ma_variable
+    vposition = property(_convertir)
     def _add_neighbor_child(self, neighbor):
         self._tesneighbors["N"].append(neighbor)
 
@@ -234,9 +239,9 @@ class Articulation:
 
     def _calculer_angle(self):
         if len(self.voisins['N']) == 1 and self.voisins['P']!= None :
-            x1,y1,z1 = self.voisins['P'].position[0],self.voisins['P'].position[1],self.voisins['P'].position[2]
+            x1,y1,z1 = self.voisins['P'].vposition[0],self.voisins['P'].vposition[1],self.voisins['P'].vposition[2]
             x2,y2,z2 = (self.position)[0],(self.position)[1],(self.position)[2]
-            x3,y3,z3 = self.voisins['N'][0].position[0],self.voisins['N'][0].position[1],self.voisins['N'][0].position[2]
+            x3,y3,z3 = self.voisins['N'][0].vposition[0],self.voisins['N'][0].vposition[1],self.voisins['N'][0].vposition[2]
 
             # Calcule les vecteurs AB et BC
             AB = (x2 - x1, y2 - y1, z2 - z1)
