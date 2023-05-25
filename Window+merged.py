@@ -50,8 +50,14 @@ class Condition_Simple():
             self._param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
             print("Dictionnaire mis à jour avec la clef {} et la valeur {} de type {}".format(duo_modifiable[0],duo_modifiable[1],type(duo_modifiable[1])))
 
+    def _posture_seeker(self,articulation_cible,posture):
+        for articulation in posture.articulations:
+            if articulation.nom == articulation_cible:
+                return articulation
+        return -1
+
     def _obtenir_depuis_posture(self,posture):
-        if self._param_dict.get("target") == "angle": return posture.obtenir(self._param_dict.get("target_joint")).angle
+        if self._param_dict.get("target") == "angle": return self._posture_seeker(self._param_dict.get("target_joint"),posture).angle
         elif self._param_dict.get("target") == "pos":
             #projection ou vérification 3D?
             if "direction" in self._param_dict.keys():
@@ -59,16 +65,16 @@ class Condition_Simple():
                 #cas avec un angle ?
                 #TODO: tratier le cas Domain si projection
                 if self._param_dict.get("direction") == "X":
-                    return posture.obtenir(self._param_dict.get("target_joint")).position[0]
+                    return self._posture_seeker(self._param_dict.get("target_joint"),posture).position[0]
                 elif self._param_dict.get("direction") == "Y":
-                    return posture.obtenir(self._param_dict.get("target_joint")).position[1]
+                    return self._posture_seeker(self._param_dict.get("target_joint"),posture).position[1]
                     #Récupère la 2e coordonnée et la return
                 elif self._param_dict.get("direction") == "Z":
-                    return posture.obtenir(self._param_dict.get("target_joint")).position[2]
+                    return self._posture_seeker(self._param_dict.get("target_joint"),posture).position[2]
                 else:
                     return "Axe non-reconnu"
             else: #forcément de type "belongs to the volume"
-                return posture.obtenir(self._param_dict.get("target_joint")).position
+                return posture_seeker(self._param_dict.get("target_joint"),posture).position
 
     # bool is_activated(class self, posture posture_a_verifier)
     def is_activated(self, posture_a_verifier):
