@@ -1,4 +1,184 @@
 import xml.etree.ElementTree as ET
+'_______________________Règles________________________''_______________________Règles________________________''_______________________Règles________________________'
+
+
+
+class Regle():
+    def __init__(self,mon_nom,ma_description,ma_condition):
+        if isinstance(mon_nom, str) and isinstance(ma_description, str) and (isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, Condition_Composee)):
+            self._nom_regle = mon_nom
+            self._description_regle = ma_description
+            self._condition_associe = ma_condition
+
+    def posture_activees():
+        pass
+
+    def is_activated(self,posture):
+        if isinstance(posture, Posture) or isinstance(posture, Posture):
+            print("Vérification de l'activation de la règle {} ".format(posture))
+        return self._condition_associe.is_activated(posture) 
+   
+'________Definition_classe_Condition_Simple________'
+
+class Condition_Simple():
+
+    # Valeur par défaut pour le seuil si domaine préféré
+    #liste retenue plutôt que *var et nombre infini de tuples en entrée
+    def __init__(self, parameters_list):
+        #Pas de vérification des types car le fichier est supposé idéal
+        self._param_dict=dict()
+        for mon_tuple in parameters_list:
+            duo_modifiable=list(mon_tuple)
+            #conversion des types
+            if duo_modifiable[0] == "threshold":
+                duo_modifiable[1]=float(mon_tuple[1])
+                print("threshold converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1])))
+            if duo_modifiable[0] == "domain":
+                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+                duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
+                print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
+            
+            if duo_modifiable[0]== "first_corner":
+                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+                duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
+                print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
+            
+            if duo_modifiable[0]== "second_corner":
+                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+                duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])               
+
+            self._param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
+            print("Dictionnaire mis à jour avec la clef {} et la valeur {} de type {}".format(duo_modifiable[0],duo_modifiable[1],type(duo_modifiable[1])))
+
+    def _obtenir_depuis_posture(self,posture):
+        if self._param_dict.get("target") == "angle": return posture.obtenir(self._param_dict.get("target_joint")).angle
+        elif self._param_dict.get("target") == "pos":
+            #projection ou vérification 3D?
+            if "direction" in self._param_dict.keys():
+                #Implique une projection donc disjonction de cas selon l'axe
+                #cas avec un angle ?
+                #TODO: tratier le cas Domain si projection
+                if self._param_dict.get("direction") == "X":
+                    return posture.obtenir(self._param_dict.get("target_joint")).position[0]
+                elif self._param_dict.get("direction") == "Y":
+                    return posture.obtenir(self._param_dict.get("target_joint")).position[1]
+                    #Récupère la 2e coordonnée et la return
+                elif self._param_dict.get("direction") == "Z":
+                    return posture.obtenir(self._param_dict.get("target_joint")).position[2]
+                else:
+                    return "Axe non-reconnu"
+            else: #forcément de type "belongs to the volume"
+                return posture.obtenir(self._param_dict.get("target_joint")).position
+
+    # bool is_activated(class self, posture posture_a_verifier)
+    def is_activated(self, posture_a_verifier):
+        if isinstance(posture_a_verifier, Posture): 
+            
+                # Droit d'accéder par élément car dans la classe
+                #obtenir_angle_depuis_posture doit être complexifié et prendre en compte le cas où projection
+                if self._param_dict.get("condition_type") == "lower than":
+                    if self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("threshold"): return True
+                elif self._param_dict.get("condition_type") == "greater than":
+                    if  self._obtenir_depuis_posture(posture_a_verifier) > self._param_dict.get("threshold"): return True
+                elif self._param_dict.get("condition_type") == "belongs to": 
+                    if  self._param_dict.get("domain")[0] < self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("domain")[1]: return True
+                elif self._param_dict.get("condition_type") == "belongs to the volume":
+                    print("Coordonnées de la posture obtenues {}".format(self._obtenir_depuis_posture(posture_a_verifier)))
+                    x,y,z = self._obtenir_depuis_posture(posture_a_verifier)[0],self._obtenir_depuis_posture(posture_a_verifier)[1],self._obtenir_depuis_posture(posture_a_verifier)[2]
+                    print("Test de l'appartenance au volume")
+                    print("Valeurs de x,y,z {} {} {}".format(x,y,z))
+                    print("First corner {} and second corner {}".format(self._param_dict.get("first_corner"),self._param_dict.get("second_corner")))
+                    if self._param_dict.get("first_corner")[0] < x < self._param_dict.get("second_corner")[0] and \
+                       self._param_dict.get("first_corner")[1] < y < self._param_dict.get("second_corner")[1] and \
+                       self._param_dict.get("first_corner")[2] < z <  self._param_dict.get("second_corner")[2]:
+                        return True
+                #Nouveau if selon les éléments présents dans le dictionnaire
+        return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
+        # bool superieur_A_Un_Seuil()
+
+    def _get_param_dict(self):
+        print("Passage par l'accesseur de dictionnaire")
+        return self._param_dict
+
+    param_dict_val = property(_get_param_dict)
+'_______Definition_classe_Condition_Composee_______'
+
+
+class Condition_Composee():
+    
+    # Condition_composée __init__(class self, string operateur, list ma_condition_composee)
+    def __init__(self, mon_operateur,ma_liste_de_conditions_simples):
+        if mon_operateur in {"or","and"}:
+            self._operator = mon_operateur
+        # Prendre en compte le fait qu'il y ait potentiellement n conditions simples dans la condition complexe
+            self._liste_conditions_simples=[] # Liste en partaeg de pointeurs
+            for x in ma_liste_de_conditions_simples:
+                if isinstance(x, Condition_Simple):
+                    self._liste_conditions_simples.append(x)
+
+    # bool is_activated(class self, class posture)                
+    def is_activated(self, ma_posture):
+        if isinstance(ma_posture, Posture):
+            # Assez flexible pour supporter de nouveaux opérateurs en ajoutant en elif
+            if self._operator == "and":
+                for condition_simple in self._liste_conditions_simples:
+                    if condition_simple.is_activated(ma_posture) == False: return False
+                    return True
+            # Vérifier toutes les conditions les unes après les autres et renvoyer False si l'une n'est pas vérifiée     
+            elif self._operator == "or":
+                for condition_simple in self._liste_conditions_simples:
+                    if condition_simple.is_activated(ma_posture): return True
+                return False
+                # Renvoyer true à la premirèe condition vérifiée
+
+
+'_____________Importation_des_règles______________'
+    
+def importer_regle(chemin_d_acces_fichier_regles):
+    arbreXML= ET.parse(chemin_d_acces_fichier_regles)
+    tronc = arbreXML.getroot()
+
+    # Dictionnaire de la forme {"nom_règle" : pointeur_de_la_règle_associée}
+    regles = dict()
+
+    for rule in tronc.iter('rule'):
+
+        if rule[0].tag == "simple_condition":
+
+            print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
+            ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
+            #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
+            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
+            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
+            
+        elif rule[0].tag == "composed_condition":
+           
+            liste_conditions_simples = []
+            
+            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
+
+            for simple_condition in rule[0].iter("simple_condition"):
+                    
+                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
+                    ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
+                    liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
+                    print("Fait")
+
+            print("Opérateur logique: {}".format(rule[0].get("operator")))
+            print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
+            ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
+            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
+            
+            
+
+
+    print(regles)
+    return regles
+
+
+
+
+
 import math
 import numpy as np
 
@@ -271,22 +451,6 @@ class Posture():
             z = [self.obtenir(articulation).position[1] for articulation in ligne]
             ax.scatter(x,y,z,c='r',marker = 'o')
             ax.plot(x,y,z,c='b')
-        
-           
-##        for articulation in Liste_articulations_demandées :        
-##            # Tracé du vecteur vitesse si demandé 
-##            origine = articulation.position
-####            if call in ("v","b") and articulation.va_moy[0] != None:
-##            vitesse = articulation.va_moy[0]
-##            ax.quiver(origine[0], origine[2], origine[1], vitesse[0], vitesse[2], vitesse[1], color='green')
-##
-##
-##
-##            # Tracé du vecteur acceleration si demandé
-##            origine = articulation.position
-####            if call in ("a","b") and articulation.va_moy[1] != None:
-##            acceleration = articulation.va_moy[1]
-##            ax.quiver(origine[0], origine[2], origine[1], acceleration[0], acceleration[2], acceleration[1], color='magenta')
                         
         # Configuration des axes
         ax.set_xlabel('X')
@@ -311,7 +475,7 @@ class Sequence():
 
     def posture_activees(self,regle_a_tester):
         liste_postures_activant_la_regle=list()
-        #Vérifier comment Virgile récupère chacune des postures de la séquence
+        # Vérifier comment Virgile récupère chacune des postures de la séquence
         
         for posture in self.postures:
             if regle_a_tester.is_activated(posture):
@@ -359,7 +523,8 @@ def _creer_postures_list():
     
 sequence = Sequence(_creer_postures_list()) # Instanciation d'un objet sequence contenant toutes les postures
 
-regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
+regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
+
 print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
 
 print(sequence.postures[16].regles_activees())
@@ -367,181 +532,181 @@ print(sequence.postures[16].regles_activees())
 print(sequence.posture_activees(regles.get("rule_2")))
 
 
-'_______________________Règles________________________''_______________________Règles________________________''_______________________Règles________________________'
-
-
-
-class Regle():
-    def __init__(self,mon_nom,ma_description,ma_condition):
-        if isinstance(mon_nom, str) and isinstance(ma_description, str) and (isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, Condition_Composee)):
-            self._nom_regle = mon_nom
-            self._description_regle = ma_description
-            self._condition_associe = ma_condition
-
-    def posture_activees():
-        pass
-
-    def is_activated(self,posture):
-        if isinstance(posture, Posture) or isinstance(posture, Posture):
-            print("Vérification de l'activation de la règle {} ".format(posture))
-        return self._condition_associe.is_activated(posture) 
-   
-'________Definition_classe_Condition_Simple________'
-
-class Condition_Simple():
-
-    # Valeur par défaut pour le seuil si domaine préféré
-    #liste retenue plutôt que *var et nombre infini de tuples en entrée
-    def __init__(self, parameters_list):
-        #Pas de vérification des types car le fichier est supposé idéal
-        self._param_dict=dict()
-        for mon_tuple in parameters_list:
-            duo_modifiable=list(mon_tuple)
-            #conversion des types
-            if duo_modifiable[0] == "threshold":
-                duo_modifiable[1]=float(mon_tuple[1])
-                print("threshold converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1])))
-            if duo_modifiable[0] == "domain":
-                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
-                duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
-                print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
-            
-            if duo_modifiable[0]== "first_corner":
-                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
-                duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
-                print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
-            
-            if duo_modifiable[0]== "second_corner":
-                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
-                duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])               
-
-            self._param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
-            print("Dictionnaire mis à jour avec la clef {} et la valeur {} de type {}".format(duo_modifiable[0],duo_modifiable[1],type(duo_modifiable[1])))
-
-    def _obtenir_depuis_posture(self,posture):
-        if self._param_dict.get("target") == "angle": return posture.obtenir(self._param_dict.get("target_joint")).angle
-        elif self._param_dict.get("target") == "pos":
-            #projection ou vérification 3D?
-            if "direction" in self._param_dict.keys():
-                #Implique une projection donc disjonction de cas selon l'axe
-                #cas avec un angle ?
-                #TODO: tratier le cas Domain si projection
-                if self._param_dict.get("direction") == "X":
-                    return posture.obtenir(self._param_dict.get("target_joint")).position[0]
-                elif self._param_dict.get("direction") == "Y":
-                    return posture.obtenir(self._param_dict.get("target_joint")).position[1]
-                    #Récupère la 2e coordonnée et la return
-                elif self._param_dict.get("direction") == "Z":
-                    return posture.obtenir(self._param_dict.get("target_joint")).position[2]
-                else:
-                    return "Axe non-reconnu"
-            else: #forcément de type "belongs to the volume"
-                return posture.obtenir(self._param_dict.get("target_joint")).position
-
-    # bool is_activated(class self, posture posture_a_verifier)
-    def is_activated(self, posture_a_verifier):
-        if isinstance(posture_a_verifier, Posture): 
-            
-                # Droit d'accéder par élément car dans la classe
-                #obtenir_angle_depuis_posture doit être complexifié et prendre en compte le cas où projection
-                if self._param_dict.get("condition_type") == "lower than":
-                    if self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("threshold"): return True
-                elif self._param_dict.get("condition_type") == "greater than":
-                    if  self._obtenir_depuis_posture(posture_a_verifier) > self._param_dict.get("threshold"): return True
-                elif self._param_dict.get("condition_type") == "belongs to": 
-                    if  self._param_dict.get("domain")[0] < self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("domain")[1]: return True
-                elif self._param_dict.get("condition_type") == "belongs to the volume":
-                    print("Coordonnées de la posture obtenues {}".format(self._obtenir_depuis_posture(posture_a_verifier)))
-                    x,y,z = self._obtenir_depuis_posture(posture_a_verifier)[0],self._obtenir_depuis_posture(posture_a_verifier)[1],self._obtenir_depuis_posture(posture_a_verifier)[2]
-                    print("Test de l'appartenance au volume")
-                    print("Valeurs de x,y,z {} {} {}".format(x,y,z))
-                    print("First corner {} and second corner {}".format(self._param_dict.get("first_corner"),self._param_dict.get("second_corner")))
-                    if self._param_dict.get("first_corner")[0] < x < self._param_dict.get("second_corner")[0] and \
-                       self._param_dict.get("first_corner")[1] < y < self._param_dict.get("second_corner")[1] and \
-                       self._param_dict.get("first_corner")[2] < z <  self._param_dict.get("second_corner")[2]:
-                        return True
-                #Nouveau if selon les éléments présents dans le dictionnaire
-        return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
-        # bool superieur_A_Un_Seuil()
-
-    def _get_param_dict(self):
-        print("Passage par l'accesseur de dictionnaire")
-        return self._param_dict
-
-    param_dict_val = property(_get_param_dict)
-'_______Definition_classe_Condition_Composee_______'
-
-
-class Condition_Composee():
-    
-    # Condition_composée __init__(class self, string operateur, list ma_condition_composee)
-    def __init__(self, mon_operateur,ma_liste_de_conditions_simples):
-        if mon_operateur in {"or","and"}:
-            self._operator = mon_operateur
-        # Prendre en compte le fait qu'il y ait potentiellement n conditions simples dans la condition complexe
-            self._liste_conditions_simples=[] # Liste en partaeg de pointeurs
-            for x in ma_liste_de_conditions_simples:
-                if isinstance(x, Condition_Simple):
-                    self._liste_conditions_simples.append(x)
-
-    # bool is_activated(class self, class posture)                
-    def is_activated(self, ma_posture):
-        if isinstance(ma_posture, Posture):
-            # Assez flexible pour supporter de nouveaux opérateurs en ajoutant en elif
-            if self._operator == "and":
-                for condition_simple in self._liste_conditions_simples:
-                    if condition_simple.is_activated(ma_posture) == False: return False
-                    return True
-            # Vérifier toutes les conditions les unes après les autres et renvoyer False si l'une n'est pas vérifiée     
-            elif self._operator == "or":
-                for condition_simple in self._liste_conditions_simples:
-                    if condition_simple.is_activated(ma_posture): return True
-                return False
-                # Renvoyer true à la premirèe condition vérifiée
-
-
-'_____________Importation_des_règles______________'
-    
-def importer_regle(chemin_d_acces_fichier_regles):
-    arbreXML= ET.parse(chemin_d_acces_fichier_regles)
-    tronc = arbreXML.getroot()
-
-    # Dictionnaire de la forme {"nom_règle" : pointeur_de_la_règle_associée}
-    regles = dict()
-
-    for rule in tronc.iter('rule'):
-
-        if rule[0].tag == "simple_condition":
-
-            print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
-            ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
-            #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
-            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
-            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
-            
-        elif rule[0].tag == "composed_condition":
-           
-            liste_conditions_simples = []
-            
-            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
-
-            for simple_condition in rule[0].iter("simple_condition"):
-                    
-                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
-                    ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
-                    liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
-                    print("Fait")
-
-            print("Opérateur logique: {}".format(rule[0].get("operator")))
-            print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
-            ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
-            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
-            
-            
-
-
-    print(regles)
-    return regles
+##'_______________________Règles________________________''_______________________Règles________________________''_______________________Règles________________________'
+##
+##
+##
+##class Regle():
+##    def __init__(self,mon_nom,ma_description,ma_condition):
+##        if isinstance(mon_nom, str) and isinstance(ma_description, str) and (isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, Condition_Composee)):
+##            self._nom_regle = mon_nom
+##            self._description_regle = ma_description
+##            self._condition_associe = ma_condition
+##
+##    def posture_activees():
+##        pass
+##
+##    def is_activated(self,posture):
+##        if isinstance(posture, Posture) or isinstance(posture, Posture):
+##            print("Vérification de l'activation de la règle {} ".format(posture))
+##        return self._condition_associe.is_activated(posture) 
+##   
+##'________Definition_classe_Condition_Simple________'
+##
+##class Condition_Simple():
+##
+##    # Valeur par défaut pour le seuil si domaine préféré
+##    #liste retenue plutôt que *var et nombre infini de tuples en entrée
+##    def __init__(self, parameters_list):
+##        #Pas de vérification des types car le fichier est supposé idéal
+##        self._param_dict=dict()
+##        for mon_tuple in parameters_list:
+##            duo_modifiable=list(mon_tuple)
+##            #conversion des types
+##            if duo_modifiable[0] == "threshold":
+##                duo_modifiable[1]=float(mon_tuple[1])
+##                print("threshold converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1])))
+##            if duo_modifiable[0] == "domain":
+##                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+##                duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
+##                print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
+##            
+##            if duo_modifiable[0]== "first_corner":
+##                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+##                duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
+##                print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
+##            
+##            if duo_modifiable[0]== "second_corner":
+##                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+##                duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])               
+##
+##            self._param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
+##            print("Dictionnaire mis à jour avec la clef {} et la valeur {} de type {}".format(duo_modifiable[0],duo_modifiable[1],type(duo_modifiable[1])))
+##
+##    def _obtenir_depuis_posture(self,posture):
+##        if self._param_dict.get("target") == "angle": return posture.obtenir(self._param_dict.get("target_joint")).angle
+##        elif self._param_dict.get("target") == "pos":
+##            #projection ou vérification 3D?
+##            if "direction" in self._param_dict.keys():
+##                #Implique une projection donc disjonction de cas selon l'axe
+##                #cas avec un angle ?
+##                #TODO: tratier le cas Domain si projection
+##                if self._param_dict.get("direction") == "X":
+##                    return posture.obtenir(self._param_dict.get("target_joint")).position[0]
+##                elif self._param_dict.get("direction") == "Y":
+##                    return posture.obtenir(self._param_dict.get("target_joint")).position[1]
+##                    #Récupère la 2e coordonnée et la return
+##                elif self._param_dict.get("direction") == "Z":
+##                    return posture.obtenir(self._param_dict.get("target_joint")).position[2]
+##                else:
+##                    return "Axe non-reconnu"
+##            else: #forcément de type "belongs to the volume"
+##                return posture.obtenir(self._param_dict.get("target_joint")).position
+##
+##    # bool is_activated(class self, posture posture_a_verifier)
+##    def is_activated(self, posture_a_verifier):
+##        if isinstance(posture_a_verifier, Posture): 
+##            
+##                # Droit d'accéder par élément car dans la classe
+##                #obtenir_angle_depuis_posture doit être complexifié et prendre en compte le cas où projection
+##                if self._param_dict.get("condition_type") == "lower than":
+##                    if self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("threshold"): return True
+##                elif self._param_dict.get("condition_type") == "greater than":
+##                    if  self._obtenir_depuis_posture(posture_a_verifier) > self._param_dict.get("threshold"): return True
+##                elif self._param_dict.get("condition_type") == "belongs to": 
+##                    if  self._param_dict.get("domain")[0] < self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("domain")[1]: return True
+##                elif self._param_dict.get("condition_type") == "belongs to the volume":
+##                    print("Coordonnées de la posture obtenues {}".format(self._obtenir_depuis_posture(posture_a_verifier)))
+##                    x,y,z = self._obtenir_depuis_posture(posture_a_verifier)[0],self._obtenir_depuis_posture(posture_a_verifier)[1],self._obtenir_depuis_posture(posture_a_verifier)[2]
+##                    print("Test de l'appartenance au volume")
+##                    print("Valeurs de x,y,z {} {} {}".format(x,y,z))
+##                    print("First corner {} and second corner {}".format(self._param_dict.get("first_corner"),self._param_dict.get("second_corner")))
+##                    if self._param_dict.get("first_corner")[0] < x < self._param_dict.get("second_corner")[0] and \
+##                       self._param_dict.get("first_corner")[1] < y < self._param_dict.get("second_corner")[1] and \
+##                       self._param_dict.get("first_corner")[2] < z <  self._param_dict.get("second_corner")[2]:
+##                        return True
+##                #Nouveau if selon les éléments présents dans le dictionnaire
+##        return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
+##        # bool superieur_A_Un_Seuil()
+##
+##    def _get_param_dict(self):
+##        print("Passage par l'accesseur de dictionnaire")
+##        return self._param_dict
+##
+##    param_dict_val = property(_get_param_dict)
+##'_______Definition_classe_Condition_Composee_______'
+##
+##
+##class Condition_Composee():
+##    
+##    # Condition_composée __init__(class self, string operateur, list ma_condition_composee)
+##    def __init__(self, mon_operateur,ma_liste_de_conditions_simples):
+##        if mon_operateur in {"or","and"}:
+##            self._operator = mon_operateur
+##        # Prendre en compte le fait qu'il y ait potentiellement n conditions simples dans la condition complexe
+##            self._liste_conditions_simples=[] # Liste en partaeg de pointeurs
+##            for x in ma_liste_de_conditions_simples:
+##                if isinstance(x, Condition_Simple):
+##                    self._liste_conditions_simples.append(x)
+##
+##    # bool is_activated(class self, class posture)                
+##    def is_activated(self, ma_posture):
+##        if isinstance(ma_posture, Posture):
+##            # Assez flexible pour supporter de nouveaux opérateurs en ajoutant en elif
+##            if self._operator == "and":
+##                for condition_simple in self._liste_conditions_simples:
+##                    if condition_simple.is_activated(ma_posture) == False: return False
+##                    return True
+##            # Vérifier toutes les conditions les unes après les autres et renvoyer False si l'une n'est pas vérifiée     
+##            elif self._operator == "or":
+##                for condition_simple in self._liste_conditions_simples:
+##                    if condition_simple.is_activated(ma_posture): return True
+##                return False
+##                # Renvoyer true à la premirèe condition vérifiée
+##
+##
+##'_____________Importation_des_règles______________'
+##    
+##def importer_regle(chemin_d_acces_fichier_regles):
+##    arbreXML= ET.parse(chemin_d_acces_fichier_regles)
+##    tronc = arbreXML.getroot()
+##
+##    # Dictionnaire de la forme {"nom_règle" : pointeur_de_la_règle_associée}
+##    regles = dict()
+##
+##    for rule in tronc.iter('rule'):
+##
+##        if rule[0].tag == "simple_condition":
+##
+##            print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
+##            ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
+##            #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
+##            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
+##            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
+##            
+##        elif rule[0].tag == "composed_condition":
+##           
+##            liste_conditions_simples = []
+##            
+##            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
+##
+##            for simple_condition in rule[0].iter("simple_condition"):
+##                    
+##                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
+##                    ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
+##                    liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
+##                    print("Fait")
+##
+##            print("Opérateur logique: {}".format(rule[0].get("operator")))
+##            print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
+##            ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
+##            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
+##            
+##            
+##
+##
+##    print(regles)
+##    return regles
 
 
 '_______________________Interface________________________''_______________________Interface________________________''_______________________Interface________________________'
