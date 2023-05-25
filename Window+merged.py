@@ -142,9 +142,10 @@ import numpy as np
 class Articulation:
     def __init__(self, tonnom,taposition,taposture):
         self._tonnom = str(tonnom)
-        self._taposture = int(taposture)
-        self._tesneighbors = {"N":[]}
-        self._taposition = taposition
+        self._taposture_num = taposture.numero
+        self._tesneighbors = {"N":[],"P":None}
+        self._taposition = taposition 
+        self._taposture = taposture
         
         
     def _lire_nom(self):
@@ -155,55 +156,81 @@ class Articulation:
         return self._taposture
     def _lire_voisins(self):
         return self._tesneighbors
+    def _lire_posture_num(self):
+        return self._taposture_num
     
     nom = property(_lire_nom)
     position = property(_lire_position)
     posture = property(_lire_posture)
     voisins = property(_lire_voisins)
+    posture_num = property(_lire_posture_num)
 
-    def add_neighbor_child(self, neighbor):
+    def _add_neighbor_child(self, neighbor):
         self._tesneighbors["N"].append(neighbor)
 
-    def add_neighbor_parent(self, neighbor):
+    def _add_neighbor_parent(self, neighbor):
         self._tesneighbors["P"] = neighbor
 
     def _trouver_voisins_temporels(self):
-        voisins = []
-        if self.posture == 0:
-            voisins.append(None)
-            voisins.append(None)
-            voisins.append(sequence.search(self.nom,1))
-            voisins.append(None)
+        voisins_t = []
+        if self.posture_num == 0:
+            voisins_t.append(None)
+            voisins_t.append(None)
+            for articulation in self.posture.voisins[1].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
+            for articulation in (self.posture.voisins[1]).voisins[1].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
             
         elif self.posture == 1:
-            voisins.append(None)
-            voisins.append(sequence.search(self.nom,0))
-            voisins.append(sequence.search(self.nom,2))
-            voisins.append(sequence.search(self.nom,3))
+            voisins_t.append(None)
+            for articulation in self.posture.voisins[0].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
+            for articulation in self.posture.voisins[1].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
+            for articulation in (self.posture.voisins[1]).voisins[1].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
             
-        elif self.posture == len(sequence.postures)-1:
-            voisins.append(None)
-            voisins.append(sequence.search(self.nom,len(sequence.postures)-2))
-            voisins.append(None)
-            voisins.append(None)
+        elif self.posture == 57 :
+            for articulation in (self.posture.voisins[0]).voisins[0].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
+            for articulation in self.posture.voisins[0].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
+            voisins_t.append(None)
+            voisins_t.append(None)
 
-        elif self.posture == len(sequence.postures)-2:
-            voisins.append(sequence.search(self.nom,len(sequence.postures)-4))
-            voisins.append(sequence.search(self.nom,len(sequence.postures)-3))
-            voisins.append(sequence.search(self.nom,len(sequence.postures)-1))
-            voisins.append(None)
+        elif self.posture == 56 :
+            for articulation in (self.posture.voisins[0]).voisins[0].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
+            for articulation in self.posture.voisins[0].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
+            for articulation in self.posture.voisins[1].articulations:
+                if articulation.nom == self.nom:
+                    voisins_t.append(articulation)
+            voisins_t.append(None)
 
         else :
-            posture_voisines = [self.posture]
-      
-        return voisins
+            postures_voisines = [(self.posture.voisins[0]).voisins[0],self.posture.voisins[0],self.posture.voisins[1],(self.posture.voisins[1]).voisins[1]]
+            for posture in posture_voisines:
+                for articulation in posture.articulations:
+                    if articulation.nom == self.nom:
+                        voisins_t.append(articulation)
+        return voisins_t
     voisins_t = property(_trouver_voisins_temporels)
 
     def _calculer_angle(self):
-        if len(self.voisinsPOO) == 2 and len(self.voisinsPOO[1])==1 :
-            x1,y1,z1 = ((self.voisinsPOO[0]).position)[0],((self.voisinsPOO[0]).position)[1],((self.voisinsPOO[0]).position)[2]
+        if len(self.voisins['N']) == 1 and self.voisins['P']!= None :
+            x1,y1,z1 = self.voisins['P'].position[0],self.voisins['P'].position[1],self.voisins['P'].position[2]
             x2,y2,z2 = (self.position)[0],(self.position)[1],(self.position)[2]
-            x3,y3,z3 = ((self.voisinsPOO[1][0]).position)[0],((self.voisinsPOO[1][0]).position)[1],((self.voisinsPOO[1][0]).position)[2]
+            x3,y3,z3 = self.voisins['N'][0].position[0],self.voisins['N'][0].position[1],self.voisins['N'][0].position[2]
 
             # Calcule les vecteurs AB et BC
             AB = (x2 - x1, y2 - y1, z2 - z1)
@@ -233,13 +260,13 @@ class Articulation:
         dt = 1/1.2
         vitesse_ang,acceleration_ang = 0,0
 
-        if self.posture not in [0,len(sequence.postures)-1]:
+        if self.posture not in [0,57]:
             angle_0 = self.voisins_t[1].angle
             angle_1 = self.voisins_t[2].angle
         
             vitesse_ang = (angle_1 - angle_0)/(2*dt)
 
-        if self.posture not in [0,1,len(sequence.postures)-1,len(sequence.postures)-2]:
+        if self.posture not in [0,1,57,56]:
             angle_0 = self.voisins_t[0].angle
             angle_1 = self.angle
             angle_2 = self.voisins_t[3].angle
@@ -300,9 +327,11 @@ from mpl_toolkits.mplot3d import Axes3D
 import mpl_toolkits.mplot3d as mp
 
 class Posture():
-    def __init__(self,tonnumero,tesarticulations):
-        self._tonnumero = int(tonnumero)
-        self._tesarticulations = list(tesarticulations)
+    def __init__(self, frame_number):
+        self._frame_number = frame_number
+        self._articulations = []
+        self._previous_posture = None
+        self._next_posture = None
 
     def regles_activees(self,regles):
         liste_regles_activees_par_posture=list()
@@ -313,17 +342,26 @@ class Posture():
         return liste_regles_activees_par_posture 
 
     def _lire_numero(self):
-        return self._tonnumero
-    def _lire_articulations(self):
-        return self._tesarticulations
-
+        return self._frame_number
     numero = property(_lire_numero)
+
+    def _lire_articulations(self):
+        return self._articulations
     articulations = property(_lire_articulations)
+
+    def _lire_voisins(self):
+        return self._previous_posture,self._next_posture
+    voisins = property(_lire_voisins)
     
-    def obtenir(self,nom_articulation):
-        for articulation in self.articulations :
-            if articulation.nom == nom_articulation:
-                return articulation
+    def _add_articulation(self, articulation):
+        self._articulations.append(articulation)
+
+    def _set_previous_posture(self, posture):
+        self._previous_posture = posture
+
+    def _set_next_posture(self, posture):
+        self._next_posture = posture
+
 
     def tracer(self,call):
 
@@ -403,9 +441,24 @@ class Posture():
 '______________Definition_classe_Sequence_____________'
 
 class Sequence():
-    def __init__(self,tespostures):
-        self._tespostures = list(tespostures) 
+    def __init__(self):
+        self._postures = []
 
+    def _lire_postures(self):
+        return self._postures
+    postures = property(_lire_postures)
+
+    def _add_posture(self, posture):
+        self._postures.append(posture)
+
+    def _set_posture_neighbors(self):
+        num_postures = len(self._postures)
+        for i in range(num_postures):
+            if i > 0:
+                self._postures[i]._set_previous_posture(self._postures[i-1])
+            if i < num_postures - 1:
+                self._postures[i]._set_next_posture(self._postures[i+1])
+                
     def posture_activees(self,regle_a_tester):
         liste_postures_activant_la_regle=list()
         # Vérifier comment Virgile récupère chacune des postures de la séquence
@@ -416,14 +469,8 @@ class Sequence():
             print("Vérification de l'activation de la règle à tester {} pour la posture {}".format(regle_a_tester,posture))
         return liste_postures_activant_la_regle
 
-    def _lire_postures(self):
-        return self._tespostures
-    postures = property(_lire_postures)
 
-    def search(self,nom_articulation,posture):
-        for articulation in self.postures[posture].articulations:
-            if articulation.nom == nom_articulation:
-                return articulation
+
 
 
 '________________________Classe_Chargement_________________________'
@@ -438,7 +485,7 @@ class Chargement():
     chemin = property(_lire_chemin)
 
     def _creer_sequence(self):
-        def parse_joint_element(joint_elem,frame_elem,frame_number):
+        def parse_joint_element(joint_elem,frame_elem,posture):
 
             def trouver_parent(tronc, element):    
                     for enfant in tronc:
@@ -451,22 +498,23 @@ class Chargement():
 
             name = joint_elem.get('Name')
             position = eval(joint_elem.get('Position'))
-            articulation = Articulation(name, position, frame_number)
+            articulation = Articulation(name, position, posture)
             for child_elem in joint_elem.findall("Joint"):
-                if child_elem.tag == 'Joint':
-                    child_articulation = parse_joint_element(child_elem,joint_elem,frame_number)
-                    articulation.add_neighbor_child(child_articulation)
+                child_articulation = parse_joint_element(child_elem,joint_elem,posture)
+                articulation.add_neighbor_child(child_articulation)
 
-            if trouver_parent(frame_elem,joint_elem).tag=='Joint':
-                parent_articulation = trouver_parent(frame_elem,joint_elem) 
+            parent_articulation = trouver_parent(frame_elem, joint_elem)
+            if parent_articulation is not None and parent_articulation.tag == 'Joint':
+                parent_articulation = Articulation(parent_articulation.get('Name'), parent_articulation.get('Position'), posture)
                 articulation.add_neighbor_parent(parent_articulation)
+
             return articulation
 
         def parse_frame_element(frame_elem,c):
             frame_number = c
             posture = Posture(frame_number)
             for joint_elem in frame_elem.iter('Joint'):
-                articulation = parse_joint_element(joint_elem,frame_elem,frame_number)
+                articulation = parse_joint_element(joint_elem,frame_elem,posture)
                 posture.add_articulation(articulation)
             return posture
 
@@ -481,7 +529,7 @@ class Chargement():
                 sequence.add_posture(posture)
                 c+=1
 
-            sequence.set_posture_neighbors()
+            sequence._set_posture_neighbors()
 
             return sequence
 

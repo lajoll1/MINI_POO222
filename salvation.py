@@ -22,10 +22,10 @@ class Articulation:
     posture_num = property(_lire_posture)
     voisins = property(_lire_voisins)
 
-    def add_neighbor_child(self, neighbor):
+    def _add_neighbor_child(self, neighbor):
         self._tesneighbors["N"].append(neighbor)
 
-    def add_neighbor_parent(self, neighbor):
+    def _add_neighbor_parent(self, neighbor):
         self._tesneighbors["P"] = neighbor
 
 class Posture:
@@ -47,29 +47,33 @@ class Posture:
         return self._previous_posture,self._next_posture
     voisins = property(_lire_voisins)
     
-    def add_articulation(self, articulation):
+    def _add_articulation(self, articulation):
         self._articulations.append(articulation)
 
-    def set_previous_posture(self, posture):
+    def _set_previous_posture(self, posture):
         self._previous_posture = posture
 
-    def set_next_posture(self, posture):
+    def _set_next_posture(self, posture):
         self._next_posture = posture
 
 class Sequence:
     def __init__(self):
-        self.postures = []
+        self._postures = []
 
-    def add_posture(self, posture):
-        self.postures.append(posture)
+    def _lire_postures(self):
+        return self._postures
+    postures = property(_lire_postures)
 
-    def set_posture_neighbors(self):
-        num_postures = len(self.postures)
+    def _add_posture(self, posture):
+        self._postures.append(posture)
+
+    def _set_posture_neighbors(self):
+        num_postures = len(self._postures)
         for i in range(num_postures):
             if i > 0:
-                self.postures[i].set_previous_posture(self.postures[i-1])
+                self._postures[i]._set_previous_posture(self._postures[i-1])
             if i < num_postures - 1:
-                self.postures[i].set_next_posture(self.postures[i+1])
+                self._postures[i]._set_next_posture(self._postures[i+1])
 
 def parse_joint_element(joint_elem,frame_elem,posture):
 
@@ -86,14 +90,14 @@ def parse_joint_element(joint_elem,frame_elem,posture):
     position = eval(joint_elem.get('Position'))
     articulation = Articulation(name, position, posture)
     for child_elem in joint_elem.findall("Joint"):
-##        if child_elem.tag == 'Joint':
         child_articulation = parse_joint_element(child_elem,joint_elem,posture)
-        articulation.add_neighbor_child(child_articulation)
-
+        articulation._add_neighbor_child(child_articulation)
+    
     parent_articulation = trouver_parent(frame_elem, joint_elem)
     if parent_articulation is not None and parent_articulation.tag == 'Joint':
-        parent_articulation = parse_joint_element(parent_articulation, frame_elem, posture)
-        articulation.add_neighbor_parent(parent_articulation)
+        parent_articulation = Articulation(parent_articulation.get('Name'), parent_articulation.get('Position'), posture)
+        articulation._add_neighbor_parent(parent_articulation)
+
     return articulation
 
 def parse_frame_element(frame_elem,c):
@@ -101,7 +105,7 @@ def parse_frame_element(frame_elem,c):
     posture = Posture(frame_number)
     for joint_elem in frame_elem.iter('Joint'):
         articulation = parse_joint_element(joint_elem,frame_elem,posture)
-        posture.add_articulation(articulation)
+        posture._add_articulation(articulation)
     return posture
 
 def parse_xml(file_path):
@@ -112,10 +116,10 @@ def parse_xml(file_path):
     c=0
     for frame_elem in root.findall('Frame'):
         posture = parse_frame_element(frame_elem,c)
-        sequence.add_posture(posture)
+        sequence._add_posture(posture)
         c+=1
 
-    sequence.set_posture_neighbors()
+    sequence._set_posture_neighbors()
 
     return sequence
 
