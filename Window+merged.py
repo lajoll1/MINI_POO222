@@ -34,12 +34,12 @@ class Condition_Simple():
                 duo_modifiable[1]=float(mon_tuple[1])
                 print("threshold converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1])))
             if duo_modifiable[0] == "domain":
-                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+                duo_modifiable[1]=str(duo_modifiable[1])[1:-1]
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
                 print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
             
             if duo_modifiable[0]== "first_corner":
-                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+                duo_modifiable[1]=str(duo_modifiable[1])[1:-1]
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
                 print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
             
@@ -184,7 +184,7 @@ import numpy as np
 
 '________________Ouverture_fichier_XML________________'
 
-xml_file = "/Users/virgilejamot/Documents/GitHub/MINI_POO222/Postures_captures.xml"
+xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
 
 arbreXML = ET.parse(xml_file)
 tronc = arbreXML.getroot()
@@ -523,7 +523,7 @@ def _creer_postures_list():
     
 sequence = Sequence(_creer_postures_list()) # Instanciation d'un objet sequence contenant toutes les postures
 
-regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
+regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
 
 print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
 
