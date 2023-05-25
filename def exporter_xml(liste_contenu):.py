@@ -1,20 +1,20 @@
- def exporter_xml(liste_contenu):
-        # Create root element.
-        root = ET.Element("root")
-        
-        # Add sub element.
-        #country = ET.SubElement(root, "country", name="Canada")
-        country = ET.SubElement(root, "regle_activee", name="rule_1") # a remplacer par la regle en question
-        ontario = ET.SubElement(rule_1, "posture1")# a adatper également
+import xml.etree.ElementTree as ET
 
+def exporter_xml(dico_regle):
+    #prend un argument de la forme dictionnaire {nom_règle_activation:[liste_posture activées]}
+    # Create root element.
+    root = ET.Element("root")
+    
+    # Add sub element.
+    #country = ET.SubElement(root, "country", name="Canada")
+    for regle in liste_regle:
+       
+        regle_activee = ET.SubElement(root, "regle_activee", name=regle) # a remplacer par la regle en question
         # Add sub-sub element.
-        ontario = ET.SubElement(country, "province")
-        ontario.text = "Ontario"
-        ontario.set("rank", "2")    # Set attribute rank="2"
-        
-        # One-liner to create Alberta province.
-        ET.SubElement(country, "province", rank="3", category="oil").text = "Alberta"
-        
-        # Write XML file.
-        tree = ET.ElementTree(root)
-        tree.write("export.xml")
+        posture = ET.SubElement(regle_activee, "posture").text = "test" #remplacer test par le numero de posture
+    
+    # Write XML file.
+    tree = ET.ElementTree(root)
+    tree.write("export.xml")
+
+exporter_xml("z")
