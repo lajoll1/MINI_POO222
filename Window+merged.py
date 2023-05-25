@@ -526,7 +526,7 @@ class Chargement():
         return regles
     obtenir_regles = property(_importer_regle)
     
-    def exporter_xml():
+    def exporter_xml(liste_contenu):
         # Create root element.
         root = ET.Element("root")
         
@@ -656,13 +656,14 @@ def main():
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
             print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
             if tab_3_left_spnbox_1.get():
-                tab_3_left_lstbox_1.update(sequence.postures[int(tab_3_left_spnbox_1.get())].regles_activees(regles))
+                
+                tab_3_left_lstbox_1.update()
 
-        def lancer_recherche_posture_activant_regle_selectionnee():
+        def lancer_recherche_posture_activant_regle_selectionnee(sequence,regles):
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
-            print("Objet de type posture de valeur {}".format(sequence.postures[tab_3_center_combobox_1.get()]))
+            print(sequence.posture_activees(regles.get(str(tab_3_center_combobox_1.get()))))
             #Pas bsn de test pcq une sélection est forcée
-            tab_3_center_lstbox_1.update(posture.posture_activees(tab_3_center_combobox_1.get()))
+            #tab_3_center_lstbox_1.update(tab_3_center_combobox_1.get()[1])
 
         #Zone droite du tab1
         tab_1_right_frame= tk.Frame(tab1)
@@ -760,7 +761,7 @@ def main():
         tab_3_center_combobox_1.current(0)
         tab_3_center_combobox_1.grid(row=1,column=0)
 
-        tab_3_center_but_1=ttk.Button(tab_3_center_frame,text="Lancer la recherche",state= "readonly")
+        tab_3_center_but_1=ttk.Button(tab_3_center_frame,text="Lancer la recherche",state= "readonly",command=lancer_recherche_posture_activant_regle_selectionnee(sequence,regles))
         tab_3_center_but_1.grid(row=2,column=0)
 
         tab_3_center_lstbox_1=tk.Listbox(tab_3_center_frame)
@@ -769,8 +770,9 @@ def main():
 
 
         #right_frame
-        tab_3_right_but_1=tk.Button(tab_3_right_frame,text="Lister et Enregistrer les règles activées",command=lancer_recherche_posture_activant_regle_selectionnee)
-        tab_3_right_but_1.grid(row=0,column=0)
+        tab_3_center_but_2=tk.Button(tab_3_right_frame,text="Exporter les règles activées")
+        #,command=fichiers_charges.exporter_xml(tab_3_center_lstbox_1.get('1','end'))
+        tab_3_center_but_2.grid(row=4,column=0)
 
 
     root = tk.Tk()
