@@ -478,10 +478,6 @@ class Sequence():
             print("Vérification de l'activation de la règle à tester {} pour la posture {}".format(regle_a_tester,posture))
         return liste_postures_activant_la_regle
 
-
-
-
-
 '________________________Classe_Chargement_________________________'
 
 class Chargement():
