@@ -498,25 +498,7 @@ class Chargement():
 
             return sequence
 
-      
-            return None
-
-        def _creer_postures_list():
-            postures_list = []
-            _posturePOO = 0
-            c=0
-            for _postureXML in tronc:
-                articulations_list = []
-                for _articulationXML in _postureXML.iter("Joint"):
-                    above_voisin = _trouver_parent(_postureXML,_articulationXML)
-                    below_voisin = _articulationXML.findall("Joint")
-                    _articulationPOO = Articulation(_articulationXML.get("Name"),_articulationXML.get("Position"),c,above_voisin,below_voisin)
-                    articulations_list.append(_articulationPOO)
-                _posturePOO = Posture(c,articulations_list)
-                postures_list.append(_posturePOO)
-                c+=1
-            return postures_list
-        return Sequence(_creer_postures_list()) # Instanciation d'un objet sequence contenant toutes les postures
+        return parse_xml(self.chemin[0])
 
     obtenir_sequence = property(_creer_sequence)
 
