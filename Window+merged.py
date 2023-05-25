@@ -501,12 +501,12 @@ class Chargement():
             articulation = Articulation(name, position, posture)
             for child_elem in joint_elem.findall("Joint"):
                 child_articulation = parse_joint_element(child_elem,joint_elem,posture)
-                articulation.add_neighbor_child(child_articulation)
+                articulation._add_neighbor_child(child_articulation)
 
             parent_articulation = trouver_parent(frame_elem, joint_elem)
             if parent_articulation is not None and parent_articulation.tag == 'Joint':
                 parent_articulation = Articulation(parent_articulation.get('Name'), parent_articulation.get('Position'), posture)
-                articulation.add_neighbor_parent(parent_articulation)
+                articulation._add_neighbor_parent(parent_articulation)
 
             return articulation
 
