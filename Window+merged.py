@@ -526,7 +526,7 @@ class Chargement():
             c=0
             for frame_elem in root.findall('Frame'):
                 posture = parse_frame_element(frame_elem,c)
-                sequence.add_posture(posture)
+                sequence._add_posture(posture)
                 c+=1
 
             sequence._set_posture_neighbors()
