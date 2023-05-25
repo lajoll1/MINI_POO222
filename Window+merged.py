@@ -135,45 +135,54 @@ class Condition_Composee():
 '_____________Importation_des_règles______________'
     
 def importer_regle(chemin_d_acces_fichier_regles):
-    arbreXML= ET.parse(chemin_d_acces_fichier_regles)
-    tronc = arbreXML.getroot()
 
-    # Dictionnaire de la forme {"nom_règle" : pointeur_de_la_règle_associée}
-    regles = dict()
+    try:
 
-    for rule in tronc.iter('rule'):
+        arbreXML= ET.parse(chemin_d_acces_fichier_regles)
+        tronc = arbreXML.getroot()
 
-        if rule[0].tag == "simple_condition":
+        # Dictionnaire de la forme {"nom_règle" : pointeur_de_la_règle_associée}
+        regles = dict()
 
-            print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
-            ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
-            #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
-            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
-            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
+        for rule in tronc.iter('rule'):
+
+            if rule[0].tag == "simple_condition":
+
+                print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
+                ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
+                #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
+                print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
+                regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
+                
+            elif rule[0].tag == "composed_condition":
             
-        elif rule[0].tag == "composed_condition":
-           
-            liste_conditions_simples = []
-            
-            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
+                liste_conditions_simples = []
+                
+                print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
 
-            for simple_condition in rule[0].iter("simple_condition"):
-                    
-                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
-                    ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
-                    liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
-                    print("Fait")
+                for simple_condition in rule[0].iter("simple_condition"):
+                        
+                        print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
+                        ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
+                        liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
+                        print("Fait")
 
-            print("Opérateur logique: {}".format(rule[0].get("operator")))
-            print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
-            ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
-            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
-            
-            
+                print("Opérateur logique: {}".format(rule[0].get("operator")))
+                print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
+                ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
+                regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
+                
+                
 
 
-    print(regles)
-    return regles
+            print(regles)
+            return regles
+
+            break
+
+    except ValueError:
+
+            print("Impossible d'importer le fichier, réessayer.")
 
 
 
@@ -183,12 +192,17 @@ import math
 import numpy as np
 
 '________________Ouverture_fichier_XML________________'
+def importer_postures_xml(chemin_acces):
+    try:
+        xml_file = chemin_acces
+        arbreXML = ET.parse(xml_file)
+        tronc = arbreXML.getroot()
+        break
 
-xml_file = "/Users/virgilejamot/Documents/GitHub/MINI_POO222/Postures_captures.xml"
+    except ValueError:
 
-arbreXML = ET.parse(xml_file)
-tronc = arbreXML.getroot()
-
+        print("Impossible d'importer le fichier")
+    
 
 
 '____________Definition_classe_Articulation___________'
@@ -523,7 +537,6 @@ def _creer_postures_list():
     
 sequence = Sequence(_creer_postures_list()) # Instanciation d'un objet sequence contenant toutes les postures
 
-regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
 
 ##print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
 ##
@@ -730,10 +743,13 @@ def fentre():
     # Possibilité de complexifier si on sait quel bouton a appelé
     def open_postures_file():
         root_txt_zone_1.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
+        importer_postures_xml(root_txt_zone_1.get())
+        Sequence(_creer_postures_list())
 
     def open_rules_file():
         root_txt_zone_2.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
-
+        importer_regle(root_txt_zone_2.get())
+        
     # Création des zones d'import fichiers
     tk.Label(root,text="chemin du fichier de séquence:").grid(row=0,column=0)
     root_txt_zone_1=tk.Entry(root)
@@ -856,11 +872,13 @@ def fentre():
 
 
     liste_articulations=[articulation.nom for articulation in sequence.postures[0].articulations] #A modifier avec la liste des articulations DONE
-    tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=liste_articulations)
+    tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=liste_articulations,state= "readonly")
+    tab_2_combobox_1.current(0)
     tab_2_combobox_1.grid(row=0,column=0)
 
     liste_demandes = ['Angle','Vitesse_moy','Acceleration_moy','Vitesse_ang','Acceleration_ang']
-    tab_2_combobox_2 = ttk.Combobox(tab_2_right_frame,values = liste_demandes)
+    tab_2_combobox_2 = ttk.Combobox(tab_2_right_frame,values = liste_demandes,state= "readonly")
+    tab_2_combobox_2.current(0)
     tab_2_combobox_2.grid(row=3,column=0)
 
 
@@ -920,26 +938,33 @@ def fentre():
 
     #Remplissage tab3
     #left_frame
+    tab_3_left_lbl_1 = ttk.Label(tab_3_left_frame, text="Sélectionner le numero de la posture:")
+    tab_3_left_lbl_1.grid(row=0,column=0)
+
     tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = len(sequence.postures)-1) # A modifier selon nb articulion avec un len DONE
-    tab_3_left_spnbox_1.grid(row=0,column=0)
+    tab_3_left_spnbox_1.grid(row=1,column=0)
 
     tab_3_left_but_1=ttk.Button(tab_3_left_frame,text="Lancer la recherche")
-    tab_3_left_but_1.grid(row=1,column=0)
+    tab_3_left_but_1.grid(row=2,column=0)
 
     tab_3_left_lstbox_1=tk.Listbox(tab_3_left_frame)
     tab_3_left_lstbox_1.insert(1,"élément 1") #(index, valeur)
-    tab_3_left_lstbox_1.grid(row=2,column=0)
+    tab_3_left_lstbox_1.grid(row=3,column=0)
 
     #center_frame
-    listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations DONE
-    tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2)
-    tab_3_center_combobox_1.grid(row=0,column=0)
+    tab_3_center_lbl_1 = ttk.Label(tab_3_center_frame, text="Sélectionner la règle:")
+    tab_3_center_lbl_1.grid(row=0,column=0)
 
-    tab_3_center_but_1=ttk.Button(tab_3_center_frame,text="Lancer la recherche")
-    tab_3_center_but_1.grid(row=1,column=0)
+    listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations DONE
+    tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2,state= "readonly")
+    tab_3_center_combobox_1.current(0)
+    tab_3_center_combobox_1.grid(row=1,column=0)
+
+    tab_3_center_but_1=ttk.Button(tab_3_center_frame,text="Lancer la recherche",state= "readonly")
+    tab_3_center_but_1.grid(row=2,column=0)
 
     tab_3_center_lstbox_1=tk.Listbox(tab_3_center_frame)
-    tab_3_center_lstbox_1.grid(row=2,column=0)
+    tab_3_center_lstbox_1.grid(row=3,column=0)
     tab_3_center_lstbox_1.insert(1,"élément 1") #(index, valeur)
 
 
