@@ -44,7 +44,7 @@ class Condition_Simple():
                 print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
             
             if duo_modifiable[0]== "second_corner":
-                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+                duo_modifiable[1]=str(duo_modifiable[1]).[1:-1]
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])               
 
             self._param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
