@@ -716,14 +716,14 @@ def main():
             canvas.get_tk_widget().grid(row=0,column=0,columnspan=2)
             canvas.draw()
 
-        def lancer_recherche_regles_activees_posture():
+        def _lancer_recherche_regles_activees_posture():
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
             print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
             if tab_3_left_spnbox_1.get():
         
                 tab_3_left_lstbox_1.update()
 
-        def lancer_recherche_posture_activant_regle_selectionnee(sequence,regles):
+        def _lancer_recherche_posture_activant_regle_selectionnee(sequence,regles):
             print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
 
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
@@ -811,7 +811,7 @@ def main():
         tab_3_left_spnbox_1.set(0)
         tab_3_left_spnbox_1.grid(row=1,column=0)
 
-        tab_3_left_but_1=ttk.Button(tab_3_left_frame,text="Lancer la recherche",command=lancer_recherche_regles_activees_posture)
+        tab_3_left_but_1=ttk.Button(tab_3_left_frame,text="Lancer la recherche",command=_lancer_recherche_regles_activees_posture)
         tab_3_left_but_1.grid(row=2,column=0)
 
         tab_3_left_lstbox_1=tk.Listbox(tab_3_left_frame)
@@ -827,7 +827,7 @@ def main():
         tab_3_center_combobox_1.current(0)
         tab_3_center_combobox_1.grid(row=1,column=0)
 
-        tab_3_center_but_1=ttk.Button(tab_3_center_frame,text="Lancer la recherche",state= "readonly",command=lancer_recherche_posture_activant_regle_selectionnee(sequence,regles))
+        tab_3_center_but_1=ttk.Button(tab_3_center_frame,text="Lancer la recherche de positions",state= "readonly",command=print("hello"))
         tab_3_center_but_1.grid(row=2,column=0)
 
         tab_3_center_lstbox_1=tk.Listbox(tab_3_center_frame)
