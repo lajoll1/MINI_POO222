@@ -1,1 +1,1 @@
-<root><regle_activee name="rule_1"><posture>test</posture></regle_activee></root>
+<root><regle_activee name="rule1">rule1<posture>posture1</posture><posture>posture2</posture></regle_activee></root>

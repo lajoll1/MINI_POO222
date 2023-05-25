@@ -590,23 +590,23 @@ class Chargement():
         return regles
     obtenir_regles = property(_importer_regle)
     
-    def exporter_xml(liste_contenu):
+    def exporter_xml(dico_postures_activees_pour_regle_donnee):
+        #prend un argument de la forme dictionnaire {nom_règle_activation:[liste_posture activées]}
         # Create root element.
-        root = ET.Element("root")
+        rootXMLElt = ET.Element("root")
         
         # Add sub element.
-        country = ET.SubElement(root, "country", name="Canada")
+        #country = ET.SubElement(root, "country", name="Canada")
+        for regle in dico_postures_activees_pour_regle_donnee.keys():
         
-        # Add sub-sub element.
-        ontario = ET.SubElement(country, "province")
-        ontario.text = "Ontario"
-        ontario.set("rank", "2")    # Set attribute rank="2"
-        
-        # One-liner to create Alberta province.
-        ET.SubElement(country, "province", rank="3", category="oil").text = "Alberta"
-        
+            regle_activee = ET.SubElement(rootXMLElt, "regle_activee", name=regle)
+            regle_activee.text=regle # a remplacer par la regle en question
+            for posture in dico_postures_activees_pour_regle_donnee.get(regle_activee.text):
+                # Add sub-sub element.
+                ET.SubElement(regle_activee, "posture").text = posture #remplacer test par le numero de posture
+
         # Write XML file.
-        tree = ET.ElementTree(root)
+        tree = ET.ElementTree(rootXMLElt)
         tree.write("export.xml")
 
 '_______________________Interface________________________''_______________________Interface________________________''_______________________Interface________________________'
@@ -720,10 +720,12 @@ def main():
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
             print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
             if tab_3_left_spnbox_1.get():
-                
+        
                 tab_3_left_lstbox_1.update()
 
         def lancer_recherche_posture_activant_regle_selectionnee(sequence,regles):
+            print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
+
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
             print(sequence.posture_activees(regles.get(str(tab_3_center_combobox_1.get()))))
             #Pas bsn de test pcq une sélection est forcée
