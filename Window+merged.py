@@ -796,6 +796,54 @@ def main():
            # print("Les chemins des fichiers d'imports sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
             afficher_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)    
 
+
+    def parse_joint_element(joint_elem,frame_elem,frame_number):
+
+        def trouver_parent(tronc, element):    
+                for enfant in tronc:
+                    if enfant is element:
+                        return tronc
+                    parent = trouver_parent(enfant, element)
+                    if parent is not None:
+                        return parent
+                return None
+
+        name = joint_elem.get('Name')
+        position = eval(joint_elem.get('Position'))
+        articulation = Articulation(name, position, frame_number)
+        for child_elem in joint_elem.findall("Joint"):
+            if child_elem.tag == 'Joint':
+                child_articulation = parse_joint_element(child_elem,joint_elem,frame_number)
+                articulation.add_neighbor_child(child_articulation)
+
+        if trouver_parent(frame_elem,joint_elem).tag=='Joint':
+            parent_articulation = trouver_parent(frame_elem,joint_elem) 
+            articulation.add_neighbor_parent(parent_articulation)
+        return articulation
+
+    def parse_frame_element(frame_elem,c):
+        frame_number = c
+        posture = Posture(frame_number)
+        for joint_elem in frame_elem.iter('Joint'):
+            articulation = parse_joint_element(joint_elem,frame_elem,frame_number)
+            posture.add_articulation(articulation)
+        return posture
+
+    def parse_xml(file_path):
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+
+        sequence = Sequence()
+        c=0
+        for frame_elem in root.findall('Frame'):
+            posture = parse_frame_element(frame_elem,c)
+            sequence.add_posture(posture)
+            c+=1
+
+        sequence.set_posture_neighbors()
+
+        return sequence
+
     # Création des zones d'import fichiers
     tk.Label(root,text="chemin du fichier de séquence:").grid(row=0,column=0)
     root_txt_zone_1=tk.Entry(root)
