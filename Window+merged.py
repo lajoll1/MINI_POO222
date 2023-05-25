@@ -10,9 +10,6 @@ class Regle():
             self._description_regle = ma_description
             self._condition_associe = ma_condition
 
-    def posture_activees():
-        pass
-
     def is_activated(self,posture):
         if isinstance(posture, Posture) or isinstance(posture, Posture):
             print("Vérification de l'activation de la règle {} ".format(posture))
@@ -475,6 +472,7 @@ class Sequence():
         # Vérifier comment Virgile récupère chacune des postures de la séquence
         
         for posture in self.postures:
+            print("règle à tester est: {}".format(regle_a_tester))
             if regle_a_tester.is_activated(posture):
                     liste_postures_activant_la_regle.append(posture)
             print("Vérification de l'activation de la règle à tester {} pour la posture {}".format(regle_a_tester,posture))
@@ -716,18 +714,20 @@ def main():
             canvas.get_tk_widget().grid(row=0,column=0,columnspan=2)
             canvas.draw()
 
-        def _lancer_recherche_regles_activees_posture():
+        def lancer_recherche_regles_activees_posture(posture):
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
             print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
+            print("Posture is_activated ? {}".format(posture.regle_activee))
             if tab_3_left_spnbox_1.get():
-        
                 tab_3_left_lstbox_1.update()
 
-        def _lancer_recherche_posture_activant_regle_selectionnee(sequence,regles):
+        def _lancer_recherche_posture_activant_regle_selectionnee(sequence,regle):
+            #La fonction se lance toute seule sans que je comprenne pourquoi
             print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
-
+            print(sequence.posture_activees(regle))
+            print("Fin de la liste")
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
-            print(sequence.posture_activees(regles.get(str(tab_3_center_combobox_1.get()))))
+          #  print(sequence.posture_activees(regles.get(str(regle))))
             #Pas bsn de test pcq une sélection est forcée
             #tab_3_center_lstbox_1.update(tab_3_center_combobox_1.get()[1])
 
@@ -811,7 +811,8 @@ def main():
         tab_3_left_spnbox_1.set(0)
         tab_3_left_spnbox_1.grid(row=1,column=0)
 
-        tab_3_left_but_1=ttk.Button(tab_3_left_frame,text="Lancer la recherche",command=_lancer_recherche_regles_activees_posture)
+        tab_3_left_but_1=tk.Button(tab_3_left_frame,text="Lancer la recherche")
+        #tab_3_left_but_1("<Button-1>", lancer_recherche_regles_activees_posture(tab_3_left_spnbox_1.get()))
         tab_3_left_but_1.grid(row=2,column=0)
 
         tab_3_left_lstbox_1=tk.Listbox(tab_3_left_frame)
@@ -827,12 +828,12 @@ def main():
         tab_3_center_combobox_1.current(0)
         tab_3_center_combobox_1.grid(row=1,column=0)
 
-        tab_3_center_but_1=ttk.Button(tab_3_center_frame,text="Lancer la recherche de positions",state= "readonly",command=print("hello"))
+        tab_3_center_but_1=tk.Button(tab_3_center_frame,text="Lancer la recherche de positions",command=_lancer_recherche_posture_activant_regle_selectionnee(sequence,regles.get(tab_3_center_combobox_1.get())))
         tab_3_center_but_1.grid(row=2,column=0)
 
         tab_3_center_lstbox_1=tk.Listbox(tab_3_center_frame)
         tab_3_center_lstbox_1.grid(row=3,column=0)
-        tab_3_center_lstbox_1.insert(1,"élément 1") #(index, valeur)
+        #tab_3_center_lstbox_1.insert(1,"élément 1") #(index, valeur)
 
 
         #right_frame
