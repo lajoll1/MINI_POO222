@@ -184,7 +184,7 @@ import numpy as np
 
 '________________Ouverture_fichier_XML________________'
 
-xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
+xml_file = "/Users/virgilejamot/Documents/GitHub/MINI_POO222/Postures_captures.xml"
 
 arbreXML = ET.parse(xml_file)
 tronc = arbreXML.getroot()
@@ -523,13 +523,13 @@ def _creer_postures_list():
     
 sequence = Sequence(_creer_postures_list()) # Instanciation d'un objet sequence contenant toutes les postures
 
-regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
+regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
 
-print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
-
-print(sequence.postures[16].regles_activees())
-
-print(sequence.posture_activees(regles.get("rule_2")))
+##print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
+##
+##print(sequence.postures[16].regles_activees())
+##
+##print(sequence.posture_activees(regles.get("rule_2")))
 
 
 ##'_______________________Règles________________________''_______________________Règles________________________''_______________________Règles________________________'
