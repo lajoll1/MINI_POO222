@@ -660,9 +660,9 @@ def main():
 
         def lancer_recherche_posture_activant_regle_selectionnee():
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
-            print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
-            if tab_3_left_spnbox_1.get():
-                tab_3_left_lstbox_1.update(sequence.postures[int(tab_3_left_spnbox_1.get())].regles_activees(regles))
+            print("Objet de type posture de valeur {}".format(sequence.postures[tab_3_center_combobox_1.get()]))
+            #Pas bsn de test pcq une sélection est forcée
+            tab_3_center_lstbox_1.update(posture.posture_activees(tab_3_center_combobox_1.get()))
 
         #Zone droite du tab1
         tab_1_right_frame= tk.Frame(tab1)
