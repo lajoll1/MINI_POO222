@@ -7,10 +7,10 @@ from xml.dom import minidom
 
 '________________Ouverture_fichier_XML________________'
 
-xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
-
-arbreXML = ET.parse(xml_file)
-tronc = arbreXML.getroot()
+##xml_file = "/Users/thomas/Documents/GitHub/MINI_POO222/Postures_captures.xml"
+##
+##arbreXML = ET.parse(xml_file)
+##tronc = arbreXML.getroot()
 
 
 
@@ -282,35 +282,93 @@ class Sequence():
             print("Vérification de l'activation de la règle à tester {} pour la posture {}".format(regle_a_tester,posture))
         return liste_postures_activant_la_regle
 
-'________________________Main_________________________'
+'________________________Classe_Chargement_________________________'
 
-def _trouver_parent(tronc, element):    # Permet de trouver le parent XML d'un objet XML dans le fichier de Postures_captures.xml
-    for enfant in tronc:
-        if enfant is element:
-            return tronc
-        parent = _trouver_parent(enfant, element)
-        if parent is not None:
-            return parent
-    return None
+class Chargement():
+    def __init__(self,chemin_sequence,chemin_regles):
+        self._chemin_seq = str(chemin_sequence)
+        self._chemin_reg = str(chemin_regles)
 
-def _creer_postures_list():
-    postures_list = []
-    _posturePOO = 0
-    c=0
-    for _postureXML in tronc:
-        articulations_list = []
-        for _articulationXML in _postureXML.iter("Joint"):
-            above_voisin = _trouver_parent(_postureXML,_articulationXML)
-            below_voisin = _articulationXML.findall("Joint")
-            _articulationPOO = Articulation(_articulationXML.get("Name"),_articulationXML.get("Position"),c,above_voisin,below_voisin)
-            articulations_list.append(_articulationPOO)
-        _posturePOO = Posture(c,articulations_list)
-        postures_list.append(_posturePOO)
-        c+=1
-    return postures_list
+    def _lire_chemin(self):
+        return self._chemin_seq,self._chemin_reg
+    chemin = property(_lire_chemin)
+
+    def _creer_sequence(self):
+        
+        xml_file = self.chemin[0]
+        arbreXML = ET.parse(xml_file)
+        tronc = arbreXML.getroot()
+
+        def _trouver_parent(tronc, element):    # Permet de trouver le parent XML d'un objet XML dans le fichier de Postures_captures.xml
+            for enfant in tronc:
+                if enfant is element:
+                    return tronc
+                parent = _trouver_parent(enfant, element)
+                if parent is not None:
+                    return parent
+            return None
+
+        def _creer_postures_list():
+            postures_list = []
+            _posturePOO = 0
+            c=0
+            for _postureXML in tronc:
+                articulations_list = []
+                for _articulationXML in _postureXML.iter("Joint"):
+                    above_voisin = _trouver_parent(_postureXML,_articulationXML)
+                    below_voisin = _articulationXML.findall("Joint")
+                    _articulationPOO = Articulation(_articulationXML.get("Name"),_articulationXML.get("Position"),c,above_voisin,below_voisin)
+                    articulations_list.append(_articulationPOO)
+                _posturePOO = Posture(c,articulations_list)
+                postures_list.append(_posturePOO)
+                c+=1
+            return postures_list
+        return Sequence(_creer_postures_list()) # Instanciation d'un objet sequence contenant toutes les postures
+
+    obtenir_sequence = property(_creer_sequence)
+
+    def _importer_regle(self):
+        arbreXML = ET.parse(self.chemin[1])
+        tronc = arbreXML.getroot()
+
+        # Dictionnaire de la forme {"nom_règle" : pointeur_de_la_règle_associée}
+        regles = dict()
+
+        for rule in tronc.iter('rule'):
+
+            if rule[0].tag == "simple_condition":
+
+    ##            print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
+                ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
+                #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
+    ##            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
+                regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
+                
+            elif rule[0].tag == "composed_condition":
+               
+                liste_conditions_simples = []
+                
+    ##            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
+
+                for simple_condition in rule[0].iter("simple_condition"):
+                        
+    ##                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
+                        ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
+                        liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
+    ##                    print("Fait")
+
+    ##            print("Opérateur logique: {}".format(rule[0].get("operator")))
+    ##            print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
+                ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
+                regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
+            
+            
+
+
+##    print(regles)
+        return regles
+    obtenir_regles = property(_importer_regle)
     
-sequence = Sequence(_creer_postures_list()) # Instanciation d'un objet sequence contenant toutes les postures
-
 def exporter_xml():
     # Create root element.
     root = ET.Element("root")
@@ -368,17 +426,17 @@ class Condition_Simple():
                 duo_modifiable[1]=float(mon_tuple[1])
                 print("threshold converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1])))
             if duo_modifiable[0] == "domain":
-                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+                duo_modifiable[1]=str(duo_modifiable[1])[1:-1]
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
                 print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
             
             if duo_modifiable[0]== "first_corner":
-                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+                duo_modifiable[1]=str(duo_modifiable[1])[1:-1]
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
                 print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
             
             if duo_modifiable[0]== "second_corner":
-                duo_modifiable[1]=str(duo_modifiable[1]).removeprefix('(').removesuffix(")")
+                duo_modifiable[1]=str(duo_modifiable[1])[1:-1]
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])               
 
             self._param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
@@ -468,53 +526,53 @@ class Condition_Composee():
 
 '_____________Importation_des_règles______________'
     
-def importer_regle(chemin_d_acces_fichier_regles):
-    arbreXML= ET.parse(chemin_d_acces_fichier_regles)
-    tronc = arbreXML.getroot()
-
-    # Dictionnaire de la forme {"nom_règle" : pointeur_de_la_règle_associée}
-    regles = dict()
-
-    for rule in tronc.iter('rule'):
-
-        if rule[0].tag == "simple_condition":
-
-            print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
-            ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
-            #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
-            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
-            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
-            
-        elif rule[0].tag == "composed_condition":
-           
-            liste_conditions_simples = []
-            
-            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
-
-            for simple_condition in rule[0].iter("simple_condition"):
-                    
-                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
-                    ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
-                    liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
-                    print("Fait")
-
-            print("Opérateur logique: {}".format(rule[0].get("operator")))
-            print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
-            ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
-            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
-            
-            
-
-
-    print(regles)
-    return regles
-
-regles = importer_regle("/Users/thomas/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
-print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
-
-print(sequence.postures[16].regles_activees())
-
-print(sequence.posture_activees(regles.get("rule_2")))
+##def importer_regle(chemin_d_acces_fichier_regles):
+##    arbreXML= ET.parse(chemin_d_acces_fichier_regles)
+##    tronc = arbreXML.getroot()
+##
+##    # Dictionnaire de la forme {"nom_règle" : pointeur_de_la_règle_associée}
+##    regles = dict()
+##
+##    for rule in tronc.iter('rule'):
+##
+##        if rule[0].tag == "simple_condition":
+##
+##            print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
+##            ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
+##            #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
+##            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
+##            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
+##            
+##        elif rule[0].tag == "composed_condition":
+##           
+##            liste_conditions_simples = []
+##            
+##            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
+##
+##            for simple_condition in rule[0].iter("simple_condition"):
+##                    
+##                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
+##                    ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
+##                    liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
+##                    print("Fait")
+##
+##            print("Opérateur logique: {}".format(rule[0].get("operator")))
+##            print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
+##            ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
+##            regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
+##            
+##            
+##
+##
+##    print(regles)
+##    return regles
+##
+##regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_et_positions_v1.3.xml")
+##print("test de la règle {}".format(regles["Bac_1"].is_activated(sequence.postures[15])))
+##
+##print(sequence.postures[16].regles_activees())
+##
+##print(sequence.posture_activees(regles.get("rule_2")))
 
 
 
