@@ -720,7 +720,7 @@ def main():
         def _lancer_recherche_posture_activant_regle_selectionnee(sequence,regle):
             #La fonction se lance toute seule sans que je comprenne pourquoi
             print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
-            print(sequence.posture_activees(regle))
+            #print(sequence.posture_activees(regle))
             print("Fin de la liste")
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
           #  print(sequence.posture_activees(regles.get(str(regle))))
@@ -808,6 +808,7 @@ def main():
         tab_3_left_spnbox_1.grid(row=1,column=0)
 
         tab_3_left_but_1=tk.Button(tab_3_left_frame,text="Lancer la recherche")
+        tab_3_left_but_1.bind('<Double-Button-1>', lancer_recherche_regles_activees_posture)
         #tab_3_left_but_1("<Button-1>", lancer_recherche_regles_activees_posture(tab_3_left_spnbox_1.get()))
         tab_3_left_but_1.grid(row=2,column=0)
 
@@ -820,6 +821,7 @@ def main():
         tab_3_center_lbl_1.grid(row=0,column=0)
 
         listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations DONE
+        #listeProduits2=["ez"]
         tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2,state= "readonly")
         tab_3_center_combobox_1.current(0)
         tab_3_center_combobox_1.grid(row=1,column=0)
