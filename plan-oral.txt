@@ -4,7 +4,8 @@ Présentation: articulations, postures, séquence, Chargement_xml (instancie obj
 
 2)
 Conditions simples, conditions composées, règles
-2 versions: 1ere fois, tous les cas à la main et implentation manuelle. Maj regles
+2 versions: 1ere fois, tous les cas à la main et implentation manuelle. Maj regles v3 problèmes
+recommencé: import direct des arguments dans un dictionnaire
 Posture activees, regles actives
 
 3) Interface graphique
@@ -17,5 +18,7 @@ Virgile: 2ers onglets
     2e fonctionnel avec méthode itérative - presque foncionnel
 Thomas: 3e onglet
     probleme lien
+
+4) Pour travailler en collab: github / vs code
 
 Conclut: toutes les fonctions et classes de manières fonctionnelles (ou presque) mais lien avec interface a déconné
