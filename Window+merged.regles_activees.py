@@ -670,7 +670,7 @@ def main():
             fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
             sequence = fichiers_charges.obtenir_sequence
             regles=fichiers_charges.obtenir_regles
-            #print(sequence.postures[16].regles_activees(regles))
+            print(sequence.postures[16].regles_activees(regles))
             #print(sequence.posture_activees(regles.get("rule_2")))
             #ensemble_regles_activees_par_sequence(fichiers_charges)
     
@@ -751,7 +751,7 @@ def main():
         else: call = 'r'
 
         ax = sequence.postures[posture].tracer(call)
-##        fig = sequence.postures[posture].tracer(call)
+        ##  fig = sequence.postures[posture].tracer(call)
         ax.savefig('image.png',format = 'png')
         canvas = FigureCanvasTkAgg(ax, master=tab1_left_frame)  # A tk.DrawingArea.
 

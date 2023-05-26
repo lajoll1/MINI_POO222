@@ -671,7 +671,7 @@ def main():
             sequence = fichiers_charges.obtenir_sequence
             regles=fichiers_charges.obtenir_regles
             #print(sequence.postures[16].regles_activees(regles))
-            #print(sequence.posture_activees(regles.get("rule_2")))
+            print(sequence.posture_activees(regles.get("rule_2")))
             #ensemble_regles_activees_par_sequence(fichiers_charges)
     
     root = tk.Tk()
