@@ -624,11 +624,11 @@ def main():
         tab_1_right_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, textvariable = tab_1_right_spnbox_1_var,wrap = True) 
         
         #A modifier avec la liste des articulations DONE
-        for articulation in sequence.postures[0].articulations:
-            tab_2_combobox_1.set(articulation.nom) 
-        tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = len(sequence.postures)-1)
-        listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations DONE
-        tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2,state= "readonly")
+        
+        tab_2_combobox_1["values"]= [articulation.nom for articulation in sequence.postures[0].articulations] 
+        tab_3_left_spnbox_1["to"]=len(sequence.postures)-1
+        #A modifier avec la liste des articulations DONE
+        tab_3_center_combobox_1["values"] = [element for element in list(regles.keys())]
         pass
 
     def open_postures_file():
