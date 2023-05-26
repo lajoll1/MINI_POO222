@@ -622,7 +622,7 @@ def main():
 
    
     def remplir_onglets(sequence,regles):
-        tab_1_right_spnbox_1["values"]= len(sequence.postures)-1 
+        tab_1_right_spnbox_1["to"]= len(sequence.postures)-1 
         
         #A modifier avec la liste des articulations DONE
         
