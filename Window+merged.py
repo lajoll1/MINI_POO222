@@ -869,7 +869,8 @@ def main():
     tab_2_combobox_2.current(0)
     tab_2_combobox_2.grid(row=3,column=0)
         
-    tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution", command = tracer_evolution())
+    tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution")
+    #command = tracer_evolution())
     tab_2_but_1.grid(row=4,column=0,columnspan = 2)
 
     racine = ttk
