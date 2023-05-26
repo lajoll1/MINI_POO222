@@ -597,7 +597,7 @@ class Chargement():
             regle_activee.text=regle # a remplacer par la regle en question
             for posture in dico_postures_activees_pour_regle_donnee.get(regle_activee.text):
                 # Add sub-sub element.
-                ET.SubElement(regle_activee, "posture").text = posture #remplacer test par le numero de posture
+                ET.SubElement(regle_activee, "posture",name="numero_posture").text = posture.numero #remplacer test par le numero de posture
 
         # Write XML file.
         tree = ET.ElementTree(rootXMLElt)
@@ -664,8 +664,6 @@ def main():
         if root_txt_zone_1.get() and root_txt_zone_2.get():
             fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
             sequence,regles = fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles
-            print(sequence.postures[16].regles_activees(regles))
-            print(sequence.posture_activees(regles.get("rule_2")))
             ensemble_regles_activees_par_sequence(fichiers_charges)
             #prend un argument de la forme dictionnaire {nom_règle_activation:[liste_posture activées]}
 
