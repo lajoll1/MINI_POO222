@@ -585,7 +585,7 @@ class Chargement():
         return regles
     obtenir_regles = property(_importer_regle)
     
-    def exporter_xml(self, dico_postures_activees_pour_regle_donnee):
+    def exporter_xml(dico_postures_activees_pour_regle_donnee):
         #prend un argument de la forme dictionnaire {nom_règle_activation:[liste_posture activées]}
         # Create root element.
         rootXMLElt = ET.Element("root")
@@ -596,16 +596,13 @@ class Chargement():
         
             regle_activee = ET.SubElement(rootXMLElt, "regle_activee", name=regle)
             regle_activee.text=regle # a remplacer par la regle en question
-
             for posture in dico_postures_activees_pour_regle_donnee.get(regle_activee.text):
                 # Add sub-sub element.
                 ET.SubElement(regle_activee, "posture").text = posture #remplacer test par le numero de posture
 
         # Write XML file.
         tree = ET.ElementTree(rootXMLElt)
-        print(rootXMLElt) 
-        tree.write("export2.xml")
-
+        tree.write("export.xml")
 
 '_______________________Interface________________________''_______________________Interface________________________''_______________________Interface________________________'
 
@@ -654,17 +651,6 @@ def main():
             return fichiers_charges    
         print("Fin de l'import")
 
-    def ensemble_regles_activees_par_sequence(fichiers_charges):
-        sequence,regles = fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles
-        dict_ensemble_regles_activees_par_sequence= dict()
-        for regle in regles:
-            dict_ensemble_regles_activees_par_sequence.update({"rule_2":sequence.posture_activees(regles.get("rule_2"))})
-        print("Liste envoyée pour l'export est {} de type {}".format(dict_ensemble_regles_activees_par_sequence,type(dict_ensemble_regles_activees_par_sequence)))
-        
-        
-        
-        fichiers_charges.exporter_xml(dict_ensemble_regles_activees_par_sequence)
-
     def demo():
         if root_txt_zone_1.get() and root_txt_zone_2.get():
             fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
@@ -672,7 +658,6 @@ def main():
             regles=fichiers_charges.obtenir_regles
             print(sequence.postures[16].regles_activees(regles))
             print(sequence.posture_activees(regles.get("rule_2")))
-            #ensemble_regles_activees_par_sequence(fichiers_charges)
     
     root = tk.Tk()
     root.title("MINI_POO - 2022_S2")
