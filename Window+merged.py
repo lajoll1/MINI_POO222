@@ -622,8 +622,10 @@ def main():
    
     def remplir_onglets(sequence,regles):
         tab_1_right_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, textvariable = tab_1_right_spnbox_1_var,wrap = True) 
-        liste_articulations=[articulation.nom for articulation in sequence.postures[0].articulations] #A modifier avec la liste des articulations DONE
-        tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=liste_articulations,state= "readonly")
+        
+        #A modifier avec la liste des articulations DONE
+        for articulation in sequence.postures[0].articulations:
+            tab_2_combobox_1.set(articulation.nom) 
         tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = len(sequence.postures)-1)
         listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations DONE
         tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2,state= "readonly")
@@ -834,7 +836,7 @@ def main():
 
 
     liste_articulations=[0] #A modifier avec la liste des articulations DONE
-    tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=liste_articulations,state= "readonly")
+    tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=liste_articulations)
     tab_2_combobox_1.current(0)
     tab_2_combobox_1.grid(row=0,column=0)
 
@@ -889,7 +891,7 @@ def main():
 
     listeProduits2=[0] #A modifier avec la liste des articulations DONE
     #listeProduits2=["ez"]
-    tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2,state= "readonly")
+    tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2)
     tab_3_center_combobox_1.current(0)
     tab_3_center_combobox_1.grid(row=1,column=0)
 
