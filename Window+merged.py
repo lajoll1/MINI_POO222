@@ -658,6 +658,8 @@ def main():
             print(sequence.postures[16].regles_activees(regles))
             print(sequence.posture_activees(regles.get("rule_2")))
 
+    #Dans l'onglet2:
+    
     root = tk.Tk()
     root.title("MINI_POO - 2022_S2")
     # Fonction d'import doublée faute de mieux
@@ -754,8 +756,7 @@ def main():
         if os.path.exists(chemin_fichier):
             os.remove(chemin_fichier)
         
-    def determiner_coord_evolution():
-        sequence = Chargement(root_txt_zone_1.get(), root_txt_zone_2.get()).obtenir_sequence
+    def determiner_coord_evolution(sequence):
         def obtenir(posture,articulation_nom):
                 for articulation in posture.articulations:
                     if articulation.nom == articulation_nom:
@@ -780,9 +781,9 @@ def main():
                 y.append(articulation_concernee.va_ang[1])
         return x,y
 
-    def tracer_evolution():
+    def tracer_evolution(sequence):
         
-        x,y = determiner_coord_evolution()
+        x,y = determiner_coord_evolution(sequence)
         fig.add_subplot(111).plot(x,y)
 
         canvas = FigureCanvasTkAgg(fig, master = tab_2_left_frame )  # A tk.DrawingArea.
