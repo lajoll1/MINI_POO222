@@ -12,8 +12,8 @@ class Regle():
 
     def is_activated(self,posture):
         if isinstance(posture, Posture) or isinstance(posture, Posture):
-            print("Vérification de l'activation de la règle {} ".format(posture))
-        return self._condition_associe.is_activated(posture) 
+            #print("Vérification de l'activation de la règle {} ".format(posture))
+            return self._condition_associe.is_activated(posture) 
    
 '________Definition_classe_Condition_Simple________'
 
@@ -475,7 +475,7 @@ class Sequence():
             print("règle à tester est: {}".format(regle_a_tester))
             if regle_a_tester.is_activated(posture):
                     liste_postures_activant_la_regle.append(posture)
-            print("Vérification de l'activation de la règle à tester {} pour la posture {}".format(regle_a_tester,posture))
+            print("Vérification de l'activation de la règle à tester {} pour la posture {}".format(regle_a_tester._nom_regle,posture))
         return liste_postures_activant_la_regle
 
 '________________________Classe_Chargement_________________________'
