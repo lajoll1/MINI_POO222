@@ -864,7 +864,7 @@ def main():
             fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
             sequence = fichiers_charges.obtenir_sequence
            # print("Les chemins des fichiers d'imports sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
-            #afficher_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)
+            afficher_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)
             demo()    
         print("Fin de l'import")
 
