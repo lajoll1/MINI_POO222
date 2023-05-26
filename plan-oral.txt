@@ -3,21 +3,33 @@ fonctionnel mais passage à l'interface --> limite --> recursif --> problèmes d
 Présentation: articulations, postures, séquence, Chargement_xml (instancie objet séquence et règle)
 
 2)
-Conditions simples, conditions composées, règles
 2 versions: 1ere fois, tous les cas à la main et implentation manuelle. Maj regles v3 problèmes
-recommencé: import direct des arguments dans un dictionnaire
+v2: import direct des arguments dans un dictionnaire
+
+Conditions simples
+    a)Conversion des types import str + dictionnaire 
+ 
+Conditions composées
+    operateur, liste condition simples
+Règles
+  nom, description, pointeur condition
 Posture activees, regles actives
 
 3) Interface graphique
-Thomas: squelette
-+ structure du main
-complexifié l'ccès des fonctions de tracé à la séquence
-+bug bouton tout seul
-Virgile: 2ers onglets
-    1er Pas tracer sous canevas (envisage l'export png)
-    2e fonctionnel avec méthode itérative - presque foncionnel
-Thomas: 3e onglet
-    probleme lien
+    squelette:    root / 3 tabs / 3 frames en grid
+    organisation du code: 1) bloc fonctions utilisées 2) création des contrôles graphiques
+
+    main()
+
+    complexifié l'accès des fonctions de tracé à la séquence
+    +bug bouton tout seul
+
+    Virgile: 2ers onglets
+        1er Pas tracer sous canevas (envisage l'export png)
+        2e fonctionnel avec méthode itérative - presque foncionnel
+        Montrer les codes qui fonctionnent
+    Thomas: 3e onglet
+        probleme lien
 
 4) Pour travailler en collab: github / vs code
 
