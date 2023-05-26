@@ -619,237 +619,16 @@ from matplotlib.figure import Figure
 
 def main():
 
-    def afficher_onglets(sequence,regles,tab_3_check_but_1_var=0):
-            # lien avec les classes
-
-
-        # Création des onglets
-        my_tabs = ttk.Notebook(root) # declaring 
-
-        tab1 = ttk.Frame(my_tabs)
-        tab2 = ttk.Frame(my_tabs)
-        tab3 = ttk.Frame(my_tabs)
-
-        my_tabs.add(tab1, text ='Affichage') # adding tab
-        my_tabs.add(tab2, text ='Plot-evolution') # adding tab 
-        my_tabs.add(tab3, text ='Test') # adding tab 
-
-        my_tabs.grid(row=2,column=0,columnspan=3)
-
-        # Passage à 0 pcq row et column du tab1
-        tab1_left_frame = tk.Frame(tab1)
-        tab1_left_frame.grid(row=0,column=0)
-
-
-
-        # Ici inclusion du plot matplotlib onglet 1
-        # Taille de la fenêtre
-
-        fig = Figure(figsize=(5, 4), dpi=100)
-
-        ##    fig.add_subplot(111).plot(Lx,Ly)
-
-        
-        canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
-        canvas.get_tk_widget().grid(row=0,column=1)
-        canvas.draw()
-        ##    del(canvas)
-        
-
-
-        def afficher_sequence(posture):
-            ##        del(canvas)
-            # On détermine en fonction des boutons pressés les vecteurs à tracer
-            print(tab_1_check_but_1_var,tab_1_check_but_2_var)
-            if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
-
-            elif tab_1_check_but_1_var and not tab_1_check_but_2_var: call = 'v'
-                
-            elif tab_1_check_but_2_var and not tab_1_check_but_1_var: call = 'a'
-
-            else: call = 'r'
-
-            ax = sequence.postures[posture].tracer(call)
-            canvas = FigureCanvasTkAgg(ax, master=tab1_left_frame)  # A tk.DrawingArea.
-            canvas.get_tk_widget().grid(row=0,column=1)
-            canvas.draw()
-            
-        def determiner_coord_evolution():
-            articulation = tab_2_combobox_1.get()
-            demande = tab_2_combobox_2.get()
-            dt = 1/1.2
-            x = [i*dt for i in range(len(sequence.postures))]
-            y = []
-            for posture in sequence.postures:
-                articulation_concernee = posture.obtenir(articulation)
-                if demande == 'Angle':
-                    y.append(articulation_concernee.angle)
-                if demande == 'Vitesse_moy':
-                    y.append(articulation_concernee.va_moy[2])
-                if demande == 'Acceleration_moy':
-                    y.append(articulation_concernee.va_moy[3])
-                if demande == 'Vitesse_ang':
-                    y.append(articulation_concernee.va_ang[0])
-                if demande == 'Acceleration_ang':
-                    y.append(articulation_concernee.va_ang[1])
-            return x,y
-
-        def tracer_evolution():
-            x,y = determiner_coord_evolution()
-            fig.add_subplot(111).plot(x,y)
-
-            canvas = FigureCanvasTkAgg(fig, master = tab_2_left_frame )  # A tk.DrawingArea.
-            canvas.draw()
-            canvas.get_tk_widget().grid(row=0,column=0,columnspan = 2)
-
-        def nettoyer():
-            tab_2_left_frame.destroy
-            fig = Figure(figsize=(5, 4), dpi=100)
-
-            canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame)  # A tk.DrawingArea.
-            canvas.get_tk_widget().grid(row=0,column=0,columnspan=2)
-            canvas.draw()
-
-        def lancer_recherche_regles_activees_posture(posture):
-            if tab_3_check_but_1_var==1:
-                #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
-                print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
-                print("Posture is_activated ? {}".format(posture.regle_activee))
-                if tab_3_left_spnbox_1.get():
-                    tab_3_left_lstbox_1.update()
-
-        def _lancer_recherche_posture_activant_regle_selectionnee(sequence,regle):
-            if tab_3_check_but_1_var==1:
-                #La fonction se lance toute seule sans que je comprenne pourquoi
-                print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
-                #print(sequence.posture_activees(regle))
-                print("Fin de la liste")
-                #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
-            #  print(sequence.posture_activees(regles.get(str(regle))))
-                #Pas bsn de test pcq une sélection est forcée
-                #tab_3_center_lstbox_1.update(tab_3_center_combobox_1.get()[1])
-
-        #Zone droite du tab1
-        tab_1_right_frame= tk.Frame(tab1)
-        tab_1_right_frame.grid(row=0,column=1)
-
-        
-        tab_1_check_but_1_var = 1
-        tab_1_check_but_1 = ttk.Checkbutton(tab_1_right_frame,text='Afficher Vitesses',variable = tab_1_check_but_1_var)
-        ##    tab_1_check_but_1.deselect
-        tab_1_check_but_1.grid(row=0,column=0)
-
-        tab_1_check_but_2_var = 0
-        tab_1_check_but_2 = ttk.Checkbutton(tab_1_right_frame,text='Afficher accélérations',variable = tab_1_check_but_2_var)
-        ##    tab_1_check_but_2.deselect
-        tab_1_check_but_2.grid(row=1,column=0)
-
-        tab_1_right_spnbox_1_var = tk.StringVar(value=0)
-        tab_1_right_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, to = len(sequence.postures)-1, textvariable = tab_1_right_spnbox_1_var,wrap = True) 
-        tab_1_right_spnbox_1.grid(row=3,column=0)
-
-        tab_1_check_1 = ttk.Button(tab_1_right_frame,text='Lancer affichage')
-        #, command = afficher_sequence(int(tab_1_right_spnbox_1.get()))
-        tab_1_check_1.grid(row=2,column=0)
-
-        #Création zones tab2
-        tab_2_left_frame = tk.Frame(tab2)
-        tab_2_left_frame.grid(row=0,column=0)
-
-        tab_2_right_frame = tk.Frame(tab2)
-        tab_2_right_frame.grid(row=0,column=1)
-
-        #Zone gauche tab2
-
-        fig = Figure(figsize=(5, 4), dpi=100)
-        
-
-        canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame )  # A tk.DrawingArea.
-        canvas.draw()
-        canvas.get_tk_widget().grid(row=0,column=1)
-
-    
-        #Zone droite tab2
-
-
+   
+    def remplir_onglets(sequence,regles):
+        tab_1_right_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, textvariable = tab_1_right_spnbox_1_var,wrap = True) 
         liste_articulations=[articulation.nom for articulation in sequence.postures[0].articulations] #A modifier avec la liste des articulations DONE
         tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=liste_articulations,state= "readonly")
-        tab_2_combobox_1.current(0)
-        tab_2_combobox_1.grid(row=0,column=0)
-
-        liste_demandes = ['Angle','Vitesse_moy','Acceleration_moy','Vitesse_ang','Acceleration_ang']
-        tab_2_combobox_2 = ttk.Combobox(tab_2_right_frame,values = liste_demandes,state= "readonly")
-        tab_2_combobox_2.current(0)
-        tab_2_combobox_2.grid(row=3,column=0)
-            
-        tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution", command = tracer_evolution)
-        tab_2_but_1.grid(row=4,column=0,columnspan = 2)
-
-        racine = ttk
-        tab_2_but_2 = ttk.Button(tab_2_right_frame,text = "Clear", command = nettoyer)
-        tab_2_but_2.grid(row=5,column=0,columnspan = 2)
-        
-        #tab 3
-        tab_3_check_but_1_var=0
-
-        tab_3_check_but_1 = tk.Checkbutton(tab3,variable=tab_3_check_but_1_var,text="Activer le traitement")
-        tab_3_check_but_1.grid(row=0,column=0)
-
-        tab_3_left_frame = tk.Frame(tab3)
-        tab_3_left_frame.grid(row=1,column=0)
-
-        tab_3_center_frame = tk.Frame(tab3)
-        tab_3_center_frame.grid(row=1,column=1)
-
-        tab_3_right_frame= tk.Frame(tab3)
-        tab_3_right_frame.grid(row=1,column=2)
-
-        #Remplissage tab3
-        #left_frame
-        tab_3_left_lbl_1 = ttk.Label(tab_3_left_frame, text="Sélectionner le numero de la posture:")
-        tab_3_left_lbl_1.grid(row=0,column=0)
-
-        tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = len(sequence.postures)-1) # A modifier selon nb articulion avec un len DONE
-        tab_3_left_spnbox_1.set(0)
-        tab_3_left_spnbox_1.grid(row=1,column=0)
-
-        tab_3_left_but_1=tk.Button(tab_3_left_frame,text="Lancer la recherche")
-        tab_3_left_but_1.bind('<Double-Button-1>', lancer_recherche_regles_activees_posture)
-        #tab_3_left_but_1("<Button-1>", lancer_recherche_regles_activees_posture(tab_3_left_spnbox_1.get()))
-        tab_3_left_but_1.grid(row=2,column=0)
-
-        tab_3_left_lstbox_1=tk.Listbox(tab_3_left_frame)
-        tab_3_left_lstbox_1.insert(1,"élément 1") #(index, valeur)
-        tab_3_left_lstbox_1.grid(row=3,column=0)
-
-        #center_frame
-        tab_3_center_lbl_1 = ttk.Label(tab_3_center_frame, text="Sélectionner la règle:")
-        tab_3_center_lbl_1.grid(row=0,column=0)
-
+        tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = len(sequence.postures)-1)
         listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations DONE
-        #listeProduits2=["ez"]
         tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2,state= "readonly")
-        tab_3_center_combobox_1.current(0)
-        tab_3_center_combobox_1.grid(row=1,column=0)
+        pass
 
-        tab_3_center_but_1=tk.Button(tab_3_center_frame,text="Lancer la recherche de positions",command=_lancer_recherche_posture_activant_regle_selectionnee(sequence,regles.get(tab_3_center_combobox_1.get())))
-        tab_3_center_but_1.grid(row=2,column=0)
-
-        tab_3_center_lstbox_1=tk.Listbox(tab_3_center_frame)
-        tab_3_center_lstbox_1.grid(row=3,column=0)
-        #tab_3_center_lstbox_1.insert(1,"élément 1") #(index, valeur)
-
-
-        #right_frame
-        tab_3_center_but_2=tk.Button(tab_3_right_frame,text="Exporter les règles activées")
-        #,command=fichiers_charges.exporter_xml(tab_3_center_lstbox_1.get('1','end'))
-        tab_3_center_but_2.grid(row=4,column=0)
-
-
-    root = tk.Tk()
-    root.title("MINI_POO - 2022_S2")
-    # Fonction d'import doublée faute de mieux
-    # Possibilité de complexifier si on sait quel bouton a appelé
     def open_postures_file():
         if root_txt_zone_1.get(): root_txt_zone_1.delete(0,"end")
         root_txt_zone_1.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
@@ -864,7 +643,7 @@ def main():
             fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
             sequence = fichiers_charges.obtenir_sequence
            # print("Les chemins des fichiers d'imports sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
-            afficher_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)
+            remplir_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)
             demo()    
         print("Fin de l'import")
 
@@ -875,16 +654,12 @@ def main():
             regles=fichiers_charges.obtenir_regles
             print(sequence.postures[16].regles_activees(regles))
             print(sequence.posture_activees(regles.get("rule_2")))
-    
-    # Création des zones d'import fichiers
-    tk.Label(root,text="chemin du fichier de séquence:").grid(row=0,column=0)
-    root_txt_zone_1=tk.Entry(root)
-    root_txt_zone_1.grid(row=0,column=1)
 
-    root_button_1=tk.Button(root, text = "Sélectionner", command = open_postures_file)
-    root_button_1.grid(row=0,column=2)
-
-    print(root_button_1)
+    root = tk.Tk()
+    root.title("MINI_POO - 2022_S2")
+    # Fonction d'import doublée faute de mieux
+    # Possibilité de complexifier si on sait quel bouton a appelé
+   
 
     tk.Label(root,text="chemin du fichier de règles:").grid(row=1,column=0)
 
@@ -896,6 +671,240 @@ def main():
 
     root_button_3=tk.Button(root, text = "Lancer l'import", command = start_analyzing_process)
     root_button_3.grid(row=2,column=0,sticky="EW",columnspan=3)
+
+   
+    
+    # Création des zones d'import fichiers
+    tk.Label(root,text="chemin du fichier de séquence:").grid(row=0,column=0)
+    root_txt_zone_1=tk.Entry(root)
+    root_txt_zone_1.grid(row=0,column=1)
+
+    root_button_1=tk.Button(root, text = "Sélectionner", command = open_postures_file)
+    root_button_1.grid(row=0,column=2)
+
+    # lien avec les classes
+
+    # Création des onglets
+    my_tabs = ttk.Notebook(root) # declaring 
+
+    tab1 = ttk.Frame(my_tabs)
+    tab2 = ttk.Frame(my_tabs)
+    tab3 = ttk.Frame(my_tabs)
+
+    my_tabs.add(tab1, text ='Affichage') # adding tab
+    my_tabs.add(tab2, text ='Plot-evolution') # adding tab 
+    my_tabs.add(tab3, text ='Test') # adding tab 
+
+    my_tabs.grid(row=3,column=0,columnspan=3)
+
+    # Passage à 0 pcq row et column du tab1
+    tab1_left_frame = tk.Frame(tab1)
+    tab1_left_frame.grid(row=0,column=0)
+
+
+
+    # Ici inclusion du plot matplotlib onglet 1
+    # Taille de la fenêtre
+
+    fig = Figure(figsize=(5, 4), dpi=100)
+
+    ##    fig.add_subplot(111).plot(Lx,Ly)
+
+    
+    canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
+    canvas.get_tk_widget().grid(row=0,column=1)
+    canvas.draw()
+    ##    del(canvas)
+    
+
+
+    def afficher_sequence(posture):
+        ##        del(canvas)
+        # On détermine en fonction des boutons pressés les vecteurs à tracer
+        print(tab_1_check_but_1_var,tab_1_check_but_2_var)
+        if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
+
+        elif tab_1_check_but_1_var and not tab_1_check_but_2_var: call = 'v'
+            
+        elif tab_1_check_but_2_var and not tab_1_check_but_1_var: call = 'a'
+
+        else: call = 'r'
+
+        ax = sequence.postures[posture].tracer(call)
+        canvas = FigureCanvasTkAgg(ax, master=tab1_left_frame)  # A tk.DrawingArea.
+        canvas.get_tk_widget().grid(row=0,column=1)
+        canvas.draw()
+        
+    def determiner_coord_evolution():
+        articulation = tab_2_combobox_1.get()
+        demande = tab_2_combobox_2.get()
+        dt = 1/1.2
+        x = [i*dt for i in range(len(sequence.postures))]
+        y = []
+        for posture in sequence.postures:
+            articulation_concernee = posture.obtenir(articulation)
+            if demande == 'Angle':
+                y.append(articulation_concernee.angle)
+            if demande == 'Vitesse_moy':
+                y.append(articulation_concernee.va_moy[2])
+            if demande == 'Acceleration_moy':
+                y.append(articulation_concernee.va_moy[3])
+            if demande == 'Vitesse_ang':
+                y.append(articulation_concernee.va_ang[0])
+            if demande == 'Acceleration_ang':
+                y.append(articulation_concernee.va_ang[1])
+        return x,y
+
+    def tracer_evolution():
+        x,y = determiner_coord_evolution()
+        fig.add_subplot(111).plot(x,y)
+
+        canvas = FigureCanvasTkAgg(fig, master = tab_2_left_frame )  # A tk.DrawingArea.
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=0,column=0,columnspan = 2)
+
+    def nettoyer():
+        tab_2_left_frame.destroy
+        fig = Figure(figsize=(5, 4), dpi=100)
+
+        canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame)  # A tk.DrawingArea.
+        canvas.get_tk_widget().grid(row=0,column=0,columnspan=2)
+        canvas.draw()
+
+    def lancer_recherche_regles_activees_posture(posture):
+        if tab_3_check_but_1_var==1:
+            #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
+            print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
+            print("Posture is_activated ? {}".format(posture.regle_activee))
+            if tab_3_left_spnbox_1.get():
+                tab_3_left_lstbox_1.update()
+
+    def _lancer_recherche_posture_activant_regle_selectionnee(sequence,regle):
+        if tab_3_check_but_1_var==1:
+            #La fonction se lance toute seule sans que je comprenne pourquoi
+            print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
+            #print(sequence.posture_activees(regle))
+            print("Fin de la liste")
+            #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
+        #  print(sequence.posture_activees(regles.get(str(regle))))
+            #Pas bsn de test pcq une sélection est forcée
+            #tab_3_center_lstbox_1.update(tab_3_center_combobox_1.get()[1])
+
+    #Zone droite du tab1
+    tab_1_right_frame= tk.Frame(tab1)
+    tab_1_right_frame.grid(row=0,column=1)
+
+    
+    tab_1_check_but_1_var = 1
+    tab_1_check_but_1 = ttk.Checkbutton(tab_1_right_frame,text='Afficher Vitesses',variable = tab_1_check_but_1_var)
+    ##    tab_1_check_but_1.deselect
+    tab_1_check_but_1.grid(row=0,column=0)
+
+    tab_1_check_but_2_var = 0
+    tab_1_check_but_2 = ttk.Checkbutton(tab_1_right_frame,text='Afficher accélérations',variable = tab_1_check_but_2_var)
+    ##    tab_1_check_but_2.deselect
+    tab_1_check_but_2.grid(row=1,column=0)
+
+    tab_1_right_spnbox_1_var = tk.StringVar(value=0)
+    tab_1_right_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, textvariable = tab_1_right_spnbox_1_var,wrap = True) 
+    tab_1_right_spnbox_1.grid(row=3,column=0)
+
+    tab_1_check_1 = ttk.Button(tab_1_right_frame,text='Lancer affichage')
+    #, command = afficher_sequence(int(tab_1_right_spnbox_1.get()))
+    tab_1_check_1.grid(row=2,column=0)
+
+    #Création zones tab2
+    tab_2_left_frame = tk.Frame(tab2)
+    tab_2_left_frame.grid(row=0,column=0)
+
+    tab_2_right_frame = tk.Frame(tab2)
+    tab_2_right_frame.grid(row=0,column=1)
+
+    #Zone gauche tab2
+
+    fig = Figure(figsize=(5, 4), dpi=100)
+    
+
+    canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame )  # A tk.DrawingArea.
+    canvas.draw()
+    canvas.get_tk_widget().grid(row=0,column=1)
+
+
+    #Zone droite tab2
+
+
+    liste_articulations=[0] #A modifier avec la liste des articulations DONE
+    tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=liste_articulations,state= "readonly")
+    tab_2_combobox_1.current(0)
+    tab_2_combobox_1.grid(row=0,column=0)
+
+    liste_demandes = ['Angle','Vitesse_moy','Acceleration_moy','Vitesse_ang','Acceleration_ang']
+    tab_2_combobox_2 = ttk.Combobox(tab_2_right_frame,values = liste_demandes,state= "readonly")
+    tab_2_combobox_2.current(0)
+    tab_2_combobox_2.grid(row=3,column=0)
+        
+    tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution", command = tracer_evolution)
+    tab_2_but_1.grid(row=4,column=0,columnspan = 2)
+
+    racine = ttk
+    tab_2_but_2 = ttk.Button(tab_2_right_frame,text = "Clear", command = nettoyer)
+    tab_2_but_2.grid(row=5,column=0,columnspan = 2)
+    
+    #tab 3
+    tab_3_check_but_1_var=0
+
+    tab_3_check_but_1 = tk.Checkbutton(tab3,variable=tab_3_check_but_1_var,text="Activer le traitement")
+    tab_3_check_but_1.grid(row=0,column=0)
+
+    tab_3_left_frame = tk.Frame(tab3)
+    tab_3_left_frame.grid(row=1,column=0)
+
+    tab_3_center_frame = tk.Frame(tab3)
+    tab_3_center_frame.grid(row=1,column=1)
+
+    tab_3_right_frame= tk.Frame(tab3)
+    tab_3_right_frame.grid(row=1,column=2)
+
+    #Remplissage tab3
+    #left_frame
+    tab_3_left_lbl_1 = ttk.Label(tab_3_left_frame, text="Sélectionner le numero de la posture:")
+    tab_3_left_lbl_1.grid(row=0,column=0)
+
+    tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = 0) # A modifier selon nb articulion avec un len DONE
+    tab_3_left_spnbox_1.set(0)
+    tab_3_left_spnbox_1.grid(row=1,column=0)
+
+    tab_3_left_but_1=tk.Button(tab_3_left_frame,text="Lancer la recherche")
+    tab_3_left_but_1.bind('<Double-Button-1>', lancer_recherche_regles_activees_posture)
+    #tab_3_left_but_1("<Button-1>", lancer_recherche_regles_activees_posture(tab_3_left_spnbox_1.get()))
+    tab_3_left_but_1.grid(row=2,column=0)
+
+    tab_3_left_lstbox_1=tk.Listbox(tab_3_left_frame)
+    tab_3_left_lstbox_1.insert(1,"élément 1") #(index, valeur)
+    tab_3_left_lstbox_1.grid(row=3,column=0)
+
+    #center_frame
+    tab_3_center_lbl_1 = ttk.Label(tab_3_center_frame, text="Sélectionner la règle:")
+    tab_3_center_lbl_1.grid(row=0,column=0)
+
+    listeProduits2=[0] #A modifier avec la liste des articulations DONE
+    #listeProduits2=["ez"]
+    tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2,state= "readonly")
+    tab_3_center_combobox_1.current(0)
+    tab_3_center_combobox_1.grid(row=1,column=0)
+
+    tab_3_center_but_1=tk.Button(tab_3_center_frame,text="Lancer la recherche de positions")
+    tab_3_center_but_1.grid(row=2,column=0)
+
+    tab_3_center_lstbox_1=tk.Listbox(tab_3_center_frame)
+    tab_3_center_lstbox_1.grid(row=3,column=0)
+    #tab_3_center_lstbox_1.insert(1,"élément 1") #(index, valeur)
+
+
+    #right_frame
+    tab_3_center_but_2=tk.Button(tab_3_right_frame,text="Exporter les règles activées")
+    #,command=fichiers_charges.exporter_xml(tab_3_center_lstbox_1.get('1','end'))
+    tab_3_center_but_2.grid(row=4,column=0)
 
     root.mainloop()  # Keep the window open
 
