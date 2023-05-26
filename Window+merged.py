@@ -647,7 +647,9 @@ def main():
             sequence = fichiers_charges.obtenir_sequence
            # print("Les chemins des fichiers d'imports sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
             remplir_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)
-            demo()    
+            #demo()
+            demo_evolution(fichiers_charges)
+            return fichiers_charges    
         print("Fin de l'import")
 
     def demo():
@@ -658,12 +660,15 @@ def main():
             print(sequence.postures[16].regles_activees(regles))
             print(sequence.posture_activees(regles.get("rule_2")))
 
+    def demo_evolution(fichiers_charges):
+        tracer_evolution(fichiers_charges.obtenir_sequence)
     #Dans l'onglet2:
     
     root = tk.Tk()
     root.title("MINI_POO - 2022_S2")
     # Fonction d'import doublée faute de mieux
     # Possibilité de complexifier si on sait quel bouton a appelé
+   
    
 
     tk.Label(root,text="chemin du fichier de règles:").grid(row=1,column=0)
