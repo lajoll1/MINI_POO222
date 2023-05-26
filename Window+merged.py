@@ -619,7 +619,7 @@ from matplotlib.figure import Figure
 
 def main():
 
-    def afficher_onglets(sequence,regles):
+    def afficher_onglets(sequence,regles,tab_3_check_but_1_var=0):
             # lien avec les classes
 
 
@@ -711,21 +711,23 @@ def main():
             canvas.draw()
 
         def lancer_recherche_regles_activees_posture(posture):
-            #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
-            print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
-            print("Posture is_activated ? {}".format(posture.regle_activee))
-            if tab_3_left_spnbox_1.get():
-                tab_3_left_lstbox_1.update()
+            if tab_3_check_but_1_var==1:
+                #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
+                print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
+                print("Posture is_activated ? {}".format(posture.regle_activee))
+                if tab_3_left_spnbox_1.get():
+                    tab_3_left_lstbox_1.update()
 
         def _lancer_recherche_posture_activant_regle_selectionnee(sequence,regle):
-            #La fonction se lance toute seule sans que je comprenne pourquoi
-            print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
-            #print(sequence.posture_activees(regle))
-            print("Fin de la liste")
-            #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
-          #  print(sequence.posture_activees(regles.get(str(regle))))
-            #Pas bsn de test pcq une sélection est forcée
-            #tab_3_center_lstbox_1.update(tab_3_center_combobox_1.get()[1])
+            if tab_3_check_but_1_var==1:
+                #La fonction se lance toute seule sans que je comprenne pourquoi
+                print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
+                #print(sequence.posture_activees(regle))
+                print("Fin de la liste")
+                #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
+            #  print(sequence.posture_activees(regles.get(str(regle))))
+                #Pas bsn de test pcq une sélection est forcée
+                #tab_3_center_lstbox_1.update(tab_3_center_combobox_1.get()[1])
 
         #Zone droite du tab1
         tab_1_right_frame= tk.Frame(tab1)
@@ -788,15 +790,19 @@ def main():
         tab_2_but_2.grid(row=5,column=0,columnspan = 2)
         
         #tab 3
+        tab_3_check_but_1_var=0
+
+        tab_3_check_but_1 = tk.Checkbutton(tab3,variable=tab_3_check_but_1_var,text="Activer le traitement")
+        tab_3_check_but_1.grid(row=0,column=0)
 
         tab_3_left_frame = tk.Frame(tab3)
-        tab_3_left_frame.grid(row=0,column=0)
+        tab_3_left_frame.grid(row=1,column=0)
 
         tab_3_center_frame = tk.Frame(tab3)
-        tab_3_center_frame.grid(row=0,column=1)
+        tab_3_center_frame.grid(row=1,column=1)
 
         tab_3_right_frame= tk.Frame(tab3)
-        tab_3_right_frame.grid(row=0,column=2)
+        tab_3_right_frame.grid(row=1,column=2)
 
         #Remplissage tab3
         #left_frame
@@ -858,10 +864,17 @@ def main():
             fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
             sequence = fichiers_charges.obtenir_sequence
            # print("Les chemins des fichiers d'imports sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
-            afficher_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)    
+            #afficher_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)
+            demo()    
         print("Fin de l'import")
 
-
+    def demo():
+        if root_txt_zone_1.get() and root_txt_zone_2.get():
+            fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
+            sequence = fichiers_charges.obtenir_sequence
+            regles=fichiers_charges.obtenir_regles
+            print(sequence.postures[16].regles_activees(regles))
+            print(sequence.posture_activees(regles.get("rule_2")))
     
     # Création des zones d'import fichiers
     tk.Label(root,text="chemin du fichier de séquence:").grid(row=0,column=0)
