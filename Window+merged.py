@@ -621,7 +621,7 @@ def main():
 
    
     def remplir_onglets(sequence,regles):
-        tab_1_right_spnbox_1=ttk.Spinbox(tab_1_right_frame, from_=0, textvariable = tab_1_right_spnbox_1_var,wrap = True) 
+        tab_1_right_spnbox_1["values"]= len(sequence.postures)-1 
         
         #A modifier avec la liste des articulations DONE
         
@@ -876,7 +876,7 @@ def main():
     tab_3_left_spnbox_1.set(0)
     tab_3_left_spnbox_1.grid(row=1,column=0)
 
-    tab_3_left_but_1=tk.Button(tab_3_left_frame,text="Lancer la recherche")
+    tab_3_left_but_1=tk.Button(tab_3_left_frame,text="Lancer la recherche",command=print("TEST lancer recherche. Y aura-t-il un appel direct sans en comprendre la cause ?"))
     tab_3_left_but_1.bind('<Double-Button-1>', lancer_recherche_regles_activees_posture)
     #tab_3_left_but_1("<Button-1>", lancer_recherche_regles_activees_posture(tab_3_left_spnbox_1.get()))
     tab_3_left_but_1.grid(row=2,column=0)
