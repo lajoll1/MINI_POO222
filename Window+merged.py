@@ -442,6 +442,7 @@ class Posture():
         # Affichage de la figure
         set_axes_equal(ax)
 ##        plt.show()
+##        return fig
 
         return ax
 
@@ -721,7 +722,7 @@ def main():
 
 
     def afficher_sequence(posture):
-        ##        del(canvas)
+        
         # On détermine en fonction des boutons pressés les vecteurs à tracer
         print(tab_1_check_but_1_var,tab_1_check_but_2_var)
         if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
@@ -733,18 +734,40 @@ def main():
         else: call = 'r'
 
         ax = sequence.postures[posture].tracer(call)
+##        fig = sequence.postures[posture].tracer(call)
+        ax.savefig('image.png',format = 'png')
         canvas = FigureCanvasTkAgg(ax, master=tab1_left_frame)  # A tk.DrawingArea.
+
+        canvas = Canvas(width=5, height=6, bg='black')
+        # charger le fichier image .gif
+        photo = PhotoImage(file='image.png')
+        # mettre l'image sur le canvas
+        canvas.create_image(5, 4, image=photo, anchor=NW)
         canvas.get_tk_widget().grid(row=0,column=1)
         canvas.draw()
+        import os
+
+        # Spécifier le chemin du fichier à supprimer
+        chemin_fichier = 'chemin/vers/image.png'
+
+        # Vérifier si le fichier existe avant de le supprimer
+        if os.path.exists(chemin_fichier):
+            os.remove(chemin_fichier)
         
     def determiner_coord_evolution():
+        sequence = Chargement(root_txt_zone_1.get(), root_txt_zone_2.get()).obtenir_sequence
+        def obtenir(posture,articulation_nom):
+                for articulation in posture.articulations:
+                    if articulation.nom == articulation_nom:
+                        return articulation
+                    
         articulation = tab_2_combobox_1.get()
         demande = tab_2_combobox_2.get()
         dt = 1/1.2
         x = [i*dt for i in range(len(sequence.postures))]
         y = []
         for posture in sequence.postures:
-            articulation_concernee = posture.obtenir(articulation)
+            articulation_concernee = obtenir(posture,articulation)
             if demande == 'Angle':
                 y.append(articulation_concernee.angle)
             if demande == 'Vitesse_moy':
@@ -758,6 +781,7 @@ def main():
         return x,y
 
     def tracer_evolution():
+        
         x,y = determiner_coord_evolution()
         fig.add_subplot(111).plot(x,y)
 
@@ -845,7 +869,7 @@ def main():
     tab_2_combobox_2.current(0)
     tab_2_combobox_2.grid(row=3,column=0)
         
-    tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution", command = tracer_evolution)
+    tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution", command = tracer_evolution())
     tab_2_but_1.grid(row=4,column=0,columnspan = 2)
 
     racine = ttk
