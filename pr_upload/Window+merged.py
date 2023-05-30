@@ -63,7 +63,8 @@ class Condition_Simple():
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])               
 
             self._param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
-            print("Dictionnaire mis à jour avec la clef {} et la valeur {} de type {}".format(duo_modifiable[0],duo_modifiable[1],type(duo_modifiable[1])))
+            #Débuggage
+            #print("Dictionnaire mis à jour avec la clef {} et la valeur {} de type {}".format(duo_modifiable[0],duo_modifiable[1],type(duo_modifiable[1])))
 
     def _articulation_seeker(self,articulation_cible,posture):
         for articulation in posture.articulations:
@@ -667,6 +668,7 @@ def main():
 
    
     def remplir_onglets(sequence,regles):
+        #On crée les contrôles vides avec la fenêtre et les remplit APRES chargement des fichiers de règles et de postures.
         tab_1_right_spnbox_1["to"] = len(sequence.postures)-1 
         
         tab_2_combobox_1["values"]= [articulation.nom for articulation in sequence.postures[0].articulations] 
