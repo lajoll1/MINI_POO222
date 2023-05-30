@@ -8,6 +8,14 @@ permettra APRES import des fichiers de postures et de règle d'afficher respecti
 Sur le principe, elles pouvaient être simplement affichées dans la listbox avec une commande du type listbox1["values"]=[]...
 En raison des problèmes liés à l'interface et du temps passé à leur résolution (incomplète), la fonction suivante n'est pas fonctionnelle mais le squelette est déjà présent.
 ##            ensemble_regles_activees_par_sequence(fichiers_charges)
+
+
+Structure de l'interface
+Grid est utilisée.
+L'interface est au niveau 0 (root) constituée des deux champs d'imports fichiers.
+Un gestionnaire d'onglets est ensuite utilisé. Il en comprend trois
+Chaque onglet est divisé en frames. left_frame et right_frame pour les deux premiers, left_frame, center_frame et right_frame pour le 3e.
+Les éléments usuels (textbox, listbox, combobox, button...) sont placés en row et column avec le frame pour origine.
 """
 
 
@@ -686,6 +694,8 @@ def main():
         if root_txt_zone_2.get(): root_txt_zone_2.delete(0,"end")
         root_txt_zone_2.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) # Restreindre à fichier XML seulement)
     
+    #La fonction start_analyzing_process sert (après vérifications) à lancer l'import effectif des fichiers de règles et de posture
+    #Pour cela, elle fait appel à la classe Chargement, moyennant un chemin d'accès.
     def start_analyzing_process():
         # On suppose les fichiers vers lesquels on a pointé les bons 
         if root_txt_zone_1.get() and root_txt_zone_2.get():
@@ -707,6 +717,10 @@ def main():
         
         fichiers_charges.exporter_xml(dict_ensemble_regles_activees_par_sequence)
 
+ #La fonction démo a été conçue pour l'oral. Elle permet d'activer manuellement les fonctions codées, faute d'avoir pu les relier à l'interface.
+ #En décommentant les print, on peut utiliser les deux fonctions regles_activéees et postures_activees.
+ # A cause du temps passé à tenter de rendre l'interface de nouveau fonctionnelle, la fonction  ensemble_regles_activees_par_sequence, qui devait permettre l'export dans un xml de toutes les règles activées en listant les postures associées n'a pas pu être finie.
+ #Son squelette a néanmoins été conservé ici en témoignage de bonne volonté mais de limites physiques... 
     def demo():
         if root_txt_zone_1.get() and root_txt_zone_2.get():
             fichiers_charges = Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
@@ -718,9 +732,7 @@ def main():
     
     root = tk.Tk()
     root.title("MINI_POO - 2022_S2")
-    # Fonction d'import doublée faute de mieux
-    # Possibilité de complexifier si on sait quel bouton a appelé
-   
+  
    
 
     tk.Label(root,text="chemin du fichier de règles:").grid(row=1,column=0)
