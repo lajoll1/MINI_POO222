@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as ET
+
 '_______________________Règles________________________''_______________________Règles________________________''_______________________Règles________________________'
 
-
+'_______________Definition_classe_Regle_______________'
 
 class Regle():
     def __init__(self,mon_nom,ma_description,ma_condition):
@@ -14,34 +15,37 @@ class Regle():
         if isinstance(posture, Posture) or isinstance(posture, Posture):
             #print("Vérification de l'activation de la règle {} ".format(posture))
             return self._condition_associe.is_activated(posture) 
-   
-'________Definition_classe_Condition_Simple________'
+
+
+
+'_________Definition_classe_Condition_Simple__________'
 
 class Condition_Simple():
 
     # Valeur par défaut pour le seuil si domaine préféré
-    #liste retenue plutôt que *var et nombre infini de tuples en entrée
+    # Liste retenue plutôt que *var et nombre infini de tuples en entrée
     def __init__(self, parameters_list):
         #Pas de vérification des types car le fichier est supposé idéal
-        self._param_dict=dict()
+        self._param_dict = dict()
         for mon_tuple in parameters_list:
-            duo_modifiable=list(mon_tuple)
-            #conversion des types
+            duo_modifiable = list(mon_tuple)
+
+            # Conversion des types
             if duo_modifiable[0] == "threshold":
-                duo_modifiable[1]=float(mon_tuple[1])
+                duo_modifiable[1] = float(mon_tuple[1])
                 print("threshold converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1])))
             if duo_modifiable[0] == "domain":
-                duo_modifiable[1]=str(duo_modifiable[1])[1:-1]
+                duo_modifiable[1] = str(duo_modifiable[1])[1:-1]
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
                 print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
             
-            if duo_modifiable[0]== "first_corner":
-                duo_modifiable[1]=str(duo_modifiable[1])[1:-1]
+            if duo_modifiable[0] == "first_corner":
+                duo_modifiable[1] = str(duo_modifiable[1])[1:-1]
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])
                 print("domain converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1][0])))
             
-            if duo_modifiable[0]== "second_corner":
-                duo_modifiable[1]=str(duo_modifiable[1])[1:-1]
+            if duo_modifiable[0] == "second_corner":
+                duo_modifiable[1] = str(duo_modifiable[1])[1:-1]
                 duo_modifiable[1] = tuple([float (x) for x in duo_modifiable[1].split(",")])               
 
             self._param_dict.update({duo_modifiable[0]:duo_modifiable[1]})
@@ -56,21 +60,21 @@ class Condition_Simple():
     def _obtenir_depuis_posture(self,posture):
         if self._param_dict.get("target") == "angle": return self._articulation_seeker(self._param_dict.get("target_joint"),posture).angle
         elif self._param_dict.get("target") == "pos":
-            #projection ou vérification 3D?
+            # Projection ou vérification 3D?
             if "direction" in self._param_dict.keys():
-                #Implique une projection donc disjonction de cas selon l'axe
-                #cas avec un angle ?
-                #TODO: tratier le cas Domain si projection
+                # Implique une projection donc disjonction de cas selon l'axe
+                # cas avec un angle ?
+                # TODO: traiter le cas Domain si projection
                 if self._param_dict.get("direction") == "X":
                     return self._articulation_seeker(self._param_dict.get("target_joint"),posture).position[0]
                 elif self._param_dict.get("direction") == "Y":
                     return self._articulation_seeker(self._param_dict.get("target_joint"),posture).position[1]
-                    #Récupère la 2e coordonnée et la return
+                    # Récupère la 2e coordonnée et la return
                 elif self._param_dict.get("direction") == "Z":
                     return self._articulation_seeker(self._param_dict.get("target_joint"),posture).position[2]
                 else:
                     return "Axe non-reconnu"
-            else: #forcément de type "belongs to the volume"
+            else: # Forcément de type "belongs to the volume"
                 return self._articulation_seeker(self._param_dict.get("target_joint"),posture).position
 
     # bool is_activated(class self, posture posture_a_verifier)
@@ -78,7 +82,7 @@ class Condition_Simple():
         if isinstance(posture_a_verifier, Posture): 
             
                 # Droit d'accéder par élément car dans la classe
-                #obtenir_angle_depuis_posture doit être complexifié et prendre en compte le cas où projection
+                # obtenir_angle_depuis_posture doit être complexifié et prendre en compte le cas où projection
                 if self._param_dict.get("condition_type") == "lower than":
                     if self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("threshold"): return True
                 elif self._param_dict.get("condition_type") == "greater than":
@@ -95,7 +99,8 @@ class Condition_Simple():
                        self._param_dict.get("first_corner")[1] < y < self._param_dict.get("second_corner")[1] and \
                        self._param_dict.get("first_corner")[2] < z <  self._param_dict.get("second_corner")[2]:
                         return True
-                #Nouveau if selon les éléments présents dans le dictionnaire
+
+                # Nouveau if selon les éléments présents dans le dictionnaire
         return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
         # bool superieur_A_Un_Seuil()
 
@@ -104,8 +109,10 @@ class Condition_Simple():
         return self._param_dict
 
     param_dict_val = property(_get_param_dict)
-'_______Definition_classe_Condition_Composee_______'
 
+
+
+'________Definition_classe_Condition_Composee_________'
 
 class Condition_Composee():
     
@@ -113,8 +120,9 @@ class Condition_Composee():
     def __init__(self, mon_operateur,ma_liste_de_conditions_simples):
         if mon_operateur in {"or","and"}:
             self._operator = mon_operateur
-        # Prendre en compte le fait qu'il y ait potentiellement n conditions simples dans la condition complexe
-            self._liste_conditions_simples=[] # Liste en partaeg de pointeurs
+
+            # Prendre en compte le fait qu'il y ait potentiellement n conditions simples dans la condition complexe
+            self._liste_conditions_simples = [] # Liste en partaeg de pointeurs
             for x in ma_liste_de_conditions_simples:
                 if isinstance(x, Condition_Simple):
                     self._liste_conditions_simples.append(x)
@@ -122,16 +130,19 @@ class Condition_Composee():
     # bool is_activated(class self, class posture)                
     def is_activated(self, ma_posture):
         if isinstance(ma_posture, Posture):
+
             # Assez flexible pour supporter de nouveaux opérateurs en ajoutant en elif
             if self._operator == "and":
                 for condition_simple in self._liste_conditions_simples:
                     if condition_simple.is_activated(ma_posture) == False: return False
                     return True
+
             # Vérifier toutes les conditions les unes après les autres et renvoyer False si l'une n'est pas vérifiée     
             elif self._operator == "or":
                 for condition_simple in self._liste_conditions_simples:
                     if condition_simple.is_activated(ma_posture): return True
                 return False
+
                 # Renvoyer true à la premirèe condition vérifiée
 
 
@@ -145,10 +156,11 @@ import numpy as np
 class Articulation:
     def __init__(self, tonnom,taposition,taposture):
         self._tonnom = str(tonnom)
-        self._taposture_num = taposture.numero
-        self._tesneighbors = {"N":[],"P":None}
-        self._taposition = taposition
         self._taposture = taposture
+        self._taposture_num = taposture.numero
+        self._tesneighbors = {"N":[],"P":None}  # "N" pour les voisins Next, et "P" pour le voisin Previous (le parent dans l'arbre XML)
+        self._taposition = taposition  # Coordonnées xyz de l'articulation
+        
         
         
     def _lire_nom(self):
@@ -173,14 +185,19 @@ class Articulation:
         ma_variable = tuple([float (x) for x in ma_variable.split(",")])
         return ma_variable
     vposition = property(_convertir)
+
+    # Permet d'ajouter des articulations au dictionnaire des voisins spaciaux de l'objet Articulation 
     def _add_neighbor_child(self, neighbor):
         self._tesneighbors["N"].append(neighbor)
 
     def _add_neighbor_parent(self, neighbor):
         self._tesneighbors["P"] = neighbor
 
+    # Nom de fonction explicite 
     def _trouver_voisins_temporels(self):
         voisins_t = []
+
+        # Les quatre premiers cas concernent les articulations apparetenant aux postures aux quatre extrémités de la séquence
         if self.posture_num == 0:
             voisins_t.append(None)
             voisins_t.append(None)
@@ -225,6 +242,7 @@ class Articulation:
                     voisins_t.append(articulation)
             voisins_t.append(None)
 
+        # Cas général 
         else :
             postures_voisines = [(self.posture.voisins[0]).voisins[0],self.posture.voisins[0],self.posture.voisins[1],(self.posture.voisins[1]).voisins[1]]
             for posture in posture_voisines:
@@ -259,12 +277,12 @@ class Articulation:
             return 180 - angle_deg
 
         else :
-            print("Extrémité ou main !")
+            print("Extrémité ou trop de voisins !")
             return None
         
     angle = property(_calculer_angle)
 
-    def _calculer_v_a_angulaire(self):
+    def _calculer_v_a_angulaire(self):  # Détermination des vecteurs vitesse et accélération angulaire
         dt = 1/1.2
         vitesse_ang,acceleration_ang = 0,0
 
@@ -285,10 +303,10 @@ class Articulation:
 
     va_ang = property(_calculer_v_a_angulaire)
 
-    def _calculer_v_a_moyenne(self):    # Détermination des vecteurs vitesse et accélération 
+    def _calculer_v_a_moyenne(self):    # Détermination des vecteurs vitesse et accélération moyenne
         dt = 1/1.2
         
-        if self.posture != 0 and self.posture != 57: # Ne fonctionne pas pour les postures extrémales
+        if self.posture != 0 and self.posture != 57: # Ne fonctionne pas pour les deux postures extrémales
             
             # Coordonnées 3D des points dans le temps
             x = [self.voisins_t[1].position[0],self.voisins_t[2].position[0]]
@@ -300,34 +318,40 @@ class Articulation:
             vitesse.append((x[1]-x[0])/(2*dt))
             vitesse.append((y[1]-y[0])/(2*dt))
             vitesse.append((z[1]-z[0])/(2*dt))
+
+            # Calcul de la norme
             norme_vitesse = np.sqrt(vitesse[0]**2+vitesse[1]**2+vitesse[2]**2)
             
         else:
             vitesse = [0,0,0]
             norme_vitesse = 0
 
-        if self.posture > 1 and self.posture < 56:
+        if self.posture > 1 and self.posture < 56:  # Ne fonctionne pas pour les quatre postures extrémales
 
             # Coordonnées 3D des points dans le temps
             x = [self.voisins_t[0].position[0],self.position[0],self.voisins_t[3].position[0]]
             y = [self.voisins_t[0].position[1],self.position[1],self.voisins_t[3].position[1]]
             z = [self.voisins_t[0].position[2],self.position[2],self.voisins_t[3].position[2]]
+
             # Calcul des vecteurs accélération
             acceleration = []
             acceleration.append((x[0]+x[2]-2*x[1])/(4*dt))
             acceleration.append((y[0]+y[2]-2*y[1])/(4*dt))
             acceleration.append((z[0]+z[2]-2*z[1])/(4*dt))
+
+            # Calcul de la norme
             norme_acceleration = np.sqrt(acceleration[0]**2+acceleration[1]**2+acceleration[2]**2)
             
         else:
             acceleration = [0,0,0]
             norme_acceleration = 0
+
         return vitesse, acceleration, norme_vitesse, norme_acceleration
 
     va_moy = property(_calculer_v_a_moyenne)
 
 
-    
+ 
 '______________Definition_classe_Posture_____________'
 
 import matplotlib.pyplot as plt
@@ -342,7 +366,7 @@ class Posture():
         self._next_posture = None
 
     def regles_activees(self,regles):
-        liste_regles_activees_par_posture=list()
+        liste_regles_activees_par_posture = list()
         for regle in regles.values():
             print("règle utilisée: {}".format(regle))
             if regle.is_activated(self):
@@ -351,30 +375,29 @@ class Posture():
 
     def _lire_numero(self):
         return self._frame_number
-    numero = property(_lire_numero)
-
     def _lire_articulations(self):
         return self._articulations
-    articulations = property(_lire_articulations)
-
     def _lire_voisins(self):
         return self._previous_posture,self._next_posture
+
+    numero = property(_lire_numero)
+    articulations = property(_lire_articulations)
     voisins = property(_lire_voisins)
     
-    def _add_articulation(self, articulation):
+    def _add_articulation(self, articulation):  # Permet d'associer ses articulations à la posture lors de son instanciation
         self._articulations.append(articulation)
 
-    def _set_previous_posture(self, posture):
+    def _set_previous_posture(self, posture): # Permet de lui ajouter des postures voisines, une fois celles-ci déterminées (par une méthode de Sequence())
         self._previous_posture = posture
 
     def _set_next_posture(self, posture):
         self._next_posture = posture
 
-
-    def tracer(self,call):
-
+    # Permet de tracer la posture choisie 
+    def tracer(self,call):  # call est un argument qui permet d'indiquer si l'on veut tracer les vecteurs vitesse, articulation, les deux ou aucun des deux sur la posture
+    
         # Création de la figure
-        def set_axes_equal(ax):
+        def set_axes_equal(ax): # Fonction qui sera appelée avant le plot pour orthonormaliser les axes
             
             x_limits = ax.get_xlim3d()
             y_limits = ax.get_ylim3d()
@@ -399,7 +422,7 @@ class Posture():
         ax.set_xlim(0, 1)
         ax.set_ylim(-0.6, 0.6) 
         ax.set_zlim(0, 2)
-    
+
         bras_droit = ['Spine2','RightShoulder','RightArm','RightForeArm','RightHand']
         bras_gauche = ['Spine2','LeftShoulder','LeftArm','LeftForeArm','LeftHand']
         jambe_droite = ['Hips','RightUpLeg','RightLeg','RightFoot']
@@ -423,7 +446,7 @@ class Posture():
         chemin3 = [main_gauche_pouce,main_gauche_index,main_gauche_majeur,main_gauche_annulaire,main_gauche_petit]   
         chemin = chemin1 + chemin2 + chemin3
 
-        
+        # On trace la figure 
         for ligne in chemin :
             x = [self.obtenir(articulation).position[0] for articulation in ligne]
             y = [self.obtenir(articulation).position[2] for articulation in ligne]
@@ -441,10 +464,10 @@ class Posture():
            
         # Affichage de la figure
         set_axes_equal(ax)
-##        plt.show()
-##        return fig
+##        return fig    # Nous n'avons jamais réussi à déterminer s'il fallait return fig ou ax ou autre pour tracer avec canvas par la suite...(rien n'a semblé fonctionner)
 
         return ax
+
 
 
 '______________Definition_classe_Sequence_____________'
@@ -460,6 +483,7 @@ class Sequence():
     def _add_posture(self, posture):
         self._postures.append(posture)
 
+    # Permet d'indiquer à chaque posture ses voisines
     def _set_posture_neighbors(self):
         num_postures = len(self._postures)
         for i in range(num_postures):
@@ -469,20 +493,22 @@ class Sequence():
                 self._postures[i]._set_next_posture(self._postures[i+1])
                 
     def posture_activees(self,regle_a_tester):
-        liste_postures_activant_la_regle=list()
-        # Vérifier comment Virgile récupère chacune des postures de la séquence
+        liste_postures_activant_la_regle = list()
         
         for posture in self.postures:
             print("règle à tester est: {}".format(regle_a_tester))
             if regle_a_tester.is_activated(posture):
                     liste_postures_activant_la_regle.append(posture)
             print("Vérification de l'activation de la règle à tester {} pour la posture {}".format(regle_a_tester._nom_regle,posture))
+
         return liste_postures_activant_la_regle
 
-'________________________Classe_Chargement_________________________'
+
+
+'____________Definition_classe_Chargement_____________'
 
 class Chargement():
-    def __init__(self,chemin_sequence,chemin_regles):
+    def __init__(self,chemin_sequence,chemin_regles):   # chemin_sequence et chemin_regles seront fournis par l'utilisateur via l'interface
         self._chemin_seq = str(chemin_sequence)
         self._chemin_reg = str(chemin_regles)
 
@@ -490,10 +516,11 @@ class Chargement():
         return self._chemin_seq,self._chemin_reg
     chemin = property(_lire_chemin)
 
-    def _creer_sequence(self):
+    def _creer_sequence(self):  # Fonction qui permet l'instanciation et le "remplissage" d'un objet Sequence
+
         def parse_joint_element(joint_elem,frame_elem,posture):
 
-            def trouver_parent(tronc, element):    
+            def trouver_parent(tronc, element): # Permet de trouver le parent XML d'un élément XML dont on connait le nom
                     for enfant in tronc:
                         if enfant is element:
                             return tronc
@@ -504,7 +531,8 @@ class Chargement():
 
             name = joint_elem.get('Name')
             position = eval(joint_elem.get('Position'))
-            articulation = Articulation(name, position, posture)
+            articulation = Articulation(name, position, posture)    # Instanciation de l'objet Articulation
+
             for child_elem in joint_elem.findall("Joint"):
                 child_articulation = parse_joint_element(child_elem,joint_elem,posture)
                 articulation._add_neighbor_child(child_articulation)
@@ -518,7 +546,7 @@ class Chargement():
 
         def parse_frame_element(frame_elem,c):
             frame_number = c
-            posture = Posture(frame_number)
+            posture = Posture(frame_number) # Instanciation de l'objet Posture
             for joint_elem in frame_elem.iter('Joint'):
                 articulation = parse_joint_element(joint_elem,frame_elem,posture)
                 posture._add_articulation(articulation)
@@ -528,8 +556,8 @@ class Chargement():
             tree = ET.parse(file_path)
             root = tree.getroot()
 
-            sequence = Sequence()
-            c=0
+            sequence = Sequence()   # Instanciation de l'objet Articulation
+            c=0  # Compteur qui permet d'attribuer un numero à chaque posture (autre que les frame_number qui évoluent de 50 en 50)
             for frame_elem in root.findall('Frame'):
                 posture = parse_frame_element(frame_elem,c)
                 sequence._add_posture(posture)
@@ -554,57 +582,59 @@ class Chargement():
 
             if rule[0].tag == "simple_condition":
 
-        ##            print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
-                ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
-                #dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
-     ##            print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
+##                print("argument envoyé {}".format([mon_tuple for mon_tuple in rule[0].items()]))
+                ma_condition_simple = Condition_Simple([mon_tuple for mon_tuple in rule[0].items()])   #conversion de type à vérifier  
+                # Dictionnaire qui prend des arguments au format {nom_variable_initialisée:valeur_variable_initialisée}
+##                print("Condition simple {} de paramètres {} générée".format(ma_condition_simple,ma_condition_simple.param_dict_val))
                 regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_simple)})
                 
             elif rule[0].tag == "composed_condition":
                
                 liste_conditions_simples = []
                 
-     ##            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
+##                print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
 
                 for simple_condition in rule[0].iter("simple_condition"):
                         
-      ##                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
-                        ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
-                        liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
-     ##                    print("Fait")
+##                    print("argument envoyé {}".format([mon_tuple for mon_tuple in simple_condition.items()]))
+                    ma_condition_simple=Condition_Simple([mon_tuple for mon_tuple in simple_condition.items()])
+                    liste_conditions_simples.append(ma_condition_simple) #Liste de dictionnaire. Oui c'est moche.
+##                    print("Fait")
 
-        ##            print("Opérateur logique: {}".format(rule[0].get("operator")))
-        ##            print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
-                ma_condition_composee=Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
+##                    print("Opérateur logique: {}".format(rule[0].get("operator")))
+##                    print("liste de conditions simples finale: {}".format(liste_conditions_simples)) 
+                ma_condition_composee = Condition_Composee(rule[0].get("operator"),liste_conditions_simples)
                 regles.update({rule.get('name'):Regle(rule.get('name'),rule.get('description'),ma_condition_composee)})
             
             
 
 
-        ##    print(regles)
+##            print(regles)
         return regles
+
     obtenir_regles = property(_importer_regle)
     
     def exporter_xml(self, dico_postures_activees_pour_regle_donnee):
-        #prend un argument de la forme dictionnaire {nom_règle_activation:[liste_posture activées]}
-        # Create root element.
+        # Prend un argument de la forme dictionnaire {nom_règle_activation:[liste_posture activées]}
+        # Create root element
         rootXMLElt = ET.Element("root")
         
-        # Add sub element.
-        #country = ET.SubElement(root, "country", name="Canada")
+        # Add sub element
+        # country = ET.SubElement(root, "country", name="Canada")
         for regle in dico_postures_activees_pour_regle_donnee.keys():
         
             regle_activee = ET.SubElement(rootXMLElt, "regle_activee", name=regle)
-            regle_activee.text=regle # a remplacer par la regle en question
+            regle_activee.text = regle # A remplacer par la regle en question
 
             for posture in dico_postures_activees_pour_regle_donnee.get(regle_activee.text):
                 # Add sub-sub element.
-                ET.SubElement(regle_activee, "posture").text = posture #remplacer test par le numero de posture
+                ET.SubElement(regle_activee, "posture").text = posture # Remplacer test par le numero de posture
 
         # Write XML file.
         tree = ET.ElementTree(rootXMLElt)
         print(rootXMLElt) 
         tree.write("export2.xml")
+
 
 
 '_______________________Interface________________________''_______________________Interface________________________''_______________________Interface________________________'
@@ -613,9 +643,10 @@ import tkinter  as tk
 from tkinter import ttk
 from tkinter import filedialog as fd
 
-#importer le matplotlib.pyplot.plt dans tintker
+# Importer le matplotlib.pyplot.plt dans tintker
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
+
 # Implement the default Matplotlib key bindings.
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
@@ -625,54 +656,52 @@ def main():
 
    
     def remplir_onglets(sequence,regles):
-        tab_1_right_spnbox_1["to"]= len(sequence.postures)-1 
-        
-        #A modifier avec la liste des articulations DONE
+        tab_1_right_spnbox_1["to"] = len(sequence.postures)-1 
         
         tab_2_combobox_1["values"]= [articulation.nom for articulation in sequence.postures[0].articulations] 
-        tab_3_left_spnbox_1["to"]=len(sequence.postures)-1
-        #A modifier avec la liste des articulations DONE
+
+        tab_3_left_spnbox_1["to"] = len(sequence.postures)-1
+        
         tab_3_center_combobox_1["values"] = [element for element in list(regles.keys())]
         pass
 
     def open_postures_file():
         if root_txt_zone_1.get(): root_txt_zone_1.delete(0,"end")
-        root_txt_zone_1.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
+        root_txt_zone_1.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) # Restreindre à fichier XML seulement)
 
     def open_rules_file():
         if root_txt_zone_2.get(): root_txt_zone_2.delete(0,"end")
-        root_txt_zone_2.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
+        root_txt_zone_2.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) # Restreindre à fichier XML seulement)
     
     def start_analyzing_process():
-        #On suppose les fichiers verslesquels on a pointé les bons.
+        # On suppose les fichiers vers lesquels on a pointé les bons 
         if root_txt_zone_1.get() and root_txt_zone_2.get():
-            fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
+            fichiers_charges = Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
             sequence = fichiers_charges.obtenir_sequence
-           # print("Les chemins des fichiers d'imports sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
+##            print("Les chemins des fichiers d'import sont: \n {} \n {}".format(root_txt_zone_1.get(), root_txt_zone_2.get()))
             remplir_onglets(fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles)
             demo()
             return fichiers_charges    
+
         print("Fin de l'import")
 
     def ensemble_regles_activees_par_sequence(fichiers_charges):
         sequence,regles = fichiers_charges.obtenir_sequence,fichiers_charges.obtenir_regles
-        dict_ensemble_regles_activees_par_sequence= dict()
+        dict_ensemble_regles_activees_par_sequence = dict()
         for regle in regles:
             dict_ensemble_regles_activees_par_sequence.update({"rule_2":sequence.posture_activees(regles.get("rule_2"))})
         print("Liste envoyée pour l'export est {} de type {}".format(dict_ensemble_regles_activees_par_sequence,type(dict_ensemble_regles_activees_par_sequence)))
-        
-        
         
         fichiers_charges.exporter_xml(dict_ensemble_regles_activees_par_sequence)
 
     def demo():
         if root_txt_zone_1.get() and root_txt_zone_2.get():
-            fichiers_charges= Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
+            fichiers_charges = Chargement(root_txt_zone_1.get(), root_txt_zone_2.get())
             sequence = fichiers_charges.obtenir_sequence
-            regles=fichiers_charges.obtenir_regles
-            #print(sequence.postures[16].regles_activees(regles))
-            #print(sequence.posture_activees(regles.get("rule_2")))
-            #ensemble_regles_activees_par_sequence(fichiers_charges)
+            regles = fichiers_charges.obtenir_regles
+##            print(sequence.postures[16].regles_activees(regles))
+##            print(sequence.posture_activees(regles.get("rule_2")))
+##            ensemble_regles_activees_par_sequence(fichiers_charges)
     
     root = tk.Tk()
     root.title("MINI_POO - 2022_S2")
@@ -683,26 +712,26 @@ def main():
 
     tk.Label(root,text="chemin du fichier de règles:").grid(row=1,column=0)
 
-    root_txt_zone_2=tk.Entry(root)
+    root_txt_zone_2 = tk.Entry(root)
     root_txt_zone_2.grid(row=1,column=1)
 
-    root_button_2=tk.Button(root, text = "Selectionner", command = open_rules_file)
+    root_button_2 = tk.Button(root, text = "Selectionner", command = open_rules_file)
     root_button_2.grid(row=1,column=2)
 
-    root_button_3=tk.Button(root, text = "Lancer l'import", command = start_analyzing_process)
+    root_button_3 = tk.Button(root, text = "Lancer l'import", command = start_analyzing_process)
     root_button_3.grid(row=2,column=0,sticky="EW",columnspan=3)
 
    
     
     # Création des zones d'import fichiers
     tk.Label(root,text="chemin du fichier de séquence:").grid(row=0,column=0)
-    root_txt_zone_1=tk.Entry(root)
+    root_txt_zone_1 = tk.Entry(root)
     root_txt_zone_1.grid(row=0,column=1)
 
-    root_button_1=tk.Button(root, text = "Sélectionner", command = open_postures_file)
+    root_button_1 = tk.Button(root, text = "Sélectionner", command = open_postures_file)
     root_button_1.grid(row=0,column=2)
 
-    # lien avec les classes
+    # Lien avec les classes
 
     # Création des onglets
     my_tabs = ttk.Notebook(root) # declaring 
@@ -734,24 +763,28 @@ def main():
     canvas = FigureCanvasTkAgg(fig, master=tab1_left_frame)  # A tk.DrawingArea.
     canvas.get_tk_widget().grid(row=0,column=1)
     canvas.draw()
-    ##    del(canvas)
+    ##    del(canvas)   # Nous n'arrivions pas à supprimer le canvas pour à chaque fois tracer de nouvelles figures  
     
 
 
     def afficher_sequence(posture):
         
         # On détermine en fonction des boutons pressés les vecteurs à tracer
-        print(tab_1_check_but_1_var,tab_1_check_but_2_var)
+
+##        print(tab_1_check_but_1_var,tab_1_check_but_2_var)
+
         if tab_1_check_but_1_var and tab_1_check_but_2_var:  call = 'b'
 
         elif tab_1_check_but_1_var and not tab_1_check_but_2_var: call = 'v'
             
         elif tab_1_check_but_2_var and not tab_1_check_but_1_var: call = 'a'
 
-        else: call = 'r'
+        else: call = 'r'    # Si l'on désire uniquement la figure 3D, sans vecteurs
 
-        ax = sequence.postures[posture].tracer(call)
+        ax = sequence.postures[posture].tracer(call)    # sequence is not defined ici. Accéder à l'objet Sequence a été notre gros problème avec cette nouvelle approche récurive (mais plus propre et POO-oriented)
 ##        fig = sequence.postures[posture].tracer(call)
+
+        # Comme nous n'arrivions pas à tracer avec canvas directement la figure Axes2DSubplot, nous avons tenté de l'enregistrer en tant qu'image, pour l'afficher dans le canvas après
         ax.savefig('image.png',format = 'png')
         canvas = FigureCanvasTkAgg(ax, master=tab1_left_frame)  # A tk.DrawingArea.
 
@@ -762,17 +795,21 @@ def main():
         canvas.create_image(5, 4, image=photo, anchor=NW)
         canvas.get_tk_widget().grid(row=0,column=1)
         canvas.draw()
+
+        # Cette partie sert ensuite à supprimer l'image enregistrée pour éviter qu'elles ne pullulent 
         import os
 
         # Spécifier le chemin du fichier à supprimer
-        chemin_fichier = 'chemin/vers/image.png'
+        chemin_fichier = 'chemin/vers/image.png' # Il faut utiliser ici le chemin donné dans l'interface
 
         # Vérifier si le fichier existe avant de le supprimer
         if os.path.exists(chemin_fichier):
             os.remove(chemin_fichier)
-        
+
+    # Fonction qui fournit le "matériel" à l'onglet 2, c'est-à-dire le tracé de l'évolution d'un paramètre d'une articulation donnée en fonction du temps  
     def determiner_coord_evolution(sequence):
-        def obtenir(posture,articulation_nom):
+
+        def obtenir(posture,articulation_nom):  # Permet d'obtenir une articulation, connaissant son nom et sa posture
                 for articulation in posture.articulations:
                     if articulation.nom == articulation_nom:
                         return articulation
@@ -796,6 +833,7 @@ def main():
                 y.append(articulation_concernee.va_ang[1])
         return x,y
 
+    # Permet de tracer l'évolution, en utilisant les informations fournies par la fonction précédente
     def tracer_evolution(sequence):
         
         x,y = determiner_coord_evolution(sequence)
@@ -805,7 +843,7 @@ def main():
         canvas.draw()
         canvas.get_tk_widget().grid(row=0,column=0,columnspan = 2)
 
-    def nettoyer():
+    def nettoyer(): 
         tab_2_left_frame.destroy
         fig = Figure(figsize=(5, 4), dpi=100)
 
@@ -814,7 +852,7 @@ def main():
         canvas.draw()
 
     def lancer_recherche_regles_activees_posture(posture):
-        if tab_3_check_but_1_var==1:
+        if tab_3_check_but_1_var == 1:
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
             print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
             print("Posture is_activated ? {}".format(posture.regle_activee))
@@ -822,29 +860,29 @@ def main():
                 tab_3_left_lstbox_1.update()
 
     def _lancer_recherche_posture_activant_regle_selectionnee(sequence,regle):
-        if tab_3_check_but_1_var==1:
-            #La fonction se lance toute seule sans que je comprenne pourquoi
+        if tab_3_check_but_1_var == 1:
+            # La fonction se lance toute seule sans que je ne comprenne pourquoi
             print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
-            #print(sequence.posture_activees(regle))
+##            print(sequence.posture_activees(regle))
             print("Fin de la liste")
-            #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
-        #  print(sequence.posture_activees(regles.get(str(regle))))
-            #Pas bsn de test pcq une sélection est forcée
-            #tab_3_center_lstbox_1.update(tab_3_center_combobox_1.get()[1])
+##            print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
+##            print(sequence.posture_activees(regles.get(str(regle))))
+            # Pas besoin de test parce qu'une sélection est forcée
+##            tab_3_center_lstbox_1.update(tab_3_center_combobox_1.get()[1])
 
-    #Zone droite du tab1
+    # Zone droite du tab1
     tab_1_right_frame= tk.Frame(tab1)
     tab_1_right_frame.grid(row=0,column=1)
 
     
     tab_1_check_but_1_var = 1
     tab_1_check_but_1 = ttk.Checkbutton(tab_1_right_frame,text='Afficher Vitesses',variable = tab_1_check_but_1_var)
-    ##    tab_1_check_but_1.deselect
+##    tab_1_check_but_1.deselect
     tab_1_check_but_1.grid(row=0,column=0)
 
     tab_1_check_but_2_var = 0
     tab_1_check_but_2 = ttk.Checkbutton(tab_1_right_frame,text='Afficher accélérations',variable = tab_1_check_but_2_var)
-    ##    tab_1_check_but_2.deselect
+##    tab_1_check_but_2.deselect
     tab_1_check_but_2.grid(row=1,column=0)
 
     tab_1_right_spnbox_1_var = tk.StringVar(value=0)
@@ -852,18 +890,18 @@ def main():
     tab_1_right_spnbox_1.grid(row=3,column=0)
 
     tab_1_check_1 = ttk.Button(tab_1_right_frame,text='Lancer affichage')
-    #, command = afficher_sequence(int(tab_1_right_spnbox_1.get()))
+    #, command = afficher_sequence(int(tab_1_right_spnbox_1.get()))     # Normalement une command du boutton ci-dessus. Mise en commentaire pour éviter le message d'erreur, la fonction afficher_sequence n'étant pas fonctionnelle
     tab_1_check_1.grid(row=2,column=0)
 
-    #Création zones tab2
+
+    # Création zones tab2
     tab_2_left_frame = tk.Frame(tab2)
     tab_2_left_frame.grid(row=0,column=0)
 
     tab_2_right_frame = tk.Frame(tab2)
     tab_2_right_frame.grid(row=0,column=1)
 
-    #Zone gauche tab2
-
+    # Zone gauche tab2
     fig = Figure(figsize=(5, 4), dpi=100)
     
 
@@ -872,7 +910,7 @@ def main():
     canvas.get_tk_widget().grid(row=0,column=1)
 
 
-    #Zone droite tab2
+    # Zone droite tab2
 
 
     liste_articulations=[0] #A modifier avec la liste des articulations DONE
@@ -885,15 +923,15 @@ def main():
     tab_2_combobox_2.current(0)
     tab_2_combobox_2.grid(row=3,column=0)
         
-    tab_2_but_1=ttk.Button(tab_2_right_frame,text="Tracer l'évolution")
-    #command = tracer_evolution())
+    tab_2_but_1 = ttk.Button(tab_2_right_frame,text="Tracer l'évolution")
+    #command = tracer_evolution())  # Même explication que ligne 893
     tab_2_but_1.grid(row=4,column=0,columnspan = 2)
 
     racine = ttk
     tab_2_but_2 = ttk.Button(tab_2_right_frame,text = "Clear", command = nettoyer)
     tab_2_but_2.grid(row=5,column=0,columnspan = 2)
     
-    #tab 3
+    # tab 3
     tab_3_check_but_1_var=0
 
     tab_3_check_but_1 = tk.Checkbutton(tab3,variable=tab_3_check_but_1_var,text="Activer le traitement")
@@ -905,24 +943,24 @@ def main():
     tab_3_center_frame = tk.Frame(tab3)
     tab_3_center_frame.grid(row=1,column=1)
 
-    tab_3_right_frame= tk.Frame(tab3)
+    tab_3_right_frame = tk.Frame(tab3)
     tab_3_right_frame.grid(row=1,column=2)
 
-    #Remplissage tab3
-    #left_frame
+    # Remplissage tab3
+    # left_frame
     tab_3_left_lbl_1 = ttk.Label(tab_3_left_frame, text="Sélectionner le numero de la posture:")
     tab_3_left_lbl_1.grid(row=0,column=0)
 
-    tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = 0) # A modifier selon nb articulion avec un len DONE
+    tab_3_left_spnbox_1 = ttk.Spinbox(tab_3_left_frame, from_=0, to = 0) # A modifier selon nb articulion avec un len DONE
     tab_3_left_spnbox_1.set(0)
     tab_3_left_spnbox_1.grid(row=1,column=0)
 
-    tab_3_left_but_1=tk.Button(tab_3_left_frame,text="Lancer la recherche",command=print("TEST lancer recherche. Y aura-t-il un appel direct sans en comprendre la cause ?"))
+    tab_3_left_but_1 = tk.Button(tab_3_left_frame,text="Lancer la recherche",command=print("TEST lancer recherche. Y aura-t-il un appel direct sans en comprendre la cause ?"))
     tab_3_left_but_1.bind('<Double-Button-1>', lancer_recherche_regles_activees_posture)
-    #tab_3_left_but_1("<Button-1>", lancer_recherche_regles_activees_posture(tab_3_left_spnbox_1.get()))
+##    tab_3_left_but_1("<Button-1>", lancer_recherche_regles_activees_posture(tab_3_left_spnbox_1.get()))
     tab_3_left_but_1.grid(row=2,column=0)
 
-    tab_3_left_lstbox_1=tk.Listbox(tab_3_left_frame)
+    tab_3_left_lstbox_1 = tk.Listbox(tab_3_left_frame)
     tab_3_left_lstbox_1.insert(1,"élément 1") #(index, valeur)
     tab_3_left_lstbox_1.grid(row=3,column=0)
 
@@ -936,17 +974,17 @@ def main():
     tab_3_center_combobox_1.current(0)
     tab_3_center_combobox_1.grid(row=1,column=0)
 
-    tab_3_center_but_1=tk.Button(tab_3_center_frame,text="Lancer la recherche de positions")
+    tab_3_center_but_1 = tk.Button(tab_3_center_frame,text="Lancer la recherche de positions")
     tab_3_center_but_1.grid(row=2,column=0)
 
-    tab_3_center_lstbox_1=tk.Listbox(tab_3_center_frame)
+    tab_3_center_lstbox_1 = tk.Listbox(tab_3_center_frame)
     tab_3_center_lstbox_1.grid(row=3,column=0)
-    #tab_3_center_lstbox_1.insert(1,"élément 1") #(index, valeur)
+##    tab_3_center_lstbox_1.insert(1,"élément 1") #(index, valeur)
 
 
-    #right_frame
+    # right_frame
     tab_3_center_but_2=tk.Button(tab_3_right_frame,text="Exporter les règles activées")
-    #,command=fichiers_charges.exporter_xml(tab_3_center_lstbox_1.get('1','end'))
+    #,command=fichiers_charges.exporter_xml(tab_3_center_lstbox_1.get('1','end'))   # Même explication que ligne 893
     tab_3_center_but_2.grid(row=4,column=0)
 
     root.mainloop()  # Keep the window open

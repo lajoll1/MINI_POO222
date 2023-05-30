@@ -491,6 +491,7 @@ class Chargement():
     chemin = property(_lire_chemin)
 
     def _creer_sequence(self):
+
         def parse_joint_element(joint_elem,frame_elem,posture):
 
             def trouver_parent(tronc, element):    
