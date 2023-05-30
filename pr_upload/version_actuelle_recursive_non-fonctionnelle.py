@@ -1,21 +1,35 @@
 """
+
+JAMOT Virgile
+NUEL Thomas
+GIE1 ED3
+
+Ce fichier est la version que l'on considère actuelle de notre fichier. Comme nous vous l'avons expliqué lors de notre passage, nous avions tout d'abord codé toutes les classes et l'import XML de manière itérative
+C'est la version que vous pouvez trouver dans le second fichier, intitulé "ancienne_version_iterative_fonctionnelle". Nous l'avons nommée ainsi car tout fonctionnait pour ainsi dire ! Nous pouvions tout tracer, obtenir toutes les valeurs, et utiliser les méthodes des conditions.
+(tout est détaillé dans l'introduction du second document). Cependant, lors du passage à l'interface, nous avons compris les limites de posséder un objet sequence déjà instancié dans le main, et avons décidé de tout recoder en récursif : c'est le fichier que vous avez devant vous.
+Tout est normalement accessible également, et de manière plus "propre" grâce au codage orienté POO et récursif. Nous avons cependant toujours eu du mal avec l'interface, et à coder des fonctions ayant besoin d'un objet séquence alors que ce dernier n'est instancié que lorsque l'utilisateur de l'interface le veut bien.
+La partie importation des fichiers dans l'interface est cependant un succès, même si nous n'avons pas réussi à relier cette dernière avec le reste du code. 
+
+
 Si les boutons de l'interface ne répondent pas, l'appel manuel des fonctions est possible.
 Pour exemple au sein de demo, décommenter les lignes suivantes:
 ## print(sequence.postures[16].regles_activees(regles))
 ##            print(sequence.posture_activees(regles.get("rule_2")))
 
-permettra APRES import des fichiers de postures et de règle d'afficher respectivement l'ensemble des règles activées par une posture, l'ensemble des postures acitvant la règle 2
+Cela permettra APRES import des fichiers de postures et de règle d'afficher respectivement l'ensemble des règles activées par une posture, l'ensemble des postures acitvant la règle 2, etc.
 Sur le principe, elles pouvaient être simplement affichées dans la listbox avec une commande du type listbox1["values"]=[]...
 En raison des problèmes liés à l'interface et du temps passé à leur résolution (incomplète), la fonction suivante n'est pas fonctionnelle mais le squelette est déjà présent.
 ##            ensemble_regles_activees_par_sequence(fichiers_charges)
 
 
-Structure de l'interface
+Structure de l'interface :
+
 Grid est utilisée.
-L'interface est au niveau 0 (root) constituée des deux champs d'imports fichiers.
-Un gestionnaire d'onglets est ensuite utilisé. Il en comprend trois
+L'interface est au niveau 0 (root), constituée des deux champs d'imports fichiers.
+Un gestionnaire d'onglets est ensuite utilisé : il en comprend trois.
 Chaque onglet est divisé en frames. left_frame et right_frame pour les deux premiers, left_frame, center_frame et right_frame pour le 3e.
 Les éléments usuels (textbox, listbox, combobox, button...) sont placés en row et column avec le frame pour origine.
+
 """
 
 

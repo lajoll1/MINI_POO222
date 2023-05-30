@@ -1,26 +1,31 @@
 """
-'Ce fichier est une version antérieure de celle que nous vous avons présentée. Le chargement XML était alors fait de manière itérative et se faisait en deux étapes.
-'Un objet sequence était instancié depuis la class Sequence, et il était accessible dans le main.
 
-'Ce fichier présente tout de même l"avantage de permettre de tracer n"importe laquelle des postures ou d"obtenir n"importe quelle information sur les postures ou les articulations.
+NUEL Thomas
+JAMOT Virgile 
 
-'Si vous désirez tracer une posture en 3D, utilisez la propriété tracer. Elle prend en argument un str qu ipermet d"indiquer quels vecteurs vous souhaitez faire apparaître.
-'Par exemple, sequence.postures[3].tracer("v") vous affichera la figure 3D de la posture numérotée 3, avec les vecteurs vitesse.
-'Vous pouvez aussi demander de tracer("a") pour les vecteurs accélération ou tracer("b") pour avoir vitesse et accélération.
-'N"importe quel autre argument affiche la figure sans vecteur. Par exemple tracer("r").
+Ce fichier est une version antérieure de celle que nous vous avons présentée. Le chargement XML était alors fait de manière itérative et se faisait en deux étapes.
+Un objet sequence était instancié depuis la class Sequence, et il était accessible dans le main.
 
-'Vous pouvez également accéder à n"importe quel paramètre de chaque articulation tel que : angle, norme des vitesse et accélération moyennes ou angulaires, ses voisins temporels ou spaciaux grâce aux méthodes définies.
+Ce fichier présente tout de même l'avantage de permettre de tracer n'importe laquelle des postures ou d'obtenir n'importe quelle information sur les postures ou les articulations.
 
-'Vous pouvez également, lorsque l"interface s"affiche, utiliser le deuxième onglet. Tout y est fonctionnel, sauf le bouton clear, à qui nous n"avons pas réussi à faire faire ce que nous voulions.
-'Vous pouvez cependant tracer l"évolution du paramètre de n"importe quelle articulation, pour peu que le paramètre soit pertinent pour cette articulation.
-'Les évolutions des angles et vitesses/accélérations angulaires sont fonctionnelles mais nécéssitent un temps de calcul plus long : ±1min
+Si vous désirez tracer une posture en 3D, utilisez la propriété tracer. Elle prend en argument un str qu ipermet d'indiquer quels vecteurs vous souhaitez faire apparaître.
+Pour peu que vous changiez le chemin d'accès aux deux fichier Postures et Règles,
+
+Par exemple, sequence.postures[3].tracer("v") vous affichera la figure 3D de la posture numérotée 3, avec les vecteurs vitesse.
+Vous pouvez aussi demander de tracer("a") pour les vecteurs accélération ou tracer("b") pour avoir vitesse et accélération.
+N'importe quel autre argument affiche la figure sans vecteur. Par exemple tracer("r").
+
+Vous pouvez également accéder à n'importe quel paramètre de chaque articulation tel que : angle, norme des vitesse et accélération moyennes ou angulaires, ses voisins temporels ou spaciaux grâce aux méthodes définies.
+
+Vous pouvez également, lorsque l'interface s'affiche, utiliser le deuxième onglet. Tout y est fonctionnel, sauf le bouton clear, à qui nous n'avons pas réussi à faire faire ce que nous voulions.
+Vous pouvez cependant tracer l'évolution du paramètre de n'importe quelle articulation, pour peu que le paramètre soit pertinent pour cette articulation.
+Les évolutions des angles et vitesses/accélérations angulaires sont fonctionnelles mais nécéssitent un temps de calcul plus long : ±1min
 
 De nombreux print sont commentés dans le code suivant. Ils ont eu une vocation de débuggage lors de la création du code.
 Certaines fonctions sont également précédées d'un prototype commenté de la forme:     # bool is_activated(class self, posture posture_a_verifier)
-Celà avait pour but d'assurer une bonne communication entre les fonctions crées par l'un ou l'autre des membres du projet
+Cela avait pour but d'assurer une bonne communication entre les fonctions créées par l'un ou l'autre des membres du projet
 
-
-
+PS : si certaines fonctions n'ont pas de nom explicite et ne sont pas commentées, je vous invite à aller voir sur le second fichier, intitulé version_actuelle_recursive_non_fonctionnelle. Dans la mesure où il s'agit du code "final", il est largement plus commenté que celui-ci.
 
 """
 
@@ -261,7 +266,13 @@ class Posture():
         ax.set_xlim(0, 1)
         ax.set_ylim(-0.6, 0.6) 
         ax.set_zlim(0, 2)
-    
+
+
+        # Une version précédente du codage des prochaines lignes était moins "laide" visuellement, mais bien plus lourde que celle ci-dessous.
+        # Elle consistait à prendre chaque articulation une par une, à afficher son marqueur et à la relier à ses voisines.
+        # Cette méthode, bien que "compacte" en terme de code, repassait sur des traits déjà existants et traçait 3 fois plus que nécessaire.
+        # La méthode ci-dessous, bien que moins élégante, nous a néamoins permis de grandement améliorer le temps de calcul, nous permettant de recréer le gif de l'énoncé.
+        
         bras_droit = ['Spine2','RightShoulder','RightArm','RightForeArm','RightHand']
         bras_gauche = ['Spine2','LeftShoulder','LeftArm','LeftForeArm','LeftHand']
         jambe_droite = ['Hips','RightUpLeg','RightLeg','RightFoot']
@@ -285,10 +296,11 @@ class Posture():
         chemin3 = [main_gauche_pouce,main_gauche_index,main_gauche_majeur,main_gauche_annulaire,main_gauche_petit]   
         chemin = chemin1 + chemin2 + chemin3
 
-        def obtenir(posture,nom_articulation):
+        def obtenir(posture,nom_articulation):  # Permet d'obtenir une articulation précise d'une posture en connaissant son nom 
             for articulation in posture.articulations:
                 if articulation.nom == nom_articulation:
                     return articulation
+
         for ligne in chemin :
             x = [obtenir(self,articulation).position[0] for articulation in ligne]
             y = [obtenir(self,articulation).position[2] for articulation in ligne]
@@ -696,7 +708,7 @@ def fentre():
     #Zone droite tab2
 
 
-    liste_articulations=[articulation.nom for articulation in sequence.postures[0].articulations] #A modifier avec la liste des articulations DONE
+    liste_articulations=[articulation.nom for articulation in sequence.postures[0].articulations] 
     tab_2_combobox_1 = ttk.Combobox(tab_2_right_frame, values=liste_articulations)
     tab_2_combobox_1.grid(row=0,column=0)
 
@@ -761,7 +773,7 @@ def fentre():
 
     #Remplissage tab3
     #left_frame
-    tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = len(sequence.postures)-1) # A modifier selon nb articulion avec un len DONE
+    tab_3_left_spnbox_1=ttk.Spinbox(tab_3_left_frame, from_=0, to = len(sequence.postures)-1) 
     tab_3_left_spnbox_1.grid(row=0,column=0)
 
     tab_3_left_but_1=ttk.Button(tab_3_left_frame,text="Lancer la recherche")
@@ -772,7 +784,7 @@ def fentre():
     tab_3_left_lstbox_1.grid(row=2,column=0)
 
     #center_frame
-    listeProduits2=[element for element in list(regles.keys())] #A modifier avec la liste des articulations DONE
+    listeProduits2=[element for element in list(regles.keys())] 
     tab_3_center_combobox_1 = ttk.Combobox(tab_3_center_frame, values=listeProduits2)
     tab_3_center_combobox_1.grid(row=0,column=0)
 
