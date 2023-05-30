@@ -1,3 +1,16 @@
+"""
+Si les boutons de l'interface ne répondent pas, l'appel manuel des fonctions est possible.
+Pour exemple au sein de demo, décommenter les lignes suivantes:
+## print(sequence.postures[16].regles_activees(regles))
+##            print(sequence.posture_activees(regles.get("rule_2")))
+
+permettra APRES import des fichiers de postures et de règle d'afficher respectivement l'ensemble des règles activées par une posture, l'ensemble des postures acitvant la règle 2
+Sur le principe, elles pouvaient être simplement affichées dans la listbox avec une commande du type listbox1["values"]=[]...
+En raison des problèmes liés à l'interface et du temps passé à leur résolution (incomplète), la fonction suivante n'est pas fonctionnelle mais le squelette est déjà présent.
+##            ensemble_regles_activees_par_sequence(fichiers_charges)
+"""
+
+
 import xml.etree.ElementTree as ET
 
 '_______________________Règles________________________''_______________________Règles________________________''_______________________Règles________________________'
@@ -30,7 +43,8 @@ class Condition_Simple():
         for mon_tuple in parameters_list:
             duo_modifiable = list(mon_tuple)
 
-            # Conversion des types
+            # Conversion des types. Depuis le xml, tout est considéré comme string.
+            #Un cas de figure par attribut est considéré.
             if duo_modifiable[0] == "threshold":
                 duo_modifiable[1] = float(mon_tuple[1])
                 print("threshold converted. New value {} and type {}".format(duo_modifiable[1],type(duo_modifiable[1])))
@@ -57,14 +71,13 @@ class Condition_Simple():
                 return articulation
         return -1
 
+    #A la vue des règles présentées dans le cahier des charges, les conditions suivantes sont (je crois) nécessaires et suffisantes pour répondre au problème.
     def _obtenir_depuis_posture(self,posture):
         if self._param_dict.get("target") == "angle": return self._articulation_seeker(self._param_dict.get("target_joint"),posture).angle
         elif self._param_dict.get("target") == "pos":
             # Projection ou vérification 3D?
             if "direction" in self._param_dict.keys():
                 # Implique une projection donc disjonction de cas selon l'axe
-                # cas avec un angle ?
-                # TODO: traiter le cas Domain si projection
                 if self._param_dict.get("direction") == "X":
                     return self._articulation_seeker(self._param_dict.get("target_joint"),posture).position[0]
                 elif self._param_dict.get("direction") == "Y":
@@ -90,22 +103,20 @@ class Condition_Simple():
                 elif self._param_dict.get("condition_type") == "belongs to": 
                     if  self._param_dict.get("domain")[0] < self._obtenir_depuis_posture(posture_a_verifier) < self._param_dict.get("domain")[1]: return True
                 elif self._param_dict.get("condition_type") == "belongs to the volume":
-                    print("Coordonnées de la posture obtenues {}".format(self._obtenir_depuis_posture(posture_a_verifier)))
+                    #Ligne de débuggage
+                    #print("Coordonnées de la posture obtenues {}".format(self._obtenir_depuis_posture(posture_a_verifier)))
                     x,y,z = self._obtenir_depuis_posture(posture_a_verifier)[0],self._obtenir_depuis_posture(posture_a_verifier)[1],self._obtenir_depuis_posture(posture_a_verifier)[2]
-                    print("Test de l'appartenance au volume")
-                    print("Valeurs de x,y,z {} {} {}".format(x,y,z))
-                    print("First corner {} and second corner {}".format(self._param_dict.get("first_corner"),self._param_dict.get("second_corner")))
+                    #print("Test de l'appartenance au volume")
+                    #print("Valeurs de x,y,z {} {} {}".format(x,y,z))
+                    #print("First corner {} and second corner {}".format(self._param_dict.get("first_corner"),self._param_dict.get("second_corner")))
                     if self._param_dict.get("first_corner")[0] < x < self._param_dict.get("second_corner")[0] and \
                        self._param_dict.get("first_corner")[1] < y < self._param_dict.get("second_corner")[1] and \
                        self._param_dict.get("first_corner")[2] < z <  self._param_dict.get("second_corner")[2]:
                         return True
-
-                # Nouveau if selon les éléments présents dans le dictionnaire
         return False # Si l'on arrive ici, aucune des conditions précédentes n'est vérifiée
-        # bool superieur_A_Un_Seuil()
 
     def _get_param_dict(self):
-        print("Passage par l'accesseur de dictionnaire")
+        #print("Passage par l'accesseur de dictionnaire")
         return self._param_dict
 
     param_dict_val = property(_get_param_dict)
@@ -614,13 +625,13 @@ class Chargement():
 
     obtenir_regles = property(_importer_regle)
     
+    #Fonction codées dans les derniers temps. Permet théoriquement d'exporter un .xml des règles activées. Non menée à bout pour les raisons évoquées précédemment. Néanmoisn, la création d'un .xml pour le bon input est fonctionnelle
     def exporter_xml(self, dico_postures_activees_pour_regle_donnee):
         # Prend un argument de la forme dictionnaire {nom_règle_activation:[liste_posture activées]}
         # Create root element
         rootXMLElt = ET.Element("root")
         
         # Add sub element
-        # country = ET.SubElement(root, "country", name="Canada")
         for regle in dico_postures_activees_pour_regle_donnee.keys():
         
             regle_activee = ET.SubElement(rootXMLElt, "regle_activee", name=regle)
@@ -853,6 +864,10 @@ def main():
 
     def lancer_recherche_regles_activees_posture(posture):
         if tab_3_check_but_1_var == 1:
+             # La fonction se lance toute seule sans que je  comprenne pourquoi.
+            #Pour tenter de contrer cela, une checkbox a été introduite (sans succès)
+            #Face aux problèmes de débuggage que cela à causé, les deux fonctions lancer_recherche_regles_activees_posture et _lancer_recherche_posture_activant_regle_selectionnee n'ont pas été codées
+           
             #print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
             print("Objet de type posture de valeur {}".format(sequence.postures[int(tab_3_left_spnbox_1.get())]))
             print("Posture is_activated ? {}".format(posture.regle_activee))
@@ -861,10 +876,13 @@ def main():
 
     def _lancer_recherche_posture_activant_regle_selectionnee(sequence,regle):
         if tab_3_check_but_1_var == 1:
-            # La fonction se lance toute seule sans que je ne comprenne pourquoi
-            print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
+            pass
+            # La fonction se lance toute seule sans que je  comprenne pourquoi.
+            #Pour tenter de contrer cela, une checkbox a été introduite (sans succès)
+            #Face aux problèmes de débuggage que cela à causé, les deux fonctions lancer_recherche_regles_activees_posture et _lancer_recherche_posture_activant_regle_selectionnee n'ont pas été codées
+           ## print("commande lancer_recherche_posture_activant_regle_selectionnee lancée")
 ##            print(sequence.posture_activees(regle))
-            print("Fin de la liste")
+            ##print("Fin de la liste")
 ##            print("Valeur actuelle de la spnbox: {}".format(tab_3_left_spnbox_1.get()))
 ##            print(sequence.posture_activees(regles.get(str(regle))))
             # Pas besoin de test parce qu'une sélection est forcée
@@ -905,7 +923,7 @@ def main():
     fig = Figure(figsize=(5, 4), dpi=100)
     
 
-    canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame )  # A tk.DrawingArea.
+    canvas = FigureCanvasTkAgg(fig, master=tab_2_left_frame ) 
     canvas.draw()
     canvas.get_tk_widget().grid(row=0,column=1)
 
@@ -958,6 +976,7 @@ def main():
     tab_3_left_but_1 = tk.Button(tab_3_left_frame,text="Lancer la recherche",command=print("TEST lancer recherche. Y aura-t-il un appel direct sans en comprendre la cause ?"))
     tab_3_left_but_1.bind('<Double-Button-1>', lancer_recherche_regles_activees_posture)
 ##    tab_3_left_but_1("<Button-1>", lancer_recherche_regles_activees_posture(tab_3_left_spnbox_1.get()))
+##Si cette commande est activée, lancement automatique avec l'apparition de la fenêtre (non-désiré)
     tab_3_left_but_1.grid(row=2,column=0)
 
     tab_3_left_lstbox_1 = tk.Listbox(tab_3_left_frame)

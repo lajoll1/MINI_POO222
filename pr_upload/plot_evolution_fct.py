@@ -1,3 +1,4 @@
+"""
 'Ce fichier est une version antérieure de celle que nous vous avons présentée. Le chargement XML était alors fait de manière itérative et se faisait en deux étapes.
 'Un objet sequence était instancié depuis la class Sequence, et il était accessible dans le main.
 
@@ -14,6 +15,14 @@
 'Vous pouvez cependant tracer l"évolution du paramètre de n"importe quelle articulation, pour peu que le paramètre soit pertinent pour cette articulation.
 'Les évolutions des angles et vitesses/accélérations angulaires sont fonctionnelles mais nécéssitent un temps de calcul plus long : ±1min
 
+De nombreux print sont commentés dans le code suivant. Ils ont eu une vocation de débuggage lors de la création du code.
+Certaines fonctions sont également précédées d'un prototype commenté de la forme:     # bool is_activated(class self, posture posture_a_verifier)
+Celà avait pour but d'assurer une bonne communication entre les fonctions crées par l'un ou l'autre des membres du projet
+
+
+
+
+"""
 
 import xml.etree.ElementTree as ET
 import math
@@ -375,14 +384,18 @@ sequence = Sequence(_creer_postures_list()) # Instanciation d'un objet sequence 
 
 class Regle():
     def __init__(self,mon_nom,ma_description,ma_condition):
+        #Vérification des types entrés avant instanciation réelle
         if isinstance(mon_nom, str) and isinstance(ma_description, str) and (isinstance(ma_condition, Condition_Simple) or isinstance(ma_condition, Condition_Composee)):
             self._nom_regle = mon_nom
             self._description_regle = ma_description
             self._condition_associe = ma_condition
+
     def is_activated(self,posture):
+        #Test du type de l'objet passé en argument
         if isinstance(posture, Posture) or isinstance(posture, Posture):
-            print("Vérification de l'activation de la règle {} ".format(posture))
-        return self._condition_associe.is_activated(posture) 
+            #Ligne de débuggage
+            #print("Vérification de l'activation de la règle {} ".format(posture))
+            return self._condition_associe.is_activated(posture) 
     
 
    
@@ -392,19 +405,19 @@ class Condition_Simple():
 
     # Valeur par défaut pour le seuil si domaine préféré
     def __init__(self,ma_cible,mon_type_de_condition,mon_seuil_ou_domaine,ma_zone_du_corps=""):
-        
+    #Version archaïque de la méthode de test de conditions simples. Tous les cas du fichier de règle v2 avaient été préconçus manuellement et tests sur le tas
+    # L'incompatiblité avec la v3 a donné lieu à un nouveau traitement des règles dans le fichier window + merged.py    
         # Début des tests
         if ma_cible in {"angle","position"}: 
             self._target = ma_cible
         else:
             pass
-            # return "type de cible incorrect"
+
 
         if mon_type_de_condition in {"lower than","greater than","belongs to","belongs to the volume"}:
             self._condition_type = mon_type_de_condition
         else:
             pass
-            # return  "type de condition inconnu"
 
         # Selon le type de condition
         if mon_type_de_condition in {"lower than","greater than"}:
@@ -426,17 +439,12 @@ class Condition_Simple():
         if ma_zone_du_corps in {"Neck","RightForeArm","Spine"}:
             self._target_joint = ma_zone_du_corps
 
-    #int obtenir_angle_depuis_posture(posture posture_a_verifier)
-    #int obtenir_angle_depuis_projection_posture(posture_a_verifier,axe)
-    #2-tuple obtenir_seuil_par_projection_depuis_posture(class posture)
-    #Nécessité de la méthode is_activated dans condition ?
 
     def obtenir_angle_depuis_posture(self,posture):
-
-##        print("Demande de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
+        ##Debug only
+        ##print("Demande de l'angle de l'articulation {} pour la posture {}".format(self._target_joint,posture))
         return posture.obtenir(self._target_joint)
         
-
     # bool is_activated(class self, posture posture_a_verifier)
     def is_activated(self, posture_a_verifier):
         if isinstance(posture_a_verifier, Posture): 
@@ -494,7 +502,7 @@ class Condition_Composee():
 
 
 '_____________Importation_des_règles______________'
-
+#Fonction d'import des règles à proprement parlé. Tous les cas du fichier règles v2 avaient été prépensés et triés selon les attributs du xml.
 def importer_regle(chemin_d_acces_fichier_regles):
     arbreXML= ET.parse(chemin_d_acces_fichier_regles)
     tronc = arbreXML.getroot()
@@ -505,8 +513,8 @@ def importer_regle(chemin_d_acces_fichier_regles):
     for rule in tronc.iter('rule'):
 
         if rule[0].tag == "simple_condition":
-##            print("On ajoute la règle simple {}, de description {}".format(rule.get('name'),rule.get('description')))
-##            print("et associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint')))
+            ##  print("On ajoute la règle simple {}, de description {}".format(rule.get('name'),rule.get('description')))
+            ## print("et associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint')))
             # On suppose le fichier xml bien formaté
             if rule[0].get('condition_type') in {"lower than","greater than"}:
                 ma_condition_simple = Condition_Simple(rule[0].get('target'),rule[0].get('condition_type'),rule[0].get("threshold"),rule[0].get('target_joint'))
@@ -520,24 +528,24 @@ def importer_regle(chemin_d_acces_fichier_regles):
 
         # Faut-il tout mettre en managé ?
         elif rule[0].tag == "composed_condition":
-           
+        #Une condition composée est vue comme liste de conditions simples.   
             liste_conditions_simples = []
 
             for simple_condition in rule[0].iter("simple_condition"):
                 if simple_condition.get('condition_type') in {"lower than","greater than"}:
                     ma_condition_simple=Condition_Simple(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint'))
+                   
                     #print("Condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint')))
                     liste_conditions_simples.append(ma_condition_simple)
                 elif simple_condition.get('condition_type') == "belongs to":
                     ma_condition_simple=Condition_Simple(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("domain"),simple_condition.get('target_joint'))
                     liste_conditions_simples.append(ma_condition_simple)
-            print("liste de conditions simples finale: {}".format(liste_conditions_simples))        
+            #print("liste de conditions simples finale: {}".format(liste_conditions_simples))        
             regles[rule.get('name')]=Regle(rule.get('name'),rule.get('description'),liste_conditions_simples)
             
-            print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
-            print("Associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint')))
+            #print("Début de la règle composée {} de description {}".format(rule.get('name'),rule.get("description")))
+            #print("Associée à la condition simple qui a pour éléments constitutifs sa cible {}, un type de conditions {}, un seuil {} et une zone du corps {}".format(simple_condition.get('target'),simple_condition.get('condition_type'),simple_condition.get("threshold"),simple_condition.get('target_joint')))
 
-##    print(regles)
     return regles
 
 regles = importer_regle("/Users/virgilejamot/Documents/GitHub/MINI_POO222/rules_angles_v1.2.xml")
@@ -562,8 +570,7 @@ from matplotlib.figure import Figure
 def fentre():
     root = tk.Tk()
 
-    # Fonction d'import doublée faute de mieux
-    # Possibilité de complexifier si on sait quel bouton a appelé
+    # Fonction d'import doublée faute de mieux. Appelle la boite de dialogue système.
     def open_postures_file():
         root_txt_zone_1.insert(0, fd.askopenfilename(filetypes = (("Text files","*.xml"),("all files","*.*")))) #restreindre à fichier XML seulement)
 
@@ -577,8 +584,6 @@ def fentre():
 
     root_button_1=tk.Button(root, text = "Importer", command = open_postures_file)
     root_button_1.grid(row=0,column=2)
-
-    print(root_button_1)
 
     tk.Label(root,text="chemin du fichier de règles:").grid(row=1,column=0)
 
